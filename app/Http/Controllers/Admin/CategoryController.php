@@ -38,7 +38,7 @@ class CategoryController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'type' => 'required|in:book,news',
+            'type' => 'required|in:book,news,journal',
         ]);
 
         $validated['slug'] = Str::slug($validated['name']);
@@ -47,6 +47,32 @@ class CategoryController extends Controller
 
         return redirect()->route('admin.categories.index')
             ->with('success', 'Kategori berhasil ditambahkan!');
+    }
+
+    /**
+     * Quick store via AJAX - returns JSON response
+     */
+    public function storeQuick(Request $request)
+    {
+        if (!auth()->check() || !auth()->user()->is_admin) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'type' => 'required|in:book,news,journal',
+        ]);
+
+        $validated['slug'] = Str::slug($validated['name']);
+
+        $category = Category::create($validated);
+
+        return response()->json([
+            'success' => true,
+            'category' => $category,
+            'message' => 'Kategori berhasil ditambahkan!',
+        ]);
     }
 
     public function edit(Category $category)
@@ -67,7 +93,7 @@ class CategoryController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'type' => 'required|in:book,news',
+            'type' => 'required|in:book,news,journal',
         ]);
 
         $validated['slug'] = Str::slug($validated['name']);

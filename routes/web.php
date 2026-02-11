@@ -205,6 +205,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::resource('news', NewsController::class, ['as' => 'admin']);
     Route::resource('journals', JournalController::class, ['as' => 'admin']);
     Route::resource('categories', CategoryController::class, ['as' => 'admin']);
+    Route::post('categories/quick-store', [CategoryController::class, 'storeQuick'])->name('admin.categories.quick-store');
     Route::resource('hero-sliders', HeroSliderController::class, ['as' => 'admin']);
     Route::resource('statistics', StatisticController::class, ['as' => 'admin']);
     Route::resource('menus', MenuController::class, ['as' => 'admin']);
