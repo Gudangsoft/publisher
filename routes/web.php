@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\MenuController;
 use App\Http\Controllers\Admin\PageController as AdminPageController;
 use App\Http\Controllers\Admin\AuthorController;
 use App\Http\Controllers\Admin\ProfileController;
+use App\Http\Controllers\Admin\ThemeController;
 use App\Http\Controllers\MenuController as PublicMenuController;
 
 // Public Routes
@@ -223,4 +224,8 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('profile', [ProfileController::class, 'edit'])->name('admin.profile.edit');
     Route::put('profile', [ProfileController::class, 'update'])->name('admin.profile.update');
     Route::put('profile/password', [ProfileController::class, 'updatePassword'])->name('admin.profile.password');
+
+    // Theme routes
+    Route::get('theme', [ThemeController::class, 'index'])->name('admin.theme.index');
+    Route::put('theme', [ThemeController::class, 'update'])->name('admin.theme.update');
 });

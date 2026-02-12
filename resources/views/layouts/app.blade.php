@@ -12,6 +12,7 @@
         $metaDescription = \App\Models\Setting::get('meta_description', 'Penerbit Primeintellecta - Publisher buku terpercaya dengan koleksi buku berkualitas untuk semua kalangan');
         $metaKeywords = \App\Models\Setting::get('meta_keywords', 'penerbit primeintellecta, primeintellecta publisher, penerbit buku, buku berkualitas, toko buku online');
         $googleAnalytics = \App\Models\Setting::get('google_analytics', '');
+        $themeConfig = \App\Http\Controllers\Admin\ThemeController::getThemeConfig();
     @endphp
     
     <title>@yield('title', $siteName . ' - ' . $siteTagline)</title>
@@ -33,7 +34,7 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family={{ $themeConfig['font']['url'] }}@if($themeConfig['displayFont']['url'])&family={{ $themeConfig['displayFont']['url'] }}@endif&display=swap" rel="stylesheet">
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -42,21 +43,21 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        display: ['Playfair Display', 'serif'],
+                        sans: ['{{ $themeConfig['font']['family'] }}', 'sans-serif'],
+                        display: ['{{ $themeConfig['displayFont']['family'] ?: $themeConfig['font']['family'] }}', 'serif'],
                     },
                     colors: {
                         primary: {
-                            50: '#fef6ee',
-                            100: '#fdebd8',
-                            200: '#fad4b0',
-                            300: '#f6b67d',
-                            400: '#f18d49',
-                            500: '#ee6d26',
-                            600: '#df521c',
-                            700: '#b93d19',
-                            800: '#93321d',
-                            900: '#762b19',
+                            50: '{{ $themeConfig['color']['shades'][50] }}',
+                            100: '{{ $themeConfig['color']['shades'][100] }}',
+                            200: '{{ $themeConfig['color']['shades'][200] }}',
+                            300: '{{ $themeConfig['color']['shades'][300] }}',
+                            400: '{{ $themeConfig['color']['shades'][400] }}',
+                            500: '{{ $themeConfig['color']['shades'][500] }}',
+                            600: '{{ $themeConfig['color']['shades'][600] }}',
+                            700: '{{ $themeConfig['color']['shades'][700] }}',
+                            800: '{{ $themeConfig['color']['shades'][800] }}',
+                            900: '{{ $themeConfig['color']['shades'][900] }}',
                         }
                     }
                 }
@@ -100,6 +101,12 @@
             background-clip: text;
         }
     </style>
+
+    @if($themeConfig['customCss'])
+    <style>
+        {!! $themeConfig['customCss'] !!}
+    </style>
+    @endif
 </head>
 <body class="bg-gray-50 text-gray-900 font-sans antialiased" x-data="{ mobileMenuOpen: false, searchOpen: false }">
     

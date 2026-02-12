@@ -335,6 +335,16 @@
                     </a>
                 </li>
 
+                <!-- Theme & Layout -->
+                <li>
+                    <a href="{{ route('admin.theme.index') }}" class="flex items-center p-3 text-gray-900 rounded-lg hover:bg-primary-50 group {{ request()->routeIs('admin.theme.*') ? 'bg-primary-50 text-primary-700' : '' }}">
+                        <svg class="w-5 h-5 text-gray-500 transition duration-75 group-hover:text-primary-600 {{ request()->routeIs('admin.theme.*') ? 'text-primary-600' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
+                        </svg>
+                        <span :class="sidebarOpen ? 'ml-3' : 'lg:hidden ml-3'">Tema & Layout</span>
+                    </a>
+                </li>
+
                 <!-- Reports -->
                 <li>
                     <a href="{{ route('admin.reports.index') }}" class="flex items-center p-3 text-gray-900 rounded-lg hover:bg-primary-50 group {{ request()->routeIs('admin.reports.*') ? 'bg-primary-50 text-primary-600' : '' }}">
