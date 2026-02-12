@@ -9,16 +9,15 @@
         $siteTagline = \App\Models\Setting::get('site_tagline', 'Penerbit Buku Berkualitas');
         $siteLogo = \App\Models\Setting::get('site_logo', '');
         $siteFavicon = \App\Models\Setting::get('site_favicon', '');
-        $metaDescription = \App\Models\Setting::get('meta_description', 'Publisher buku terpercaya dengan koleksi buku berkualitas untuk semua kalangan');
-        $metaKeywords = \App\Models\Setting::get('meta_keywords', '');
+        $metaDescription = \App\Models\Setting::get('meta_description', 'Penerbit Primeintellecta - Publisher buku terpercaya dengan koleksi buku berkualitas untuk semua kalangan');
+        $metaKeywords = \App\Models\Setting::get('meta_keywords', 'penerbit primeintellecta, primeintellecta publisher, penerbit buku, buku berkualitas, toko buku online');
         $googleAnalytics = \App\Models\Setting::get('google_analytics', '');
     @endphp
     
     <title>@yield('title', $siteName . ' - ' . $siteTagline)</title>
     <meta name="description" content="@yield('meta_description', $metaDescription)">
-    @if($metaKeywords)
     <meta name="keywords" content="{{ $metaKeywords }}">
-    @endif
+    <meta name="author" content="{{ $siteName }}">
     
     <!-- Favicon -->
     @if($siteFavicon)
