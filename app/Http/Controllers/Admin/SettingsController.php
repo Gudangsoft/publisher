@@ -21,6 +21,7 @@ class SettingsController extends Controller
             'site_tagline' => Setting::get('site_tagline', 'Your Ultimate Book Destination'),
             'site_description' => Setting::get('site_description', 'Toko buku online terlengkap dengan koleksi buku dari berbagai genre.'),
             'site_logo' => Setting::get('site_logo', ''),
+            'site_favicon' => Setting::get('site_favicon', ''),
             'contact_email' => Setting::get('contact_email', 'info@publisher.com'),
             'contact_phone' => Setting::get('contact_phone', '+62 21 1234 5678'),
             'contact_address' => Setting::get('contact_address', 'Jl. Sudirman No. 123, Jakarta Pusat, DKI Jakarta 10110'),
@@ -49,6 +50,7 @@ class SettingsController extends Controller
             'site_tagline' => 'nullable|string|max:255',
             'site_description' => 'nullable|string',
             'site_logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'site_favicon' => 'nullable|file|mimes:jpeg,png,jpg,gif,svg,ico,x-icon|max:1024',
             'contact_email' => 'nullable|email|max:255',
             'contact_phone' => 'nullable|string|max:50',
             'contact_address' => 'nullable|string',
@@ -74,6 +76,19 @@ class SettingsController extends Controller
             // Store new logo
             $logoPath = $request->file('site_logo')->store('settings', 'public');
             Setting::set('site_logo', $logoPath, 'image');
+        }
+
+        // Handle favicon upload
+        if ($request->hasFile('site_favicon')) {
+            // Delete old favicon if exists
+            $oldFavicon = Setting::get('site_favicon');
+            if ($oldFavicon && Storage::disk('public')->exists($oldFavicon)) {
+                Storage::disk('public')->delete($oldFavicon);
+            }
+
+            // Store new favicon
+            $faviconPath = $request->file('site_favicon')->store('settings', 'public');
+            Setting::set('site_favicon', $faviconPath, 'image');
         }
 
         // Save all settings
