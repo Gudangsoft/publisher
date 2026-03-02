@@ -37,7 +37,7 @@ class BookController extends Controller
         $data = $request->validate([
             'category_id' => 'nullable|exists:categories,id',
             'title' => 'required|string|max:255',
-            'author' => 'required|string|max:255',
+            'author' => 'required|string|max:1000',
             'publisher' => 'nullable|string|max:255',
             'isbn' => 'nullable|string|max:50',
             'edition' => 'nullable|string|max:100',
@@ -98,7 +98,7 @@ class BookController extends Controller
         $data = $request->validate([
             'category_id' => 'nullable|exists:categories,id',
             'title' => 'required|string|max:255',
-            'author' => 'required|string|max:255',
+            'author' => 'required|string|max:1000',
             'publisher' => 'nullable|string|max:255',
             'isbn' => 'nullable|string|max:50',
             'edition' => 'nullable|string|max:100',
