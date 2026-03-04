@@ -84,7 +84,26 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                             </svg>
                             Informasi Pengaju
+                            @auth
+                            <span class="text-sm font-normal text-green-600 ml-2">(Data terisi dari akun Anda)</span>
+                            @endauth
                         </h2>
+                        
+                        @guest
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                            <div class="flex items-start">
+                                <svg class="w-5 h-5 text-blue-600 mr-3 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                <div>
+                                    <p class="text-sm text-blue-800">
+                                        <a href="{{ route('register') }}" class="font-semibold hover:underline">Daftar akun</a> atau 
+                                        <a href="{{ route('login') }}" class="font-semibold hover:underline">login</a> untuk mempermudah pengajuan dan melacak status naskah Anda.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        @endguest
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
@@ -92,7 +111,7 @@
                                     Nama Lengkap <span class="text-red-500">*</span>
                                 </label>
                                 <input type="text" name="submitter_name" id="submitter_name" 
-                                       value="{{ old('submitter_name') }}" required
+                                       value="{{ old('submitter_name', auth()->user()->name ?? '') }}" required
                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent @error('submitter_name') border-red-500 @enderror"
                                        placeholder="Masukkan nama lengkap Anda">
                                 @error('submitter_name')
@@ -105,7 +124,7 @@
                                     Email <span class="text-red-500">*</span>
                                 </label>
                                 <input type="email" name="submitter_email" id="submitter_email" 
-                                       value="{{ old('submitter_email') }}" required
+                                       value="{{ old('submitter_email', auth()->user()->email ?? '') }}" required
                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent @error('submitter_email') border-red-500 @enderror"
                                        placeholder="email@example.com">
                                 @error('submitter_email')
@@ -118,7 +137,7 @@
                                     Nomor Telepon/WhatsApp <span class="text-red-500">*</span>
                                 </label>
                                 <input type="tel" name="submitter_phone" id="submitter_phone" 
-                                       value="{{ old('submitter_phone') }}" required
+                                       value="{{ old('submitter_phone', auth()->user()->phone ?? '') }}" required
                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent @error('submitter_phone') border-red-500 @enderror"
                                        placeholder="08xxxxxxxxxx">
                                 @error('submitter_phone')
@@ -131,7 +150,7 @@
                                     Institusi/Organisasi
                                 </label>
                                 <input type="text" name="submitter_institution" id="submitter_institution" 
-                                       value="{{ old('submitter_institution') }}"
+                                       value="{{ old('submitter_institution', auth()->user()->institution ?? '') }}"
                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                                        placeholder="Universitas/Perusahaan/dll">
                             </div>
@@ -143,7 +162,7 @@
                             </label>
                             <textarea name="submitter_address" id="submitter_address" rows="2"
                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                                      placeholder="Masukkan alamat lengkap Anda">{{ old('submitter_address') }}</textarea>
+                                      placeholder="Masukkan alamat lengkap Anda">{{ old('submitter_address', auth()->user()->address ?? '') }}</textarea>
                         </div>
                     </div>
 

@@ -213,18 +213,45 @@
                     </button>
                     
                     @auth
+                        @if(auth()->user()->is_admin)
                         <a href="/admin" class="px-4 py-2 rounded-lg text-gray-700 hover:text-primary-600 hover:bg-primary-50 transition-colors duration-200 font-medium">
                             Dashboard
                         </a>
-                        <form method="POST" action="{{ route('logout') }}" class="inline">
-                            @csrf
-                            <button class="px-5 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg font-medium transition-colors duration-200">
-                                Logout
+                        @else
+                        <a href="/submissions/track" class="px-4 py-2 rounded-lg text-gray-700 hover:text-primary-600 hover:bg-primary-50 transition-colors duration-200 font-medium">
+                            Pengajuan Saya
+                        </a>
+                        @endif
+                        <div class="relative" x-data="{ open: false }">
+                            <button @click="open = !open" class="flex items-center px-4 py-2 rounded-lg text-gray-700 hover:text-primary-600 hover:bg-primary-50 transition-colors duration-200 font-medium">
+                                <span>{{ auth()->user()->name }}</span>
+                                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
                             </button>
-                        </form>
+                            <div x-show="open" @click.away="open = false" 
+                                 class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50">
+                                <a href="/submissions/create" class="block px-4 py-2 text-gray-700 hover:bg-primary-50">
+                                    Ajukan Naskah Baru
+                                </a>
+                                <a href="/submissions/track" class="block px-4 py-2 text-gray-700 hover:bg-primary-50">
+                                    Lacak Pengajuan
+                                </a>
+                                <hr class="my-2">
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button class="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50">
+                                        Logout
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
                     @else
-                        <a href="{{ route('login') }}" class="px-5 py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white rounded-lg font-medium shadow-md hover:shadow-lg transition-all duration-200">
+                        <a href="{{ route('login') }}" class="px-4 py-2 rounded-lg text-gray-700 hover:text-primary-600 hover:bg-primary-50 transition-colors duration-200 font-medium">
                             Login
+                        </a>
+                        <a href="{{ route('register') }}" class="px-5 py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white rounded-lg font-medium shadow-md hover:shadow-lg transition-all duration-200">
+                            Daftar
                         </a>
                     @endauth
                 </div>
@@ -290,13 +317,23 @@
                     <a href="/contact" class="block px-4 py-3 rounded-lg text-gray-700 hover:bg-primary-50 hover:text-primary-600 font-medium">Kontak</a>
                     <a href="/submissions/create" class="block px-4 py-3 rounded-lg bg-primary-600 text-white hover:bg-primary-700 font-medium text-center mt-2">Ajukan Naskah</a>
                     @auth
-                        <a href="/admin" class="block px-4 py-3 rounded-lg text-gray-700 hover:bg-primary-50 hover:text-primary-600 font-medium">Dashboard</a>
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <button class="w-full text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-red-50 hover:text-red-600 font-medium">Logout</button>
-                        </form>
+                        <div class="mt-4 pt-4 border-t border-gray-200">
+                            <p class="px-4 text-sm text-gray-500 mb-2">Masuk sebagai: {{ auth()->user()->name }}</p>
+                            @if(auth()->user()->is_admin)
+                            <a href="/admin" class="block px-4 py-3 rounded-lg text-gray-700 hover:bg-primary-50 hover:text-primary-600 font-medium">Dashboard Admin</a>
+                            @else
+                            <a href="/submissions/track" class="block px-4 py-3 rounded-lg text-gray-700 hover:bg-primary-50 hover:text-primary-600 font-medium">Pengajuan Saya</a>
+                            @endif
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button class="w-full text-left px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 font-medium">Logout</button>
+                            </form>
+                        </div>
                     @else
-                        <a href="{{ route('login') }}" class="block mx-4 mt-2 px-4 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-lg font-medium text-center">Login</a>
+                        <div class="mt-4 pt-4 border-t border-gray-200 space-y-2">
+                            <a href="{{ route('login') }}" class="block mx-4 px-4 py-3 border border-primary-600 text-primary-600 rounded-lg font-medium text-center hover:bg-primary-50">Login</a>
+                            <a href="{{ route('register') }}" class="block mx-4 px-4 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-lg font-medium text-center">Daftar Akun</a>
+                        </div>
                     @endauth
                 </div>
             </div>
