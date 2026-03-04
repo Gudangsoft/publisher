@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Submission;
+use App\Mail\SubmissionStatusUpdated;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Mail;
 
 class SubmissionController extends Controller
 {
@@ -69,17 +71,30 @@ class SubmissionController extends Controller
         }
         
         $data = $request->validate([
-            'status' => 'required|in:pending,reviewing,revision,approved,rejected,in_progress,completed',
+            'status' => 'required|in:pending,reviewing,revision,approved,rejected,in_progress,completed,in_review,revision_required,in_production',
             'admin_notes' => 'nullable|string',
             'revision_notes' => 'nullable|string',
             'estimated_cost' => 'nullable|numeric|min:0',
             'print_quantity' => 'nullable|integer|min:1',
         ]);
         
+        $oldStatus = $submission->status;
+        $newStatus = $data['status'];
+        
         $data['reviewed_by'] = auth()->id();
         $data['reviewed_at'] = now();
         
         $submission->update($data);
+        
+        // Send email notification if status changed
+        if ($oldStatus !== $newStatus) {
+            try {
+                Mail::to($submission->submitter_email)
+                    ->send(new SubmissionStatusUpdated($submission, $oldStatus, $newStatus));
+            } catch (\Exception $e) {
+                \Log::error('Failed to send submission status update email: ' . $e->getMessage());
+            }
+        }
         
         return redirect()->route('admin.submissions.show', $submission)
             ->with('success', 'Status pengajuan berhasil diperbarui');

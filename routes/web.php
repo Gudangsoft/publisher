@@ -20,8 +20,12 @@ use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\ThemeController;
 use App\Http\Controllers\Admin\SubmissionController as AdminSubmissionController;
 use App\Http\Controllers\Admin\BookTemplateController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\ExportController;
 use App\Http\Controllers\MenuController as PublicMenuController;
 use App\Http\Controllers\SubmissionController;
+use App\Http\Controllers\UserDashboardController;
+use App\Http\Controllers\InvoiceController;
 
 // Public Routes
 Route::get('/', function () {
@@ -211,9 +215,20 @@ Route::get('/register', [AuthController::class, 'showRegister'])->name('register
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+// User Dashboard routes (for logged-in users)
+Route::middleware('auth')->prefix('dashboard')->name('user.')->group(function () {
+    Route::get('/', [UserDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/submissions', [UserDashboardController::class, 'submissions'])->name('submissions');
+    Route::get('/submissions/{id}', [UserDashboardController::class, 'showSubmission'])->name('submissions.show');
+    Route::get('/orders', [UserDashboardController::class, 'orders'])->name('orders');
+    Route::get('/orders/{id}', [UserDashboardController::class, 'showOrder'])->name('orders.show');
+    Route::get('/orders/{id}/invoice', [InvoiceController::class, 'downloadUserInvoice'])->name('orders.invoice');
+    Route::get('/orders/{id}/invoice/view', [InvoiceController::class, 'streamInvoice'])->name('orders.invoice.view');
+});
+
 // Admin routes (simple admin check is implemented in controllers)
 Route::prefix('admin')->middleware('auth')->group(function () {
-    Route::get('/', function () { return view('admin.dashboard'); })->name('admin.dashboard');
+    Route::get('/', [DashboardController::class, 'index'])->name('admin.dashboard');
 
     Route::resource('books', BookController::class, ['as' => 'admin']);
     Route::resource('news', NewsController::class, ['as' => 'admin']);
@@ -228,9 +243,16 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::resource('reviews', ReviewController::class, ['as' => 'admin']);
     Route::resource('users', UserController::class, ['as' => 'admin']);
     Route::resource('orders', OrderController::class, ['as' => 'admin'])->only(['index', 'show', 'update', 'destroy']);
+    Route::get('orders/{order}/invoice', [InvoiceController::class, 'downloadAdminInvoice'])->name('admin.orders.invoice');
     Route::get('settings', [SettingsController::class, 'index'])->name('admin.settings.index');
     Route::post('settings', [SettingsController::class, 'update'])->name('admin.settings.update');
     Route::get('reports', [ReportController::class, 'index'])->name('admin.reports.index');
+
+    // Export routes
+    Route::get('export/orders', [ExportController::class, 'orders'])->name('admin.export.orders');
+    Route::get('export/submissions', [ExportController::class, 'submissions'])->name('admin.export.submissions');
+    Route::get('export/books', [ExportController::class, 'books'])->name('admin.export.books');
+    Route::get('export/users', [ExportController::class, 'users'])->name('admin.export.users');
 
     // Profile routes
     Route::get('profile', [ProfileController::class, 'edit'])->name('admin.profile.edit');

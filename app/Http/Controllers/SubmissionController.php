@@ -6,7 +6,9 @@ use Illuminate\Http\Request;
 use App\Models\Submission;
 use App\Models\Category;
 use App\Models\BookTemplate;
+use App\Mail\SubmissionReceived;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Mail;
 
 class SubmissionController extends Controller
 {
@@ -84,6 +86,14 @@ class SubmissionController extends Controller
         }
 
         $submission = Submission::create($data);
+
+        // Send confirmation email
+        try {
+            Mail::to($submission->submitter_email)->send(new SubmissionReceived($submission));
+        } catch (\Exception $e) {
+            // Log error but don't fail the submission
+            \Log::error('Failed to send submission confirmation email: ' . $e->getMessage());
+        }
 
         return redirect()->route('submissions.success', $submission->submission_number)
             ->with('success', 'Pengajuan berhasil dikirim!');

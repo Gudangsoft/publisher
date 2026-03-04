@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use Illuminate\Http\Request;
+use App\Mail\OrderStatusUpdated;
+use Illuminate\Support\Facades\Mail;
 
 class OrderController extends Controller
 {
@@ -68,7 +70,20 @@ class OrderController extends Controller
             'payment_status' => 'required|in:unpaid,paid,refunded',
         ]);
         
+        $oldStatus = $order->status;
+        $newStatus = $validated['status'];
+        
         $order->update($validated);
+        
+        // Send email notification if status changed
+        if ($oldStatus !== $newStatus) {
+            try {
+                Mail::to($order->customer_email)
+                    ->send(new OrderStatusUpdated($order, $oldStatus, $newStatus));
+            } catch (\Exception $e) {
+                \Log::error('Failed to send order status update email: ' . $e->getMessage());
+            }
+        }
         
         return redirect()->route('admin.orders.show', $order)->with('success', 'Status pesanan berhasil diperbarui');
     }
