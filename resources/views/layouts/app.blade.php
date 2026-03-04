@@ -100,6 +100,80 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
+        
+        /* Modern Navigation Styles */
+        .nav-link {
+            position: relative;
+            overflow: hidden;
+        }
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--tw-gradient-from), var(--tw-gradient-to));
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+        .nav-link:hover::before {
+            width: 80%;
+        }
+        .nav-link.active::before {
+            width: 80%;
+        }
+        
+        /* Glassmorphism effect */
+        .glass-nav {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.85);
+        }
+        .glass-nav.scrolled {
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Mega Menu Animation */
+        .mega-menu {
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .mega-menu.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        /* Pulse animation for CTA */
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(238, 109, 38, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(238, 109, 38, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(238, 109, 38, 0); }
+        }
+        .cta-pulse {
+            animation: pulse-ring 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+        }
+        
+        /* Icon hover effect */
+        .icon-hover {
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
+        .icon-hover:hover {
+            transform: scale(1.1) rotate(5deg);
+        }
+        
+        /* Category card hover */
+        .category-card {
+            transition: all 0.3s ease;
+        }
+        .category-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
     </style>
 
     @if($themeConfig['customCss'])
@@ -108,156 +182,314 @@
     </style>
     @endif
 </head>
-<body class="bg-gray-50 text-gray-900 font-sans antialiased" x-data="{ mobileMenuOpen: false, searchOpen: false }">
+<body class="bg-gray-50 text-gray-900 font-sans antialiased" x-data="{ mobileMenuOpen: false, searchOpen: false, megaMenuOpen: false }">
     
     <!-- Header/Navigation -->
-    <header class="fixed w-full top-0 z-50 bg-white shadow-sm border-b border-gray-100 transition-all duration-300">
+    <header class="fixed w-full top-0 z-50 glass-nav border-b border-gray-100/50 transition-all duration-500" 
+            x-data="{ scrolled: false }"
+            @scroll.window="scrolled = (window.pageYOffset > 50)"
+            :class="{ 'scrolled': scrolled }">
+        
+        <!-- Top Bar (optional promotional bar) -->
+        <div class="bg-gradient-to-r from-primary-600 via-primary-500 to-primary-600 text-white text-center py-2 text-sm font-medium">
+            <span class="inline-flex items-center gap-2">
+                <svg class="w-4 h-4 animate-pulse" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                </svg>
+                Selamat datang di {{ $siteName }} — Penerbit Buku Terpercaya
+                <svg class="w-4 h-4 animate-pulse" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                </svg>
+            </span>
+        </div>
+        
         <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-20">
                 <!-- Logo -->
                 <div class="flex items-center">
                     <a href="/" class="flex items-center space-x-3 group">
                         @if($siteLogo)
-                        <div class="h-16 rounded-lg overflow-hidden shadow-lg group-hover:scale-105 transition-transform duration-200">
+                        <div class="h-14 rounded-xl overflow-hidden shadow-lg group-hover:shadow-xl group-hover:scale-105 transition-all duration-300 ring-2 ring-primary-100">
                             <img src="{{ asset('storage/' . $siteLogo) }}" alt="{{ $siteName }}" class="h-full w-auto object-contain">
                         </div>
                         @else
-                        <div class="bg-gradient-to-br from-primary-500 to-primary-700 p-2.5 rounded-lg shadow-lg group-hover:scale-105 transition-transform duration-200">
-                            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                            </svg>
+                        <div class="relative">
+                            <div class="absolute inset-0 bg-gradient-to-br from-primary-400 to-primary-600 rounded-xl blur-lg opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                            <div class="relative bg-gradient-to-br from-primary-500 to-primary-700 p-3 rounded-xl shadow-lg group-hover:shadow-xl group-hover:scale-105 transition-all duration-300">
+                                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                                </svg>
+                            </div>
                         </div>
                         @endif
                         <div>
-                            <span class="text-2xl font-display font-bold text-gray-900">{{ $siteName }}</span>
-                            <p class="text-xs text-gray-500 -mt-1">{{ $siteTagline }}</p>
+                            <span class="text-2xl font-display font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">{{ $siteName }}</span>
+                            <p class="text-xs text-gray-500 font-medium tracking-wide">{{ $siteTagline }}</p>
                         </div>
                     </a>
                 </div>
 
                 <!-- Desktop Navigation -->
                 <div class="hidden lg:flex items-center space-x-1">
-                    <a href="/" class="px-4 py-2 rounded-lg text-gray-700 hover:text-primary-600 hover:bg-primary-50 transition-colors duration-200 font-medium">
+                    <a href="/" class="nav-link px-4 py-2 rounded-xl text-gray-700 hover:text-primary-600 hover:bg-gradient-to-r hover:from-primary-50 hover:to-transparent transition-all duration-300 font-medium flex items-center gap-2 group {{ request()->is('/') ? 'text-primary-600 bg-primary-50' : '' }}">
+                        <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                        </svg>
                         Beranda
                     </a>
-                    <a href="/books" class="px-4 py-2 rounded-lg text-gray-700 hover:text-primary-600 hover:bg-primary-50 transition-colors duration-200 font-medium">
+                    <a href="/books" class="nav-link px-4 py-2 rounded-xl text-gray-700 hover:text-primary-600 hover:bg-gradient-to-r hover:from-primary-50 hover:to-transparent transition-all duration-300 font-medium flex items-center gap-2 group {{ request()->is('books*') ? 'text-primary-600 bg-primary-50' : '' }}">
+                        <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                        </svg>
                         Katalog Buku
                     </a>
                     
-                    <!-- Kategori Dropdown -->
-                    <div x-data="{ open: false }" class="relative">
-                        <button @click="open = !open" @click.away="open = false" class="px-4 py-2 rounded-lg text-gray-700 hover:text-primary-600 hover:bg-primary-50 transition-colors duration-200 font-medium flex items-center space-x-1">
+                    <!-- Mega Menu Kategori -->
+                    <div class="relative" x-data="{ open: false }" @mouseenter="open = true" @mouseleave="open = false">
+                        <button class="nav-link px-4 py-2 rounded-xl text-gray-700 hover:text-primary-600 hover:bg-gradient-to-r hover:from-primary-50 hover:to-transparent transition-all duration-300 font-medium flex items-center gap-2 group">
+                            <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+                            </svg>
                             <span>Kategori</span>
-                            <svg class="w-4 h-4 transition-transform duration-200" :class="{'rotate-180': open}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-4 h-4 transition-transform duration-300" :class="{'rotate-180': open}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                             </svg>
                         </button>
+                        
+                        <!-- Mega Menu Content -->
                         <div x-show="open" 
-                             x-transition:enter="transition ease-out duration-200"
-                             x-transition:enter-start="opacity-0 scale-95"
-                             x-transition:enter-end="opacity-100 scale-100"
-                             x-transition:leave="transition ease-in duration-150"
-                             x-transition:leave-start="opacity-100 scale-100"
-                             x-transition:leave-end="opacity-0 scale-95"
-                             class="absolute left-0 mt-2 w-64 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50">
-                            <div class="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">Kategori Buku</div>
-                            @foreach(\App\Models\Category::where('type', 'book')->orderBy('name')->get() as $category)
-                            <a href="/books?category={{ $category->id }}" class="block px-4 py-2 text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors duration-150">
-                                {{ $category->name }}
-                            </a>
-                            @endforeach
-                            <div class="border-t border-gray-200 my-2"></div>
-                            <div class="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">Kategori Berita</div>
-                            @foreach(\App\Models\Category::where('type', 'news')->orderBy('name')->get() as $category)
-                            <a href="/news?category={{ $category->id }}" class="block px-4 py-2 text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors duration-150">
-                                {{ $category->name }}
-                            </a>
-                            @endforeach
-                            <div class="border-t border-gray-200 my-2"></div>
-                            <div class="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">Kategori Journal</div>
-                            @foreach(\App\Models\Category::where('type', 'journal')->orderBy('name')->get() as $category)
-                            <a href="/journals?category={{ $category->id }}" class="block px-4 py-2 text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors duration-150">
-                                {{ $category->name }}
-                            </a>
-                            @endforeach
+                             x-transition:enter="transition ease-out duration-300"
+                             x-transition:enter-start="opacity-0 translate-y-2"
+                             x-transition:enter-end="opacity-100 translate-y-0"
+                             x-transition:leave="transition ease-in duration-200"
+                             x-transition:leave-start="opacity-100 translate-y-0"
+                             x-transition:leave-end="opacity-0 translate-y-2"
+                             class="absolute left-1/2 -translate-x-1/2 mt-2 w-[700px] bg-white rounded-2xl shadow-2xl border border-gray-100 p-6 z-50">
+                            
+                            <div class="grid grid-cols-3 gap-6">
+                                <!-- Kategori Buku -->
+                                <div>
+                                    <div class="flex items-center gap-2 mb-4 pb-2 border-b border-gray-100">
+                                        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                                            </svg>
+                                        </div>
+                                        <h4 class="font-bold text-gray-900">Buku</h4>
+                                    </div>
+                                    <div class="space-y-1">
+                                        @foreach(\App\Models\Category::where('type', 'book')->orderBy('name')->take(6)->get() as $category)
+                                        <a href="/books?category={{ $category->id }}" class="category-card flex items-center gap-2 px-3 py-2 rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition-all duration-200">
+                                            <svg class="w-4 h-4 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                                            </svg>
+                                            {{ $category->name }}
+                                        </a>
+                                        @endforeach
+                                        <a href="/books" class="flex items-center gap-2 px-3 py-2 rounded-lg text-blue-600 hover:bg-blue-50 font-medium mt-2">
+                                            Lihat Semua Buku →
+                                        </a>
+                                    </div>
+                                </div>
+                                
+                                <!-- Kategori Berita -->
+                                <div>
+                                    <div class="flex items-center gap-2 mb-4 pb-2 border-b border-gray-100">
+                                        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center">
+                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
+                                            </svg>
+                                        </div>
+                                        <h4 class="font-bold text-gray-900">Berita</h4>
+                                    </div>
+                                    <div class="space-y-1">
+                                        @foreach(\App\Models\Category::where('type', 'news')->orderBy('name')->take(6)->get() as $category)
+                                        <a href="/news?category={{ $category->id }}" class="category-card flex items-center gap-2 px-3 py-2 rounded-lg text-gray-600 hover:bg-green-50 hover:text-green-600 transition-all duration-200">
+                                            <svg class="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                                            </svg>
+                                            {{ $category->name }}
+                                        </a>
+                                        @endforeach
+                                        <a href="/news" class="flex items-center gap-2 px-3 py-2 rounded-lg text-green-600 hover:bg-green-50 font-medium mt-2">
+                                            Lihat Semua Berita →
+                                        </a>
+                                    </div>
+                                </div>
+                                
+                                <!-- Kategori Jurnal -->
+                                <div>
+                                    <div class="flex items-center gap-2 mb-4 pb-2 border-b border-gray-100">
+                                        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
+                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                            </svg>
+                                        </div>
+                                        <h4 class="font-bold text-gray-900">Jurnal</h4>
+                                    </div>
+                                    <div class="space-y-1">
+                                        @foreach(\App\Models\Category::where('type', 'journal')->orderBy('name')->take(6)->get() as $category)
+                                        <a href="/journals?category={{ $category->id }}" class="category-card flex items-center gap-2 px-3 py-2 rounded-lg text-gray-600 hover:bg-purple-50 hover:text-purple-600 transition-all duration-200">
+                                            <svg class="w-4 h-4 text-purple-400" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                                            </svg>
+                                            {{ $category->name }}
+                                        </a>
+                                        @endforeach
+                                        <a href="/journals" class="flex items-center gap-2 px-3 py-2 rounded-lg text-purple-600 hover:bg-purple-50 font-medium mt-2">
+                                            Lihat Semua Jurnal →
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Featured Banner -->
+                            <div class="mt-6 pt-6 border-t border-gray-100">
+                                <a href="/submissions/create" class="flex items-center justify-between p-4 bg-gradient-to-r from-primary-50 to-orange-50 rounded-xl hover:from-primary-100 hover:to-orange-100 transition-all duration-300 group">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-lg">
+                                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h5 class="font-bold text-gray-900">Punya Naskah untuk Diterbitkan?</h5>
+                                            <p class="text-sm text-gray-600">Ajukan naskah Anda sekarang dan wujudkan impian menjadi penulis!</p>
+                                        </div>
+                                    </div>
+                                    <svg class="w-6 h-6 text-primary-600 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                                    </svg>
+                                </a>
+                            </div>
                         </div>
                     </div>
                     
-                    <a href="/news" class="px-4 py-2 rounded-lg text-gray-700 hover:text-primary-600 hover:bg-primary-50 transition-colors duration-200 font-medium">
+                    <a href="/news" class="nav-link px-4 py-2 rounded-xl text-gray-700 hover:text-primary-600 hover:bg-gradient-to-r hover:from-primary-50 hover:to-transparent transition-all duration-300 font-medium flex items-center gap-2 group {{ request()->is('news*') ? 'text-primary-600 bg-primary-50' : '' }}">
+                        <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
+                        </svg>
                         Berita
                     </a>
-                    <a href="/journals" class="px-4 py-2 rounded-lg text-gray-700 hover:text-primary-600 hover:bg-primary-50 transition-colors duration-200 font-medium">
+                    <a href="/journals" class="nav-link px-4 py-2 rounded-xl text-gray-700 hover:text-primary-600 hover:bg-gradient-to-r hover:from-primary-50 hover:to-transparent transition-all duration-300 font-medium flex items-center gap-2 group {{ request()->is('journals*') ? 'text-primary-600 bg-primary-50' : '' }}">
+                        <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
                         Jurnal
                     </a>
-                    <a href="/authors" class="px-4 py-2 rounded-lg text-gray-700 hover:text-primary-600 hover:bg-primary-50 transition-colors duration-200 font-medium">
+                    <a href="/authors" class="nav-link px-4 py-2 rounded-xl text-gray-700 hover:text-primary-600 hover:bg-gradient-to-r hover:from-primary-50 hover:to-transparent transition-all duration-300 font-medium flex items-center gap-2 group {{ request()->is('authors*') ? 'text-primary-600 bg-primary-50' : '' }}">
+                        <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
                         Penulis
                     </a>
-                    <a href="/about" class="px-4 py-2 rounded-lg text-gray-700 hover:text-primary-600 hover:bg-primary-50 transition-colors duration-200 font-medium">
-                        Tentang Kami
+                    <a href="/about" class="nav-link px-4 py-2 rounded-xl text-gray-700 hover:text-primary-600 hover:bg-gradient-to-r hover:from-primary-50 hover:to-transparent transition-all duration-300 font-medium flex items-center gap-2 group {{ request()->is('about*') ? 'text-primary-600 bg-primary-50' : '' }}">
+                        <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Tentang
                     </a>
-                    <a href="/contact" class="px-4 py-2 rounded-lg text-gray-700 hover:text-primary-600 hover:bg-primary-50 transition-colors duration-200 font-medium">
+                    <a href="/contact" class="nav-link px-4 py-2 rounded-xl text-gray-700 hover:text-primary-600 hover:bg-gradient-to-r hover:from-primary-50 hover:to-transparent transition-all duration-300 font-medium flex items-center gap-2 group {{ request()->is('contact*') ? 'text-primary-600 bg-primary-50' : '' }}">
+                        <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
                         Kontak
                     </a>
-                    <a href="/submissions/create" class="px-4 py-2 rounded-lg bg-primary-600 text-white hover:bg-primary-700 transition-colors duration-200 font-medium">
+                    
+                    <!-- CTA Button with animation -->
+                    <a href="/submissions/create" class="relative ml-2 px-5 py-2.5 bg-gradient-to-r from-primary-500 via-primary-600 to-primary-500 bg-size-200 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 flex items-center gap-2 group cta-pulse">
+                        <svg class="w-5 h-5 group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                        </svg>
                         Ajukan Naskah
                     </a>
                 </div>
 
                 <!-- Right Side Menu -->
-                <div class="hidden lg:flex items-center space-x-4">
+                <div class="hidden lg:flex items-center space-x-3">
                     <!-- Search Button -->
-                    <button @click="searchOpen = !searchOpen" class="p-2 rounded-lg text-gray-600 hover:text-primary-600 hover:bg-primary-50 transition-colors duration-200">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <button @click="searchOpen = !searchOpen" class="p-3 rounded-xl text-gray-600 hover:text-primary-600 hover:bg-primary-50 transition-all duration-300 icon-hover">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                         </svg>
                     </button>
                     
                     @auth
                         @if(auth()->user()->is_admin)
-                        <a href="/admin" class="px-4 py-2 rounded-lg text-gray-700 hover:text-primary-600 hover:bg-primary-50 transition-colors duration-200 font-medium">
+                        <a href="/admin" class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-gray-100 to-gray-50 text-gray-700 hover:from-primary-100 hover:to-primary-50 hover:text-primary-700 transition-all duration-300 font-medium shadow-sm">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
+                            </svg>
                             Dashboard
                         </a>
                         @else
-                        <a href="/submissions/track" class="px-4 py-2 rounded-lg text-gray-700 hover:text-primary-600 hover:bg-primary-50 transition-colors duration-200 font-medium">
-                            Pengajuan Saya
+                        <a href="/user/dashboard" class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-gray-100 to-gray-50 text-gray-700 hover:from-primary-100 hover:to-primary-50 hover:text-primary-700 transition-all duration-300 font-medium shadow-sm">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                            </svg>
+                            Dashboard Saya
                         </a>
                         @endif
                         <div class="relative" x-data="{ open: false }">
-                            <button @click="open = !open" class="flex items-center px-4 py-2 rounded-lg text-gray-700 hover:text-primary-600 hover:bg-primary-50 transition-colors duration-200 font-medium">
-                                <span>{{ auth()->user()->name }}</span>
-                                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <button @click="open = !open" class="flex items-center gap-2 px-3 py-2 rounded-xl text-gray-700 hover:bg-gray-100 transition-all duration-200">
+                                <div class="w-9 h-9 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center text-white font-bold shadow-md">
+                                    {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                                </div>
+                                <svg class="w-4 h-4 transition-transform duration-200" :class="{'rotate-180': open}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                                 </svg>
                             </button>
                             <div x-show="open" @click.away="open = false" 
-                                 class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50">
-                                <a href="/submissions/create" class="block px-4 py-2 text-gray-700 hover:bg-primary-50">
+                                 x-transition:enter="transition ease-out duration-200"
+                                 x-transition:enter-start="opacity-0 scale-95"
+                                 x-transition:enter-end="opacity-100 scale-100"
+                                 class="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50 overflow-hidden">
+                                <div class="px-4 py-3 border-b border-gray-100 bg-gray-50">
+                                    <p class="text-sm font-semibold text-gray-900">{{ auth()->user()->name }}</p>
+                                    <p class="text-xs text-gray-500">{{ auth()->user()->email }}</p>
+                                </div>
+                                <a href="/submissions/create" class="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                    </svg>
                                     Ajukan Naskah Baru
                                 </a>
-                                <a href="/submissions/track" class="block px-4 py-2 text-gray-700 hover:bg-primary-50">
+                                <a href="/submissions/track" class="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                                    </svg>
                                     Lacak Pengajuan
                                 </a>
-                                <hr class="my-2">
+                                <hr class="my-2 border-gray-100">
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
-                                    <button class="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50">
+                                    <button class="w-full flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 transition-colors">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                                        </svg>
                                         Logout
                                     </button>
                                 </form>
                             </div>
                         </div>
                     @else
-                        <a href="{{ route('login') }}" class="px-4 py-2 rounded-lg text-gray-700 hover:text-primary-600 hover:bg-primary-50 transition-colors duration-200 font-medium">
+                        <a href="{{ route('login') }}" class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-gray-700 hover:text-primary-600 hover:bg-primary-50 transition-all duration-300 font-medium">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+                            </svg>
                             Login
                         </a>
-                        <a href="{{ route('register') }}" class="px-5 py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white rounded-lg font-medium shadow-md hover:shadow-lg transition-all duration-200">
+                        <a href="{{ route('register') }}" class="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-gray-900 to-gray-700 hover:from-primary-600 hover:to-primary-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                            </svg>
                             Daftar
                         </a>
                     @endauth
                 </div>
 
                 <!-- Mobile Menu Button -->
-                <button @click="mobileMenuOpen = !mobileMenuOpen" class="lg:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100">
+                <button @click="mobileMenuOpen = !mobileMenuOpen" class="lg:hidden p-2.5 rounded-xl text-gray-600 hover:bg-gray-100 transition-colors">
                     <svg x-show="!mobileMenuOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                     </svg>
@@ -269,98 +501,232 @@
 
             <!-- Mobile Menu -->
             <div x-show="mobileMenuOpen" 
-                 x-transition:enter="transition ease-out duration-200"
-                 x-transition:enter-start="opacity-0 scale-95"
-                 x-transition:enter-end="opacity-100 scale-100"
-                 x-transition:leave="transition ease-in duration-150"
-                 x-transition:leave-start="opacity-100 scale-100"
-                 x-transition:leave-end="opacity-0 scale-95"
-                 class="lg:hidden pb-4 border-t border-gray-100 mt-2">
-                <div class="space-y-1 pt-2">
-                    <a href="/" class="block px-4 py-3 rounded-lg text-gray-700 hover:bg-primary-50 hover:text-primary-600 font-medium">Beranda</a>
-                    <a href="/books" class="block px-4 py-3 rounded-lg text-gray-700 hover:bg-primary-50 hover:text-primary-600 font-medium">Katalog Buku</a>
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 -translate-y-4"
+                 x-transition:enter-end="opacity-100 translate-y-0"
+                 x-transition:leave="transition ease-in duration-200"
+                 x-transition:leave-start="opacity-100 translate-y-0"
+                 x-transition:leave-end="opacity-0 -translate-y-4"
+                 class="lg:hidden pb-6 border-t border-gray-100 mt-2 bg-white/95 backdrop-blur-lg">
+                <div class="space-y-1 pt-4 px-2">
+                    <a href="/" class="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-primary-50 hover:text-primary-600 font-medium transition-all {{ request()->is('/') ? 'bg-primary-50 text-primary-600' : '' }}">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                        </svg>
+                        Beranda
+                    </a>
+                    <a href="/books" class="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-primary-50 hover:text-primary-600 font-medium transition-all {{ request()->is('books*') ? 'bg-primary-50 text-primary-600' : '' }}">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                        </svg>
+                        Katalog Buku
+                    </a>
                     
                     <!-- Kategori Mobile Menu -->
                     <div x-data="{ categoryOpen: false }">
-                        <button @click="categoryOpen = !categoryOpen" class="w-full text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-primary-50 hover:text-primary-600 font-medium flex items-center justify-between">
-                            <span>Kategori</span>
-                            <svg class="w-4 h-4 transition-transform duration-200" :class="{'rotate-180': categoryOpen}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <button @click="categoryOpen = !categoryOpen" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-gray-700 hover:bg-primary-50 hover:text-primary-600 font-medium transition-all">
+                            <div class="flex items-center gap-3">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+                                </svg>
+                                <span>Kategori</span>
+                            </div>
+                            <svg class="w-5 h-5 transition-transform duration-300" :class="{'rotate-180': categoryOpen}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                             </svg>
                         </button>
-                        <div x-show="categoryOpen" x-transition class="pl-4 space-y-1 mt-1">
-                            <div class="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">Kategori Buku</div>
-                            @foreach(\App\Models\Category::where('type', 'book')->orderBy('name')->get() as $category)
-                            <a href="/books?category={{ $category->id }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-primary-50 hover:text-primary-600 rounded-lg">
+                        <div x-show="categoryOpen" x-transition class="mt-2 ml-4 space-y-2 border-l-2 border-primary-200 pl-4">
+                            <div class="py-2 text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2">
+                                <div class="w-6 h-6 rounded-md bg-blue-100 flex items-center justify-center">
+                                    <svg class="w-3 h-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                                    </svg>
+                                </div>
+                                Kategori Buku
+                            </div>
+                            @foreach(\App\Models\Category::where('type', 'book')->orderBy('name')->take(5)->get() as $category)
+                            <a href="/books?category={{ $category->id }}" class="block px-3 py-2 text-sm text-gray-600 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors">
                                 {{ $category->name }}
                             </a>
                             @endforeach
-                            <div class="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mt-2">Kategori Berita</div>
-                            @foreach(\App\Models\Category::where('type', 'news')->orderBy('name')->get() as $category)
-                            <a href="/news?category={{ $category->id }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-primary-50 hover:text-primary-600 rounded-lg">
+                            
+                            <div class="py-2 text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2 mt-3">
+                                <div class="w-6 h-6 rounded-md bg-green-100 flex items-center justify-center">
+                                    <svg class="w-3 h-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
+                                    </svg>
+                                </div>
+                                Kategori Berita
+                            </div>
+                            @foreach(\App\Models\Category::where('type', 'news')->orderBy('name')->take(5)->get() as $category)
+                            <a href="/news?category={{ $category->id }}" class="block px-3 py-2 text-sm text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg transition-colors">
                                 {{ $category->name }}
                             </a>
                             @endforeach
-                            <div class="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mt-2">Kategori Journal</div>
-                            @foreach(\App\Models\Category::where('type', 'journal')->orderBy('name')->get() as $category)
-                            <a href="/journals?category={{ $category->id }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-primary-50 hover:text-primary-600 rounded-lg">
+                            
+                            <div class="py-2 text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2 mt-3">
+                                <div class="w-6 h-6 rounded-md bg-purple-100 flex items-center justify-center">
+                                    <svg class="w-3 h-3 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                    </svg>
+                                </div>
+                                Kategori Jurnal
+                            </div>
+                            @foreach(\App\Models\Category::where('type', 'journal')->orderBy('name')->take(5)->get() as $category)
+                            <a href="/journals?category={{ $category->id }}" class="block px-3 py-2 text-sm text-gray-600 hover:bg-purple-50 hover:text-purple-600 rounded-lg transition-colors">
                                 {{ $category->name }}
                             </a>
                             @endforeach
                         </div>
                     </div>
                     
-                    <a href="/news" class="block px-4 py-3 rounded-lg text-gray-700 hover:bg-primary-50 hover:text-primary-600 font-medium">Berita</a>
-                    <a href="/journals" class="block px-4 py-3 rounded-lg text-gray-700 hover:bg-primary-50 hover:text-primary-600 font-medium">Jurnal</a>
-                    <a href="/authors" class="block px-4 py-3 rounded-lg text-gray-700 hover:bg-primary-50 hover:text-primary-600 font-medium">Penulis</a>
-                    <a href="/about" class="block px-4 py-3 rounded-lg text-gray-700 hover:bg-primary-50 hover:text-primary-600 font-medium">Tentang Kami</a>
-                    <a href="/contact" class="block px-4 py-3 rounded-lg text-gray-700 hover:bg-primary-50 hover:text-primary-600 font-medium">Kontak</a>
-                    <a href="/submissions/create" class="block px-4 py-3 rounded-lg bg-primary-600 text-white hover:bg-primary-700 font-medium text-center mt-2">Ajukan Naskah</a>
+                    <a href="/news" class="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-primary-50 hover:text-primary-600 font-medium transition-all {{ request()->is('news*') ? 'bg-primary-50 text-primary-600' : '' }}">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
+                        </svg>
+                        Berita
+                    </a>
+                    <a href="/journals" class="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-primary-50 hover:text-primary-600 font-medium transition-all {{ request()->is('journals*') ? 'bg-primary-50 text-primary-600' : '' }}">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        Jurnal
+                    </a>
+                    <a href="/authors" class="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-primary-50 hover:text-primary-600 font-medium transition-all {{ request()->is('authors*') ? 'bg-primary-50 text-primary-600' : '' }}">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                        Penulis
+                    </a>
+                    <a href="/about" class="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-primary-50 hover:text-primary-600 font-medium transition-all {{ request()->is('about*') ? 'bg-primary-50 text-primary-600' : '' }}">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Tentang Kami
+                    </a>
+                    <a href="/contact" class="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-primary-50 hover:text-primary-600 font-medium transition-all {{ request()->is('contact*') ? 'bg-primary-50 text-primary-600' : '' }}">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                        Kontak
+                    </a>
+                    
+                    <!-- CTA Mobile -->
+                    <a href="/submissions/create" class="flex items-center justify-center gap-2 mx-2 mt-4 px-4 py-3.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl font-semibold shadow-lg">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                        </svg>
+                        Ajukan Naskah
+                    </a>
+                    
                     @auth
-                        <div class="mt-4 pt-4 border-t border-gray-200">
-                            <p class="px-4 text-sm text-gray-500 mb-2">Masuk sebagai: {{ auth()->user()->name }}</p>
+                        <div class="mt-6 pt-4 border-t border-gray-200 mx-2">
+                            <div class="flex items-center gap-3 mb-4 p-3 bg-gray-50 rounded-xl">
+                                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center text-white font-bold shadow-md">
+                                    {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                                </div>
+                                <div>
+                                    <p class="font-semibold text-gray-900">{{ auth()->user()->name }}</p>
+                                    <p class="text-xs text-gray-500">{{ auth()->user()->email }}</p>
+                                </div>
+                            </div>
                             @if(auth()->user()->is_admin)
-                            <a href="/admin" class="block px-4 py-3 rounded-lg text-gray-700 hover:bg-primary-50 hover:text-primary-600 font-medium">Dashboard Admin</a>
+                            <a href="/admin" class="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-primary-50 hover:text-primary-600 font-medium transition-all">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
+                                </svg>
+                                Dashboard Admin
+                            </a>
                             @else
-                            <a href="/submissions/track" class="block px-4 py-3 rounded-lg text-gray-700 hover:bg-primary-50 hover:text-primary-600 font-medium">Pengajuan Saya</a>
+                            <a href="/user/dashboard" class="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-primary-50 hover:text-primary-600 font-medium transition-all">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                                </svg>
+                                Dashboard Saya
+                            </a>
                             @endif
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
-                                <button class="w-full text-left px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 font-medium">Logout</button>
+                                <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 font-medium transition-all mt-2">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                                    </svg>
+                                    Logout
+                                </button>
                             </form>
                         </div>
                     @else
-                        <div class="mt-4 pt-4 border-t border-gray-200 space-y-2">
-                            <a href="{{ route('login') }}" class="block mx-4 px-4 py-3 border border-primary-600 text-primary-600 rounded-lg font-medium text-center hover:bg-primary-50">Login</a>
-                            <a href="{{ route('register') }}" class="block mx-4 px-4 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-lg font-medium text-center">Daftar Akun</a>
+                        <div class="mt-6 pt-4 border-t border-gray-200 mx-2 space-y-2">
+                            <a href="{{ route('login') }}" class="flex items-center justify-center gap-2 px-4 py-3 border-2 border-gray-200 text-gray-700 hover:border-primary-500 hover:text-primary-600 rounded-xl font-semibold transition-all">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+                                </svg>
+                                Login
+                            </a>
+                            <a href="{{ route('register') }}" class="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-gray-900 to-gray-700 text-white rounded-xl font-semibold shadow-lg">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                                </svg>
+                                Daftar Akun
+                            </a>
                         </div>
                     @endauth
                 </div>
             </div>
         </nav>
 
-        <!-- Search Modal -->
+        <!-- Search Modal - Modern Design -->
         <div x-show="searchOpen" 
-             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter="transition ease-out duration-300"
              x-transition:enter-start="opacity-0"
              x-transition:enter-end="opacity-100"
              @click.away="searchOpen = false"
-             class="absolute top-full left-0 right-0 bg-white border-t border-gray-200 shadow-lg">
-            <div class="max-w-3xl mx-auto p-6">
-                <form action="/books" method="GET" class="relative">
-                    <input type="text" name="search" placeholder="Cari judul buku, penulis, atau ISBN..." 
-                           class="w-full px-6 py-4 text-lg border-2 border-gray-200 rounded-xl focus:border-primary-500 focus:outline-none transition-colors duration-200" 
-                           autofocus>
-                    <button type="submit" class="absolute right-4 top-1/2 -translate-y-1/2 bg-primary-500 hover:bg-primary-600 text-white px-6 py-2 rounded-lg transition-colors duration-200">
-                        Cari
-                    </button>
+             @keydown.escape.window="searchOpen = false"
+             class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-50 flex items-start justify-center pt-20 lg:pt-32">
+            <div x-show="searchOpen"
+                 x-transition:enter="transition ease-out duration-300 delay-100"
+                 x-transition:enter-start="opacity-0 scale-95 translate-y-4"
+                 x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                 @click.stop
+                 class="w-full max-w-2xl mx-4 bg-white rounded-2xl shadow-2xl overflow-hidden">
+                <form action="/books" method="GET">
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                            <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+                        </div>
+                        <input type="text" name="search" placeholder="Cari judul buku, penulis, atau ISBN..." 
+                               class="w-full pl-14 pr-32 py-5 text-lg border-0 focus:ring-0 focus:outline-none" 
+                               x-ref="searchInput"
+                               x-init="$watch('searchOpen', value => { if(value) setTimeout(() => $refs.searchInput.focus(), 100) })"
+                               autofocus>
+                        <div class="absolute inset-y-0 right-0 flex items-center gap-2 pr-3">
+                            <button type="button" @click="searchOpen = false" class="p-2 text-gray-400 hover:text-gray-600 transition-colors">
+                                <kbd class="px-2 py-1 text-xs bg-gray-100 rounded-md">ESC</kbd>
+                            </button>
+                            <button type="submit" class="bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white px-5 py-2.5 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all">
+                                Cari
+                            </button>
+                        </div>
+                    </div>
                 </form>
+                <div class="px-5 py-4 bg-gray-50 border-t border-gray-100">
+                    <p class="text-sm text-gray-500 mb-3">Pencarian Populer:</p>
+                    <div class="flex flex-wrap gap-2">
+                        <a href="/books?search=novel" class="px-3 py-1.5 bg-white border border-gray-200 rounded-full text-sm text-gray-600 hover:border-primary-400 hover:text-primary-600 transition-colors">Novel</a>
+                        <a href="/books?search=pendidikan" class="px-3 py-1.5 bg-white border border-gray-200 rounded-full text-sm text-gray-600 hover:border-primary-400 hover:text-primary-600 transition-colors">Pendidikan</a>
+                        <a href="/books?search=bisnis" class="px-3 py-1.5 bg-white border border-gray-200 rounded-full text-sm text-gray-600 hover:border-primary-400 hover:text-primary-600 transition-colors">Bisnis</a>
+                        <a href="/books?search=teknologi" class="px-3 py-1.5 bg-white border border-gray-200 rounded-full text-sm text-gray-600 hover:border-primary-400 hover:text-primary-600 transition-colors">Teknologi</a>
+                        <a href="/books?search=sejarah" class="px-3 py-1.5 bg-white border border-gray-200 rounded-full text-sm text-gray-600 hover:border-primary-400 hover:text-primary-600 transition-colors">Sejarah</a>
+                    </div>
+                </div>
             </div>
         </div>
     </header>
 
     <!-- Main Content -->
-    <main class="pt-20">
+    <main class="pt-32 lg:pt-28">
         @if(session('success'))
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
                 <div class="bg-green-50 border border-green-200 text-green-800 px-6 py-4 rounded-xl shadow-sm animate-fade-in-up">
