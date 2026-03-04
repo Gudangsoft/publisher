@@ -13,6 +13,19 @@
         $metaKeywords = \App\Models\Setting::get('meta_keywords', 'penerbit primeintellecta, primeintellecta publisher, penerbit buku, buku berkualitas, toko buku online');
         $googleAnalytics = \App\Models\Setting::get('google_analytics', '');
         $themeConfig = \App\Http\Controllers\Admin\ThemeController::getThemeConfig();
+        
+        // Fetch dynamic menus from database
+        $headerMenus = \App\Models\Menu::whereNull('parent_id')
+            ->where('is_active', true)
+            ->whereIn('location', ['header', 'both'])
+            ->orderBy('display_order')
+            ->with(['children' => function($query) {
+                $query->where('is_active', true)->orderBy('display_order');
+            }])
+            ->get();
+        
+        // Check if logo file exists
+        $logoExists = $siteLogo && \Illuminate\Support\Facades\Storage::disk('public')->exists($siteLogo);
     @endphp
     
     <title>@yield('title', $siteName . ' - ' . $siteTagline)</title>
@@ -208,9 +221,9 @@
                 <!-- Logo -->
                 <div class="flex items-center">
                     <a href="/" class="flex items-center space-x-3 group">
-                        @if($siteLogo)
+                        @if($logoExists)
                         <div class="h-14 rounded-xl overflow-hidden shadow-lg group-hover:shadow-xl group-hover:scale-105 transition-all duration-300 ring-2 ring-primary-100">
-                            <img src="{{ asset('storage/' . $siteLogo) }}" alt="{{ $siteName }}" class="h-full w-auto object-contain">
+                            <img src="{{ asset('storage/' . $siteLogo) }}?v={{ time() }}" alt="{{ $siteName }}" class="h-full w-auto object-contain">
                         </div>
                         @else
                         <div class="relative">
@@ -229,172 +242,53 @@
                     </a>
                 </div>
 
-                <!-- Desktop Navigation -->
+                <!-- Desktop Navigation - Dynamic Menus -->
                 <div class="hidden lg:flex items-center space-x-1">
-                    <a href="/" class="nav-link px-4 py-2 rounded-xl text-gray-700 hover:text-primary-600 hover:bg-gradient-to-r hover:from-primary-50 hover:to-transparent transition-all duration-300 font-medium flex items-center gap-2 group {{ request()->is('/') ? 'text-primary-600 bg-primary-50' : '' }}">
-                        <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-                        </svg>
-                        Beranda
-                    </a>
-                    <a href="/books" class="nav-link px-4 py-2 rounded-xl text-gray-700 hover:text-primary-600 hover:bg-gradient-to-r hover:from-primary-50 hover:to-transparent transition-all duration-300 font-medium flex items-center gap-2 group {{ request()->is('books*') ? 'text-primary-600 bg-primary-50' : '' }}">
-                        <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                        </svg>
-                        Katalog Buku
-                    </a>
-                    
-                    <!-- Mega Menu Kategori -->
-                    <div class="relative" x-data="{ open: false }" @mouseenter="open = true" @mouseleave="open = false">
-                        <button class="nav-link px-4 py-2 rounded-xl text-gray-700 hover:text-primary-600 hover:bg-gradient-to-r hover:from-primary-50 hover:to-transparent transition-all duration-300 font-medium flex items-center gap-2 group">
-                            <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
-                            </svg>
-                            <span>Kategori</span>
-                            <svg class="w-4 h-4 transition-transform duration-300" :class="{'rotate-180': open}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                            </svg>
-                        </button>
-                        
-                        <!-- Mega Menu Content -->
-                        <div x-show="open" 
-                             x-transition:enter="transition ease-out duration-300"
-                             x-transition:enter-start="opacity-0 translate-y-2"
-                             x-transition:enter-end="opacity-100 translate-y-0"
-                             x-transition:leave="transition ease-in duration-200"
-                             x-transition:leave-start="opacity-100 translate-y-0"
-                             x-transition:leave-end="opacity-0 translate-y-2"
-                             class="absolute left-1/2 -translate-x-1/2 mt-2 w-[700px] bg-white rounded-2xl shadow-2xl border border-gray-100 p-6 z-50">
-                            
-                            <div class="grid grid-cols-3 gap-6">
-                                <!-- Kategori Buku -->
-                                <div>
-                                    <div class="flex items-center gap-2 mb-4 pb-2 border-b border-gray-100">
-                                        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
-                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                                            </svg>
-                                        </div>
-                                        <h4 class="font-bold text-gray-900">Buku</h4>
-                                    </div>
-                                    <div class="space-y-1">
-                                        @foreach(\App\Models\Category::where('type', 'book')->orderBy('name')->take(6)->get() as $category)
-                                        <a href="/books?category={{ $category->id }}" class="category-card flex items-center gap-2 px-3 py-2 rounded-lg text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition-all duration-200">
-                                            <svg class="w-4 h-4 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
-                                            </svg>
-                                            {{ $category->name }}
-                                        </a>
-                                        @endforeach
-                                        <a href="/books" class="flex items-center gap-2 px-3 py-2 rounded-lg text-blue-600 hover:bg-blue-50 font-medium mt-2">
-                                            Lihat Semua Buku →
-                                        </a>
-                                    </div>
-                                </div>
-                                
-                                <!-- Kategori Berita -->
-                                <div>
-                                    <div class="flex items-center gap-2 mb-4 pb-2 border-b border-gray-100">
-                                        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center">
-                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
-                                            </svg>
-                                        </div>
-                                        <h4 class="font-bold text-gray-900">Berita</h4>
-                                    </div>
-                                    <div class="space-y-1">
-                                        @foreach(\App\Models\Category::where('type', 'news')->orderBy('name')->take(6)->get() as $category)
-                                        <a href="/news?category={{ $category->id }}" class="category-card flex items-center gap-2 px-3 py-2 rounded-lg text-gray-600 hover:bg-green-50 hover:text-green-600 transition-all duration-200">
-                                            <svg class="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
-                                            </svg>
-                                            {{ $category->name }}
-                                        </a>
-                                        @endforeach
-                                        <a href="/news" class="flex items-center gap-2 px-3 py-2 rounded-lg text-green-600 hover:bg-green-50 font-medium mt-2">
-                                            Lihat Semua Berita →
-                                        </a>
-                                    </div>
-                                </div>
-                                
-                                <!-- Kategori Jurnal -->
-                                <div>
-                                    <div class="flex items-center gap-2 mb-4 pb-2 border-b border-gray-100">
-                                        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
-                                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                            </svg>
-                                        </div>
-                                        <h4 class="font-bold text-gray-900">Jurnal</h4>
-                                    </div>
-                                    <div class="space-y-1">
-                                        @foreach(\App\Models\Category::where('type', 'journal')->orderBy('name')->take(6)->get() as $category)
-                                        <a href="/journals?category={{ $category->id }}" class="category-card flex items-center gap-2 px-3 py-2 rounded-lg text-gray-600 hover:bg-purple-50 hover:text-purple-600 transition-all duration-200">
-                                            <svg class="w-4 h-4 text-purple-400" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
-                                            </svg>
-                                            {{ $category->name }}
-                                        </a>
-                                        @endforeach
-                                        <a href="/journals" class="flex items-center gap-2 px-3 py-2 rounded-lg text-purple-600 hover:bg-purple-50 font-medium mt-2">
-                                            Lihat Semua Jurnal →
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Featured Banner -->
-                            <div class="mt-6 pt-6 border-t border-gray-100">
-                                <a href="/submissions/create" class="flex items-center justify-between p-4 bg-gradient-to-r from-primary-50 to-orange-50 rounded-xl hover:from-primary-100 hover:to-orange-100 transition-all duration-300 group">
-                                    <div class="flex items-center gap-4">
-                                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-lg">
-                                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
-                                            </svg>
-                                        </div>
-                                        <div>
-                                            <h5 class="font-bold text-gray-900">Punya Naskah untuk Diterbitkan?</h5>
-                                            <p class="text-sm text-gray-600">Ajukan naskah Anda sekarang dan wujudkan impian menjadi penulis!</p>
-                                        </div>
-                                    </div>
-                                    <svg class="w-6 h-6 text-primary-600 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                    @foreach($headerMenus as $menu)
+                        @if($menu->children->count() > 0)
+                        <!-- Menu with Submenu -->
+                        <div class="relative" x-data="{ open: false }" @mouseenter="open = true" @mouseleave="open = false">
+                            <button class="nav-link px-4 py-2 rounded-xl text-gray-700 hover:text-primary-600 hover:bg-gradient-to-r hover:from-primary-50 hover:to-transparent transition-all duration-300 font-medium flex items-center gap-2 group">
+                                @if($menu->icon)
+                                <span class="text-sm">{{ $menu->icon }}</span>
+                                @endif
+                                <span>{{ $menu->label }}</span>
+                                <svg class="w-4 h-4 transition-transform duration-300" :class="{'rotate-180': open}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </button>
+                            <div x-show="open" 
+                                 x-transition:enter="transition ease-out duration-200"
+                                 x-transition:enter-start="opacity-0 translate-y-2"
+                                 x-transition:enter-end="opacity-100 translate-y-0"
+                                 x-transition:leave="transition ease-in duration-150"
+                                 x-transition:leave-start="opacity-100 translate-y-0"
+                                 x-transition:leave-end="opacity-0 translate-y-2"
+                                 class="absolute left-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50">
+                                @foreach($menu->children as $child)
+                                <a href="{{ $child->url }}" target="{{ $child->target ?? '_self' }}" class="flex items-center gap-2 px-4 py-2.5 text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors">
+                                    @if($child->icon)
+                                    <span>{{ $child->icon }}</span>
+                                    @else
+                                    <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
                                     </svg>
+                                    @endif
+                                    {{ $child->label }}
                                 </a>
+                                @endforeach
                             </div>
                         </div>
-                    </div>
-                    
-                    <a href="/news" class="nav-link px-4 py-2 rounded-xl text-gray-700 hover:text-primary-600 hover:bg-gradient-to-r hover:from-primary-50 hover:to-transparent transition-all duration-300 font-medium flex items-center gap-2 group {{ request()->is('news*') ? 'text-primary-600 bg-primary-50' : '' }}">
-                        <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
-                        </svg>
-                        Berita
-                    </a>
-                    <a href="/journals" class="nav-link px-4 py-2 rounded-xl text-gray-700 hover:text-primary-600 hover:bg-gradient-to-r hover:from-primary-50 hover:to-transparent transition-all duration-300 font-medium flex items-center gap-2 group {{ request()->is('journals*') ? 'text-primary-600 bg-primary-50' : '' }}">
-                        <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                        </svg>
-                        Jurnal
-                    </a>
-                    <a href="/authors" class="nav-link px-4 py-2 rounded-xl text-gray-700 hover:text-primary-600 hover:bg-gradient-to-r hover:from-primary-50 hover:to-transparent transition-all duration-300 font-medium flex items-center gap-2 group {{ request()->is('authors*') ? 'text-primary-600 bg-primary-50' : '' }}">
-                        <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-                        </svg>
-                        Penulis
-                    </a>
-                    <a href="/about" class="nav-link px-4 py-2 rounded-xl text-gray-700 hover:text-primary-600 hover:bg-gradient-to-r hover:from-primary-50 hover:to-transparent transition-all duration-300 font-medium flex items-center gap-2 group {{ request()->is('about*') ? 'text-primary-600 bg-primary-50' : '' }}">
-                        <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        Tentang
-                    </a>
-                    <a href="/contact" class="nav-link px-4 py-2 rounded-xl text-gray-700 hover:text-primary-600 hover:bg-gradient-to-r hover:from-primary-50 hover:to-transparent transition-all duration-300 font-medium flex items-center gap-2 group {{ request()->is('contact*') ? 'text-primary-600 bg-primary-50' : '' }}">
-                        <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                        </svg>
-                        Kontak
-                    </a>
+                        @else
+                        <!-- Single Menu Item -->
+                        <a href="{{ $menu->url }}" target="{{ $menu->target ?? '_self' }}" class="nav-link px-4 py-2 rounded-xl text-gray-700 hover:text-primary-600 hover:bg-gradient-to-r hover:from-primary-50 hover:to-transparent transition-all duration-300 font-medium flex items-center gap-2 group {{ request()->is(ltrim($menu->url, '/') . '*') ? 'text-primary-600 bg-primary-50' : '' }}">
+                            @if($menu->icon)
+                            <span class="text-sm">{{ $menu->icon }}</span>
+                            @endif
+                            {{ $menu->label }}
+                        </a>
+                        @endif
+                    @endforeach
                     
                     <!-- CTA Button with animation -->
                     <a href="/submissions/create" class="relative ml-2 px-5 py-2.5 bg-gradient-to-r from-primary-500 via-primary-600 to-primary-500 bg-size-200 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 flex items-center gap-2 group cta-pulse">
@@ -509,107 +403,49 @@
                  x-transition:leave-end="opacity-0 -translate-y-4"
                  class="lg:hidden pb-6 border-t border-gray-100 mt-2 bg-white/95 backdrop-blur-lg">
                 <div class="space-y-1 pt-4 px-2">
-                    <a href="/" class="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-primary-50 hover:text-primary-600 font-medium transition-all {{ request()->is('/') ? 'bg-primary-50 text-primary-600' : '' }}">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-                        </svg>
-                        Beranda
-                    </a>
-                    <a href="/books" class="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-primary-50 hover:text-primary-600 font-medium transition-all {{ request()->is('books*') ? 'bg-primary-50 text-primary-600' : '' }}">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                        </svg>
-                        Katalog Buku
-                    </a>
-                    
-                    <!-- Kategori Mobile Menu -->
-                    <div x-data="{ categoryOpen: false }">
-                        <button @click="categoryOpen = !categoryOpen" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-gray-700 hover:bg-primary-50 hover:text-primary-600 font-medium transition-all">
-                            <div class="flex items-center gap-3">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+                    <!-- Dynamic Mobile Menu -->
+                    @foreach($headerMenus as $menu)
+                        @if($menu->children->count() > 0)
+                        <!-- Menu with Submenu -->
+                        <div x-data="{ subOpen: false }">
+                            <button @click="subOpen = !subOpen" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-gray-700 hover:bg-primary-50 hover:text-primary-600 font-medium transition-all">
+                                <div class="flex items-center gap-3">
+                                    @if($menu->icon)
+                                    <span class="text-lg">{{ $menu->icon }}</span>
+                                    @else
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                                    </svg>
+                                    @endif
+                                    <span>{{ $menu->label }}</span>
+                                </div>
+                                <svg class="w-5 h-5 transition-transform duration-300" :class="{'rotate-180': subOpen}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                                 </svg>
-                                <span>Kategori</span>
+                            </button>
+                            <div x-show="subOpen" x-transition class="mt-2 ml-4 space-y-1 border-l-2 border-primary-200 pl-4">
+                                @foreach($menu->children as $child)
+                                <a href="{{ $child->url }}" target="{{ $child->target ?? '_self' }}" class="block px-3 py-2 text-sm text-gray-600 hover:bg-primary-50 hover:text-primary-600 rounded-lg transition-colors">
+                                    @if($child->icon)<span class="mr-2">{{ $child->icon }}</span>@endif
+                                    {{ $child->label }}
+                                </a>
+                                @endforeach
                             </div>
-                            <svg class="w-5 h-5 transition-transform duration-300" :class="{'rotate-180': categoryOpen}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                            </svg>
-                        </button>
-                        <div x-show="categoryOpen" x-transition class="mt-2 ml-4 space-y-2 border-l-2 border-primary-200 pl-4">
-                            <div class="py-2 text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2">
-                                <div class="w-6 h-6 rounded-md bg-blue-100 flex items-center justify-center">
-                                    <svg class="w-3 h-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                                    </svg>
-                                </div>
-                                Kategori Buku
-                            </div>
-                            @foreach(\App\Models\Category::where('type', 'book')->orderBy('name')->take(5)->get() as $category)
-                            <a href="/books?category={{ $category->id }}" class="block px-3 py-2 text-sm text-gray-600 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors">
-                                {{ $category->name }}
-                            </a>
-                            @endforeach
-                            
-                            <div class="py-2 text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2 mt-3">
-                                <div class="w-6 h-6 rounded-md bg-green-100 flex items-center justify-center">
-                                    <svg class="w-3 h-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
-                                    </svg>
-                                </div>
-                                Kategori Berita
-                            </div>
-                            @foreach(\App\Models\Category::where('type', 'news')->orderBy('name')->take(5)->get() as $category)
-                            <a href="/news?category={{ $category->id }}" class="block px-3 py-2 text-sm text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg transition-colors">
-                                {{ $category->name }}
-                            </a>
-                            @endforeach
-                            
-                            <div class="py-2 text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2 mt-3">
-                                <div class="w-6 h-6 rounded-md bg-purple-100 flex items-center justify-center">
-                                    <svg class="w-3 h-3 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                    </svg>
-                                </div>
-                                Kategori Jurnal
-                            </div>
-                            @foreach(\App\Models\Category::where('type', 'journal')->orderBy('name')->take(5)->get() as $category)
-                            <a href="/journals?category={{ $category->id }}" class="block px-3 py-2 text-sm text-gray-600 hover:bg-purple-50 hover:text-purple-600 rounded-lg transition-colors">
-                                {{ $category->name }}
-                            </a>
-                            @endforeach
                         </div>
-                    </div>
-                    
-                    <a href="/news" class="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-primary-50 hover:text-primary-600 font-medium transition-all {{ request()->is('news*') ? 'bg-primary-50 text-primary-600' : '' }}">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
-                        </svg>
-                        Berita
-                    </a>
-                    <a href="/journals" class="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-primary-50 hover:text-primary-600 font-medium transition-all {{ request()->is('journals*') ? 'bg-primary-50 text-primary-600' : '' }}">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                        </svg>
-                        Jurnal
-                    </a>
-                    <a href="/authors" class="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-primary-50 hover:text-primary-600 font-medium transition-all {{ request()->is('authors*') ? 'bg-primary-50 text-primary-600' : '' }}">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-                        </svg>
-                        Penulis
-                    </a>
-                    <a href="/about" class="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-primary-50 hover:text-primary-600 font-medium transition-all {{ request()->is('about*') ? 'bg-primary-50 text-primary-600' : '' }}">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        Tentang Kami
-                    </a>
-                    <a href="/contact" class="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-primary-50 hover:text-primary-600 font-medium transition-all {{ request()->is('contact*') ? 'bg-primary-50 text-primary-600' : '' }}">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                        </svg>
-                        Kontak
-                    </a>
+                        @else
+                        <!-- Single Menu Item -->
+                        <a href="{{ $menu->url }}" target="{{ $menu->target ?? '_self' }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-primary-50 hover:text-primary-600 font-medium transition-all {{ request()->is(ltrim($menu->url, '/') . '*') ? 'bg-primary-50 text-primary-600' : '' }}">
+                            @if($menu->icon)
+                            <span class="text-lg">{{ $menu->icon }}</span>
+                            @else
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                            </svg>
+                            @endif
+                            {{ $menu->label }}
+                        </a>
+                        @endif
+                    @endforeach
                     
                     <!-- CTA Mobile -->
                     <a href="/submissions/create" class="flex items-center justify-center gap-2 mx-2 mt-4 px-4 py-3.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl font-semibold shadow-lg">
