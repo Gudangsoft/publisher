@@ -598,8 +598,8 @@
                 <div class="lg:col-span-2">
                     <div class="flex items-center space-x-3 mb-6">
                         @if($siteLogo)
-                        <div class="h-12 flex-shrink-0">
-                            <img src="{{ asset('storage/' . $siteLogo) }}" alt="{{ $siteName }}" class="h-full w-auto object-contain brightness-0 invert">
+                        <div class="h-12 flex-shrink-0 bg-white rounded-lg p-1.5">
+                            <img src="{{ asset('storage/' . $siteLogo) }}" alt="{{ $siteName }}" class="h-full w-auto object-contain">
                         </div>
                         @else
                         <div class="bg-gradient-to-br from-primary-500 to-primary-700 p-2.5 rounded-lg flex-shrink-0">
