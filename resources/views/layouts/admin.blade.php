@@ -114,12 +114,71 @@
                     </div>
                     
                     <!-- Notifications -->
-                    <button class="p-2 text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-100 relative mr-2">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-                        </svg>
-                        <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-                    </button>
+                    @php
+                        $pendingSubmissions = \App\Models\Submission::where('status', 'pending')->count();
+                        $pendingOrders = \App\Models\Order::where('status', 'pending')->count();
+                        $totalNotifications = $pendingSubmissions + $pendingOrders;
+                    @endphp
+                    <div x-data="{ notifOpen: false }" class="relative mr-2">
+                        <button @click="notifOpen = !notifOpen" class="p-2 text-gray-500 rounded-lg hover:text-gray-900 hover:bg-gray-100 relative">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                            </svg>
+                            @if($totalNotifications > 0)
+                            <span class="absolute top-0 right-0 flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full">{{ $totalNotifications > 99 ? '99+' : $totalNotifications }}</span>
+                            @endif
+                        </button>
+                        
+                        <!-- Notification Dropdown -->
+                        <div x-show="notifOpen" 
+                             @click.away="notifOpen = false"
+                             x-transition:enter="transition ease-out duration-100"
+                             x-transition:enter-start="transform opacity-0 scale-95"
+                             x-transition:enter-end="transform opacity-100 scale-100"
+                             x-cloak
+                             class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg z-50 border border-gray-200 overflow-hidden">
+                            <div class="px-4 py-3 bg-gray-50 border-b border-gray-200">
+                                <h3 class="font-semibold text-gray-900">Notifikasi</h3>
+                            </div>
+                            <div class="max-h-80 overflow-y-auto">
+                                @if($totalNotifications == 0)
+                                <div class="px-4 py-6 text-center text-gray-500">
+                                    <svg class="w-12 h-12 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                                    </svg>
+                                    Tidak ada notifikasi baru
+                                </div>
+                                @else
+                                    @if($pendingSubmissions > 0)
+                                    <a href="{{ route('admin.submissions.index') }}?status=pending" class="flex items-start px-4 py-3 hover:bg-gray-50 border-b border-gray-100">
+                                        <div class="flex-shrink-0 w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
+                                            <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                            </svg>
+                                        </div>
+                                        <div class="ml-3">
+                                            <p class="text-sm font-medium text-gray-900">Pengajuan Naskah Baru</p>
+                                            <p class="text-sm text-gray-500">{{ $pendingSubmissions }} pengajuan menunggu review</p>
+                                        </div>
+                                    </a>
+                                    @endif
+                                    @if($pendingOrders > 0)
+                                    <a href="{{ route('admin.orders.index') }}?status=pending" class="flex items-start px-4 py-3 hover:bg-gray-50 border-b border-gray-100">
+                                        <div class="flex-shrink-0 w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                                            <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                                            </svg>
+                                        </div>
+                                        <div class="ml-3">
+                                            <p class="text-sm font-medium text-gray-900">Pesanan Baru</p>
+                                            <p class="text-sm text-gray-500">{{ $pendingOrders }} pesanan menunggu diproses</p>
+                                        </div>
+                                    </a>
+                                    @endif
+                                @endif
+                            </div>
+                        </div>
+                    </div>
                     
                     <!-- User Menu -->
                     <div x-data="{ userMenuOpen: false }" class="relative">
