@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Submission;
 use App\Models\Category;
+use App\Models\BookTemplate;
 use Illuminate\Support\Facades\Storage;
 
 class SubmissionController extends Controller
@@ -15,7 +16,8 @@ class SubmissionController extends Controller
     public function create()
     {
         $categories = Category::orderBy('name')->get();
-        return view('submissions.create', compact('categories'));
+        $templates = BookTemplate::active()->orderBy('display_order')->orderBy('name')->get();
+        return view('submissions.create', compact('categories', 'templates'));
     }
 
     /**
@@ -27,6 +29,7 @@ class SubmissionController extends Controller
             'title' => 'required|string|max:255',
             'type' => 'required|in:book,journal',
             'category_id' => 'nullable|exists:categories,id',
+            'book_template_id' => 'nullable|exists:book_templates,id',
             'submitter_name' => 'required|string|max:255',
             'submitter_email' => 'required|email|max:255',
             'submitter_phone' => 'required|string|max:20',
@@ -107,5 +110,23 @@ class SubmissionController extends Controller
         }
         
         return view('submissions.track', compact('submission'));
+    }
+
+    /**
+     * Download book template file
+     */
+    public function downloadTemplate(BookTemplate $template)
+    {
+        if (!$template->template_file || !$template->is_active) {
+            abort(404, 'File template tidak ditemukan.');
+        }
+
+        $path = storage_path('app/public/' . $template->template_file);
+        
+        if (!file_exists($path)) {
+            abort(404, 'File template tidak ditemukan.');
+        }
+
+        return response()->download($path);
     }
 }

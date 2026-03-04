@@ -11,6 +11,7 @@ class Submission extends Model
         'title',
         'type',
         'category_id',
+        'book_template_id',
         'submitter_name',
         'submitter_email',
         'submitter_phone',
@@ -76,6 +77,11 @@ class Submission extends Model
     public function reviewer()
     {
         return $this->belongsTo(User::class, 'reviewed_by');
+    }
+
+    public function bookTemplate()
+    {
+        return $this->belongsTo(BookTemplate::class, 'book_template_id');
     }
 
     /**

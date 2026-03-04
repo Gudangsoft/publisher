@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\AuthorController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\ThemeController;
 use App\Http\Controllers\Admin\SubmissionController as AdminSubmissionController;
+use App\Http\Controllers\Admin\BookTemplateController;
 use App\Http\Controllers\MenuController as PublicMenuController;
 use App\Http\Controllers\SubmissionController;
 
@@ -184,6 +185,7 @@ Route::get('/submissions/create', [SubmissionController::class, 'create'])->name
 Route::post('/submissions', [SubmissionController::class, 'store'])->name('submissions.store');
 Route::get('/submissions/success/{submissionNumber}', [SubmissionController::class, 'success'])->name('submissions.success');
 Route::get('/submissions/track', [SubmissionController::class, 'track'])->name('submissions.track');
+Route::get('/templates/{template}/download', [SubmissionController::class, 'downloadTemplate'])->name('templates.download');
 
 // About & Contact Routes
 Route::get('/about', function () {
@@ -238,6 +240,17 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     // Theme routes
     Route::get('theme', [ThemeController::class, 'index'])->name('admin.theme.index');
     Route::put('theme', [ThemeController::class, 'update'])->name('admin.theme.update');
+
+    // Book Template routes
+    Route::get('templates', [BookTemplateController::class, 'index'])->name('admin.templates.index');
+    Route::get('templates/create', [BookTemplateController::class, 'create'])->name('admin.templates.create');
+    Route::post('templates', [BookTemplateController::class, 'store'])->name('admin.templates.store');
+    Route::get('templates/{template}', [BookTemplateController::class, 'show'])->name('admin.templates.show');
+    Route::get('templates/{template}/edit', [BookTemplateController::class, 'edit'])->name('admin.templates.edit');
+    Route::put('templates/{template}', [BookTemplateController::class, 'update'])->name('admin.templates.update');
+    Route::delete('templates/{template}', [BookTemplateController::class, 'destroy'])->name('admin.templates.destroy');
+    Route::get('templates/{template}/download', [BookTemplateController::class, 'download'])->name('admin.templates.download');
+    Route::patch('templates/{template}/toggle', [BookTemplateController::class, 'toggleActive'])->name('admin.templates.toggle');
 
     // Submission routes
     Route::get('submissions', [AdminSubmissionController::class, 'index'])->name('admin.submissions.index');

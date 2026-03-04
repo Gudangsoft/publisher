@@ -60,6 +60,20 @@
                         <label class="text-sm font-medium text-gray-500">Kategori</label>
                         <p class="text-gray-900">{{ $submission->category?->name ?? '-' }}</p>
                     </div>
+                    <div>
+                        <label class="text-sm font-medium text-gray-500">Template Buku</label>
+                        @if($submission->bookTemplate)
+                        <a href="{{ route('admin.templates.show', $submission->bookTemplate) }}" 
+                           class="text-primary-600 hover:text-primary-700 flex items-center">
+                            {{ $submission->bookTemplate->name }}
+                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                            </svg>
+                        </a>
+                        @else
+                        <p class="text-gray-500">Tidak menggunakan template</p>
+                        @endif
+                    </div>
                 </div>
                 
                 <div class="grid grid-cols-2 gap-4">

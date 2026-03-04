@@ -113,6 +113,7 @@
                 <div class="space-y-4">
                     <div>
                         <label class="flex items-center">
+                            <input type="hidden" name="is_published" value="0">
                             <input type="checkbox" name="is_published" value="1" 
                                    {{ old('is_published', $page->is_published) ? 'checked' : '' }}
                                    class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">

@@ -219,6 +219,89 @@
                                 </select>
                             </div>
                             
+                            <!-- Template Selection -->
+                            @if($templates->count() > 0)
+                            <div class="md:col-span-2" x-data="{ selectedTemplate: '{{ old('book_template_id', '') }}' }">
+                                <label class="block text-sm font-medium text-gray-700 mb-3">
+                                    <svg class="w-5 h-5 inline mr-1 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
+                                    </svg>
+                                    Pilih Template Buku
+                                </label>
+                                <p class="text-sm text-gray-500 mb-4">Pilih template yang sesuai dengan jenis buku Anda. Template akan membantu menyesuaikan format naskah.</p>
+                                
+                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    <!-- No Template Option -->
+                                    <label class="cursor-pointer">
+                                        <input type="radio" name="book_template_id" value="" class="sr-only" x-model="selectedTemplate">
+                                        <div class="border-2 rounded-xl p-4 transition-all duration-200"
+                                             :class="selectedTemplate === '' ? 'border-primary-500 bg-primary-50' : 'border-gray-200 hover:border-gray-300'">
+                                            <div class="flex items-center justify-between mb-2">
+                                                <span class="font-medium text-gray-900">Tanpa Template</span>
+                                                <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center"
+                                                     :class="selectedTemplate === '' ? 'border-primary-500 bg-primary-500' : 'border-gray-300'">
+                                                    <svg x-show="selectedTemplate === ''" class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                            <p class="text-sm text-gray-500">Saya akan menggunakan format sendiri</p>
+                                        </div>
+                                    </label>
+
+                                    @foreach($templates as $template)
+                                    <label class="cursor-pointer">
+                                        <input type="radio" name="book_template_id" value="{{ $template->id }}" class="sr-only" x-model="selectedTemplate">
+                                        <div class="border-2 rounded-xl overflow-hidden transition-all duration-200"
+                                             :class="selectedTemplate === '{{ $template->id }}' ? 'border-primary-500 bg-primary-50' : 'border-gray-200 hover:border-gray-300'">
+                                            @if($template->preview_image)
+                                            <div class="aspect-[4/3] bg-gray-100">
+                                                <img src="{{ asset('storage/' . $template->preview_image) }}" 
+                                                     alt="{{ $template->name }}" 
+                                                     class="w-full h-full object-cover">
+                                            </div>
+                                            @else
+                                            <div class="aspect-[4/3] bg-gray-100 flex items-center justify-center">
+                                                <svg class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                                </svg>
+                                            </div>
+                                            @endif
+                                            <div class="p-4">
+                                                <div class="flex items-center justify-between mb-1">
+                                                    <span class="font-medium text-gray-900 text-sm">{{ $template->name }}</span>
+                                                    <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0"
+                                                         :class="selectedTemplate === '{{ $template->id }}' ? 'border-primary-500 bg-primary-500' : 'border-gray-300'">
+                                                        <svg x-show="selectedTemplate === '{{ $template->id }}'" class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                                        </svg>
+                                                    </div>
+                                                </div>
+                                                <span class="inline-block px-2 py-0.5 text-xs bg-blue-100 text-blue-800 rounded-full mb-2">{{ $template->book_type_label }}</span>
+                                                <div class="text-xs text-gray-500 space-y-0.5">
+                                                    <p>{{ $template->page_size }} • {{ ucfirst($template->orientation) }}</p>
+                                                    @if($template->font_family)
+                                                    <p>{{ $template->font_family }} {{ $template->font_size ? $template->font_size . 'pt' : '' }}</p>
+                                                    @endif
+                                                </div>
+                                                @if($template->template_file)
+                                                <a href="{{ route('templates.download', $template) }}" 
+                                                   class="inline-flex items-center text-xs text-primary-600 hover:text-primary-700 mt-2"
+                                                   onclick="event.stopPropagation()">
+                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                                    </svg>
+                                                    Download Template
+                                                </a>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </label>
+                                    @endforeach
+                                </div>
+                            </div>
+                            @endif
+                            
                             <div>
                                 <label for="estimated_pages" class="block text-sm font-medium text-gray-700 mb-1">
                                     Estimasi Jumlah Halaman

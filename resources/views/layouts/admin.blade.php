@@ -313,6 +313,16 @@
                     </a>
                 </li>
 
+                <!-- Book Templates -->
+                <li>
+                    <a href="{{ route('admin.templates.index') }}" class="flex items-center p-3 text-gray-900 rounded-lg hover:bg-primary-50 group {{ request()->is('admin/templates*') ? 'bg-primary-50 text-primary-600' : '' }}">
+                        <svg class="w-5 h-5 text-gray-500 transition duration-75 group-hover:text-primary-600 {{ request()->is('admin/templates*') ? 'text-primary-600' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
+                        </svg>
+                        <span :class="sidebarOpen ? 'ml-3' : 'lg:hidden ml-3'">Template Buku</span>
+                    </a>
+                </li>
+
                 <!-- Orders -->
                 <li>
                     <a href="{{ route('admin.orders.index') }}" class="flex items-center p-3 text-gray-900 rounded-lg hover:bg-primary-50 group {{ request()->routeIs('admin.orders.*') ? 'bg-primary-50 text-primary-600' : '' }}">

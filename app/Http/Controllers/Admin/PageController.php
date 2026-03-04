@@ -10,8 +10,17 @@ use Illuminate\Support\Str;
 
 class PageController extends Controller
 {
+    public function __construct()
+    {
+        // Admin authorization check
+    }
+
     public function index()
     {
+        if (!auth()->check() || !auth()->user()->is_admin) {
+            abort(403, 'Unauthorized action.');
+        }
+
         $pages = Page::orderBy('display_order', 'asc')
             ->orderBy('created_at', 'desc')
             ->paginate(20);
@@ -21,11 +30,18 @@ class PageController extends Controller
 
     public function create()
     {
+        if (!auth()->check() || !auth()->user()->is_admin) {
+            abort(403, 'Unauthorized action.');
+        }
+
         return view('admin.pages.form', ['page' => new Page()]);
     }
 
     public function store(Request $request)
     {
+        if (!auth()->check() || !auth()->user()->is_admin) {
+            abort(403, 'Unauthorized action.');
+        }
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'slug' => 'nullable|string|max:255|unique:pages,slug',
@@ -50,6 +66,9 @@ class PageController extends Controller
             $validated['featured_image'] = $request->file('featured_image')->store('pages', 'public');
         }
 
+        // Handle is_published default
+        $validated['is_published'] = $request->boolean('is_published');
+
         // Set published_at if is_published is true and published_at is not set
         if ($validated['is_published'] && empty($validated['published_at'])) {
             $validated['published_at'] = now();
@@ -63,11 +82,24 @@ class PageController extends Controller
 
     public function edit(Page $page)
     {
+        if (!auth()->check() || !auth()->user()->is_admin) {
+            abort(403, 'Unauthorized action.');
+        }
+
         return view('admin.pages.form', compact('page'));
+    }
+
+    public function show(Page $page)
+    {
+        // Redirect to edit page for admin
+        return redirect()->route('admin.pages.edit', $page);
     }
 
     public function update(Request $request, Page $page)
     {
+        if (!auth()->check() || !auth()->user()->is_admin) {
+            abort(403, 'Unauthorized action.');
+        }
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'slug' => 'nullable|string|max:255|unique:pages,slug,' . $page->id,
@@ -96,6 +128,9 @@ class PageController extends Controller
             $validated['featured_image'] = $request->file('featured_image')->store('pages', 'public');
         }
 
+        // Handle is_published default
+        $validated['is_published'] = $request->boolean('is_published');
+
         // Set published_at if is_published is true and published_at is not set
         if ($validated['is_published'] && empty($validated['published_at'])) {
             $validated['published_at'] = now();
@@ -109,6 +144,10 @@ class PageController extends Controller
 
     public function destroy(Page $page)
     {
+        if (!auth()->check() || !auth()->user()->is_admin) {
+            abort(403, 'Unauthorized action.');
+        }
+
         // Delete featured image
         if ($page->featured_image) {
             Storage::disk('public')->delete($page->featured_image);
