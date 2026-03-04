@@ -297,6 +297,22 @@
                     </a>
                 </li>
 
+                <!-- Submissions -->
+                <li>
+                    <a href="{{ route('admin.submissions.index') }}" class="flex items-center p-3 text-gray-900 rounded-lg hover:bg-primary-50 group {{ request()->is('admin/submissions*') ? 'bg-primary-50 text-primary-600' : '' }}">
+                        <svg class="w-5 h-5 text-gray-500 transition duration-75 group-hover:text-primary-600 {{ request()->is('admin/submissions*') ? 'text-primary-600' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        <span :class="sidebarOpen ? 'ml-3' : 'lg:hidden ml-3'">Pengajuan Naskah</span>
+                        @php
+                            $pendingSubmissions = \App\Models\Submission::where('status', 'pending')->count();
+                        @endphp
+                        @if($pendingSubmissions > 0)
+                        <span class="inline-flex items-center justify-center w-5 h-5 ml-auto text-xs font-semibold text-white bg-yellow-500 rounded-full">{{ $pendingSubmissions }}</span>
+                        @endif
+                    </a>
+                </li>
+
                 <!-- Orders -->
                 <li>
                     <a href="{{ route('admin.orders.index') }}" class="flex items-center p-3 text-gray-900 rounded-lg hover:bg-primary-50 group {{ request()->routeIs('admin.orders.*') ? 'bg-primary-50 text-primary-600' : '' }}">

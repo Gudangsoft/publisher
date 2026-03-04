@@ -18,7 +18,9 @@ use App\Http\Controllers\Admin\PageController as AdminPageController;
 use App\Http\Controllers\Admin\AuthorController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\ThemeController;
+use App\Http\Controllers\Admin\SubmissionController as AdminSubmissionController;
 use App\Http\Controllers\MenuController as PublicMenuController;
+use App\Http\Controllers\SubmissionController;
 
 // Public Routes
 Route::get('/', function () {
@@ -177,6 +179,12 @@ Route::get('/pages/{page:slug}', function (\App\Models\Page $page) {
     return view('pages.show', compact('page'));
 })->name('pages.show');
 
+// Submission Routes (Public)
+Route::get('/submissions/create', [SubmissionController::class, 'create'])->name('submissions.create');
+Route::post('/submissions', [SubmissionController::class, 'store'])->name('submissions.store');
+Route::get('/submissions/success/{submissionNumber}', [SubmissionController::class, 'success'])->name('submissions.success');
+Route::get('/submissions/track', [SubmissionController::class, 'track'])->name('submissions.track');
+
 // About & Contact Routes
 Route::get('/about', function () {
     $page = \App\Models\Page::where('slug', 'about')->published()->first();
@@ -228,4 +236,11 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     // Theme routes
     Route::get('theme', [ThemeController::class, 'index'])->name('admin.theme.index');
     Route::put('theme', [ThemeController::class, 'update'])->name('admin.theme.update');
+
+    // Submission routes
+    Route::get('submissions', [AdminSubmissionController::class, 'index'])->name('admin.submissions.index');
+    Route::get('submissions/{submission}', [AdminSubmissionController::class, 'show'])->name('admin.submissions.show');
+    Route::put('submissions/{submission}', [AdminSubmissionController::class, 'update'])->name('admin.submissions.update');
+    Route::delete('submissions/{submission}', [AdminSubmissionController::class, 'destroy'])->name('admin.submissions.destroy');
+    Route::get('submissions/{submission}/download/{fileType}', [AdminSubmissionController::class, 'download'])->name('admin.submissions.download');
 });

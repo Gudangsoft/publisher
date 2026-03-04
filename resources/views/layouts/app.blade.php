@@ -198,6 +198,9 @@
                     <a href="/contact" class="px-4 py-2 rounded-lg text-gray-700 hover:text-primary-600 hover:bg-primary-50 transition-colors duration-200 font-medium">
                         Kontak
                     </a>
+                    <a href="/submissions/create" class="px-4 py-2 rounded-lg bg-primary-600 text-white hover:bg-primary-700 transition-colors duration-200 font-medium">
+                        Ajukan Naskah
+                    </a>
                 </div>
 
                 <!-- Right Side Menu -->
@@ -285,6 +288,7 @@
                     <a href="/authors" class="block px-4 py-3 rounded-lg text-gray-700 hover:bg-primary-50 hover:text-primary-600 font-medium">Penulis</a>
                     <a href="/about" class="block px-4 py-3 rounded-lg text-gray-700 hover:bg-primary-50 hover:text-primary-600 font-medium">Tentang Kami</a>
                     <a href="/contact" class="block px-4 py-3 rounded-lg text-gray-700 hover:bg-primary-50 hover:text-primary-600 font-medium">Kontak</a>
+                    <a href="/submissions/create" class="block px-4 py-3 rounded-lg bg-primary-600 text-white hover:bg-primary-700 font-medium text-center mt-2">Ajukan Naskah</a>
                     @auth
                         <a href="/admin" class="block px-4 py-3 rounded-lg text-gray-700 hover:bg-primary-50 hover:text-primary-600 font-medium">Dashboard</a>
                         <form method="POST" action="{{ route('logout') }}">
@@ -417,6 +421,8 @@
                         <li><a href="/news" class="text-gray-400 hover:text-primary-400 transition-colors duration-200">Berita</a></li>
                         <li><a href="/journals" class="text-gray-400 hover:text-primary-400 transition-colors duration-200">Jurnal</a></li>
                         <li><a href="/authors" class="text-gray-400 hover:text-primary-400 transition-colors duration-200">Penulis</a></li>
+                        <li><a href="/submissions/create" class="text-gray-400 hover:text-primary-400 transition-colors duration-200">Ajukan Naskah</a></li>
+                        <li><a href="/submissions/track" class="text-gray-400 hover:text-primary-400 transition-colors duration-200">Lacak Pengajuan</a></li>
                         <li><a href="/about" class="text-gray-400 hover:text-primary-400 transition-colors duration-200">Tentang Kami</a></li>
                         <li><a href="/contact" class="text-gray-400 hover:text-primary-400 transition-colors duration-200">Kontak</a></li>
                     </ul>
