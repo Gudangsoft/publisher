@@ -330,7 +330,12 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
                         </svg>
                         <span :class="sidebarOpen ? 'ml-3' : 'lg:hidden ml-3'">Pesanan</span>
-                        <span class="inline-flex items-center justify-center w-5 h-5 ml-auto text-xs font-semibold text-white bg-red-500 rounded-full">5</span>
+                        @php
+                            $pendingOrders = \App\Models\Order::where('status', 'pending')->count();
+                        @endphp
+                        @if($pendingOrders > 0)
+                        <span class="inline-flex items-center justify-center w-5 h-5 ml-auto text-xs font-semibold text-white bg-red-500 rounded-full">{{ $pendingOrders }}</span>
+                        @endif
                     </a>
                 </li>
 
