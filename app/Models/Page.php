@@ -58,9 +58,4 @@ class Page extends Model
         return $query->orderBy('display_order', 'asc')
             ->orderBy('title', 'asc');
     }
-
-    public function getRouteKeyName()
-    {
-        return 'slug';
-    }
 }
