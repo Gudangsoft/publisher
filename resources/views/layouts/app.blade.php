@@ -290,11 +290,9 @@
                         @endif
                     @endforeach
                     
-                    <!-- CTA Button with animation -->
-                    <a href="/submissions/create" class="relative ml-2 px-5 py-2.5 bg-gradient-to-r from-primary-500 via-primary-600 to-primary-500 bg-size-200 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 flex items-center gap-2 group cta-pulse">
-                        <svg class="w-5 h-5 group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
-                        </svg>
+                    <!-- Ajukan Naskah Menu -->
+                    <a href="/submissions/create" class="nav-link px-4 py-2 rounded-xl text-gray-700 hover:text-primary-600 hover:bg-gradient-to-r hover:from-primary-50 hover:to-transparent transition-all duration-300 font-medium flex items-center gap-2 group {{ request()->is('submissions*') ? 'text-primary-600 bg-primary-50' : '' }}">
+                        <span class="text-sm">✍️</span>
                         Ajukan Naskah
                     </a>
                 </div>
@@ -447,11 +445,9 @@
                         @endif
                     @endforeach
                     
-                    <!-- CTA Mobile -->
-                    <a href="/submissions/create" class="flex items-center justify-center gap-2 mx-2 mt-4 px-4 py-3.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl font-semibold shadow-lg">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
-                        </svg>
+                    <!-- Ajukan Naskah Mobile -->
+                    <a href="/submissions/create" class="flex items-center gap-3 mx-2 px-4 py-3 rounded-xl text-gray-700 hover:bg-primary-50 hover:text-primary-600 font-medium transition-all {{ request()->is('submissions*') ? 'bg-primary-50 text-primary-600' : '' }}">
+                        <span>✍️</span>
                         Ajukan Naskah
                     </a>
                     
