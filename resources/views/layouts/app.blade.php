@@ -222,22 +222,24 @@
                 <div class="flex items-center">
                     <a href="/" class="flex items-center space-x-3 group">
                         @if($logoExists)
-                        <div class="h-14 rounded-xl overflow-hidden shadow-lg group-hover:shadow-xl group-hover:scale-105 transition-all duration-300 ring-2 ring-primary-100">
+                        <div class="h-12 w-auto flex-shrink-0 group-hover:scale-105 transition-transform duration-300">
                             <img src="{{ asset('storage/' . $siteLogo) }}?v={{ time() }}" alt="{{ $siteName }}" class="h-full w-auto object-contain">
                         </div>
                         @else
-                        <div class="relative">
+                        <div class="relative flex-shrink-0">
                             <div class="absolute inset-0 bg-gradient-to-br from-primary-400 to-primary-600 rounded-xl blur-lg opacity-50 group-hover:opacity-75 transition-opacity"></div>
-                            <div class="relative bg-gradient-to-br from-primary-500 to-primary-700 p-3 rounded-xl shadow-lg group-hover:shadow-xl group-hover:scale-105 transition-all duration-300">
-                                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="relative bg-gradient-to-br from-primary-500 to-primary-700 p-2.5 rounded-xl shadow-lg group-hover:shadow-xl group-hover:scale-105 transition-all duration-300">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
                                 </svg>
                             </div>
                         </div>
                         @endif
-                        <div>
-                            <span class="text-2xl font-display font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">{{ $siteName }}</span>
-                            <p class="text-xs text-gray-500 font-medium tracking-wide">{{ $siteTagline }}</p>
+                        <div class="flex flex-col">
+                            <span class="text-base sm:text-lg font-bold text-gray-800 leading-tight tracking-tight group-hover:text-primary-600 transition-colors duration-300">{{ $siteName }}</span>
+                            @if($siteTagline)
+                            <span class="text-[10px] sm:text-xs text-gray-500 font-medium tracking-wider uppercase">{{ $siteTagline }}</span>
+                            @endif
                         </div>
                     </a>
                 </div>
@@ -596,17 +598,22 @@
                 <div class="lg:col-span-2">
                     <div class="flex items-center space-x-3 mb-6">
                         @if($siteLogo)
-                        <div class="h-14 rounded-lg overflow-hidden">
-                            <img src="{{ asset('storage/' . $siteLogo) }}" alt="{{ $siteName }}" class="h-full w-auto object-contain">
+                        <div class="h-12 flex-shrink-0">
+                            <img src="{{ asset('storage/' . $siteLogo) }}" alt="{{ $siteName }}" class="h-full w-auto object-contain brightness-0 invert">
                         </div>
                         @else
-                        <div class="bg-gradient-to-br from-primary-500 to-primary-700 p-2.5 rounded-lg">
-                            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="bg-gradient-to-br from-primary-500 to-primary-700 p-2.5 rounded-lg flex-shrink-0">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
                             </svg>
                         </div>
                         @endif
-                        <span class="text-2xl font-display font-bold text-white">{{ $siteName }}</span>
+                        <div class="flex flex-col">
+                            <span class="text-lg font-bold text-white leading-tight">{{ $siteName }}</span>
+                            @if($siteTagline)
+                            <span class="text-xs text-gray-400 tracking-wider uppercase">{{ $siteTagline }}</span>
+                            @endif
+                        </div>
                     </div>
                     <p class="text-white mb-6 max-w-md leading-relaxed">
                         {{ \App\Models\Setting::get('site_description', 'Penerbit buku terpercaya yang berkomitmen menyediakan bacaan berkualitas untuk mencerdaskan bangsa.') }}
