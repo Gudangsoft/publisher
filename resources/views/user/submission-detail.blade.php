@@ -18,6 +18,13 @@
 
         <!-- Status Banner -->
         @php
+        $statusKey = $submission->status;
+        if ($statusKey === 'in_review') {
+            $statusKey = 'reviewing';
+        } elseif ($statusKey === 'revision_required') {
+            $statusKey = 'revision';
+        }
+
         $statusConfig = [
             'pending' => ['bg' => 'bg-yellow-50', 'border' => 'border-yellow-200', 'text' => 'text-yellow-800', 'icon' => 'clock', 'label' => 'Menunggu Review', 'description' => 'Naskah Anda sedang menunggu untuk direview oleh tim editor kami.'],
             'reviewing' => ['bg' => 'bg-blue-50', 'border' => 'border-blue-200', 'text' => 'text-blue-800', 'icon' => 'eye', 'label' => 'Sedang Direview', 'description' => 'Naskah Anda sedang dalam proses review oleh tim editor.'],
@@ -27,7 +34,7 @@
             'in_progress' => ['bg' => 'bg-purple-50', 'border' => 'border-purple-200', 'text' => 'text-purple-800', 'icon' => 'printer', 'label' => 'Dalam Produksi', 'description' => 'Naskah Anda sedang dalam tahap produksi/pencetakan.'],
             'completed' => ['bg' => 'bg-gray-50', 'border' => 'border-gray-200', 'text' => 'text-gray-800', 'icon' => 'check-circle', 'label' => 'Selesai', 'description' => 'Proses penerbitan naskah Anda telah selesai.'],
         ];
-        $config = $statusConfig[$submission->status] ?? $statusConfig['pending'];
+        $config = $statusConfig[$statusKey] ?? $statusConfig['pending'];
         @endphp
         <div class="{{ $config['bg'] }} {{ $config['border'] }} border rounded-xl p-6 mb-8">
             <div class="flex items-start">
@@ -160,7 +167,7 @@
                 </div>
 
                 <!-- Revision Notes (if any) -->
-                @if($submission->revision_notes && in_array($submission->status, ['revision', 'rejected']))
+                @if($submission->revision_notes && in_array($submission->status, ['revision', 'revision_required', 'rejected']))
                 <div class="bg-orange-50 border border-orange-200 rounded-lg p-4">
                     <h4 class="font-semibold text-orange-800 mb-2">Catatan dari Editor</h4>
                     <div class="text-sm text-orange-700">
