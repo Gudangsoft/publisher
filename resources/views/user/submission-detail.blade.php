@@ -24,7 +24,7 @@
             'revision' => ['bg' => 'bg-orange-50', 'border' => 'border-orange-200', 'text' => 'text-orange-800', 'icon' => 'edit', 'label' => 'Perlu Revisi', 'description' => 'Naskah Anda memerlukan beberapa revisi. Silakan lihat catatan dari editor di bawah.'],
             'approved' => ['bg' => 'bg-green-50', 'border' => 'border-green-200', 'text' => 'text-green-800', 'icon' => 'check', 'label' => 'Disetujui', 'description' => 'Selamat! Naskah Anda telah disetujui dan akan segera diproses untuk penerbitan.'],
             'rejected' => ['bg' => 'bg-red-50', 'border' => 'border-red-200', 'text' => 'text-red-800', 'icon' => 'x', 'label' => 'Ditolak', 'description' => 'Mohon maaf, naskah Anda tidak dapat dilanjutkan. Silakan lihat alasan penolakan di bawah.'],
-            'in_progress=> ['bg' => 'bg-purple-50', 'border' => 'border-purple-200', 'text' => 'text-purple-800', 'icon' => 'printer', 'label' => 'Dalam Produksi', 'description' => 'Naskah Anda sedang dalam tahap produksi/pencetakan.'],
+            'in_progress' => ['bg' => 'bg-purple-50', 'border' => 'border-purple-200', 'text' => 'text-purple-800', 'icon' => 'printer', 'label' => 'Dalam Produksi', 'description' => 'Naskah Anda sedang dalam tahap produksi/pencetakan.'],
             'completed' => ['bg' => 'bg-gray-50', 'border' => 'border-gray-200', 'text' => 'text-gray-800', 'icon' => 'check-circle', 'label' => 'Selesai', 'description' => 'Proses penerbitan naskah Anda telah selesai.'],
         ];
         $config = $statusConfig[$submission->status] ?? $statusConfig['pending'];
