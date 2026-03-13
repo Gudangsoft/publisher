@@ -167,7 +167,7 @@
                 </div>
 
                 <!-- Revision Notes (if any) -->
-                @if($submission->revision_notes && in_array($submission->status, ['revision', 'revision_required', 'rejected']))
+                @if($submission->revision_notes)
                 <div class="bg-orange-50 border border-orange-200 rounded-lg p-4">
                     <h4 class="font-semibold text-orange-800 mb-2">Catatan dari Editor</h4>
                     <div class="text-sm text-orange-700">
