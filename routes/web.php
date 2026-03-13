@@ -242,6 +242,8 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::resource('authors', AuthorController::class, ['as' => 'admin']);
     Route::resource('reviews', ReviewController::class, ['as' => 'admin']);
     Route::resource('users', UserController::class, ['as' => 'admin']);
+    Route::post('users/{user}/login-as', [UserController::class, 'loginAs'])->name('admin.users.login-as');
+    Route::post('users/switch-back', [UserController::class, 'switchBack'])->name('admin.users.switch-back');
     Route::resource('orders', OrderController::class, ['as' => 'admin'])->only(['index', 'show', 'update', 'destroy']);
     Route::get('orders/{order}/invoice', [InvoiceController::class, 'downloadAdminInvoice'])->name('admin.orders.invoice');
     Route::get('settings', [SettingsController::class, 'index'])->name('admin.settings.index');

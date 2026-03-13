@@ -93,4 +93,34 @@ class UserController extends Controller
         return redirect()->route('admin.users.index')
             ->with('success', 'Pengguna berhasil dihapus.');
     }
+
+    public function loginAs(User $user)
+    {
+        // Store the original admin user ID in session
+        session(['admin_user_id' => auth()->id()]);
+        
+        // Log in as the target user
+        auth()->login($user);
+        
+        return redirect('/')->with('success', 'Anda sekarang login sebagai ' . $user->name);
+    }
+
+    public function switchBack()
+    {
+        // Get the original admin user ID from session
+        $adminUserId = session('admin_user_id');
+        
+        if ($adminUserId) {
+            $adminUser = User::find($adminUserId);
+            if ($adminUser) {
+                // Log back in as admin
+                auth()->login($adminUser);
+                session()->forget('admin_user_id');
+                
+                return redirect()->route('admin.users.index')->with('success', 'Kembali ke akun admin.');
+            }
+        }
+        
+        return redirect('/')->with('error', 'Tidak dapat kembali ke akun admin.');
+    }
 }
