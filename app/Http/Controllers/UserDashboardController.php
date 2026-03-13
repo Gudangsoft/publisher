@@ -90,6 +90,48 @@ class UserDashboardController extends Controller
         return view('user.submission-detail', compact('submission'));
     }
 
+    public function reviseSubmission(Request $request, $id)
+    {
+        $user = auth()->user();
+
+        $submission = Submission::where('submitter_email', $user->email)
+            ->where('id', $id)
+            ->firstOrFail();
+
+        $validated = $request->validate([
+            'manuscript_file' => 'nullable|file|mimes:pdf,doc,docx|max:20480',
+            'cover_proposal' => 'nullable|image|mimes:jpeg,png,jpg|max:5120',
+        ]);
+
+        // If user uploads a new file, store it and update the record.
+        if ($request->hasFile('manuscript_file')) {
+            // Delete old file if exists
+            if ($submission->manuscript_file) {
+                Storage::disk('public')->delete($submission->manuscript_file);
+            }
+            $submission->manuscript_file = $request->file('manuscript_file')
+                ->store('submissions/manuscripts', 'public');
+        }
+
+        if ($request->hasFile('cover_proposal')) {
+            if ($submission->cover_proposal) {
+                Storage::disk('public')->delete($submission->cover_proposal);
+            }
+            $submission->cover_proposal = $request->file('cover_proposal')
+                ->store('submissions/covers', 'public');
+        }
+
+        // When user submits a revision, clear the previous review note and mark it for re-review
+        $submission->reviewed_by = null;
+        $submission->reviewed_at = null;
+        $submission->status = 'reviewing';
+        $submission->revision_notes = null;
+        $submission->save();
+
+        return redirect()->route('user.submissions.show', $submission->id)
+            ->with('success', 'Revisi Anda telah berhasil dikirim. Tim kami akan meninjau kembali.');
+    }
+
     /**
      * Display all orders for user
      */

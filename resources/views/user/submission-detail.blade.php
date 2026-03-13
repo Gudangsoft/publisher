@@ -178,6 +178,38 @@
                     </div>
                 </div>
 
+                @if($submission->revision_notes)
+                <!-- Revision Upload (if reviewer requested revision) -->
+                <div class="bg-white rounded-lg border border-gray-200 p-6 mt-6">
+                    <h4 class="text-lg font-semibold text-gray-900 mb-4">Unggah Revisi</h4>
+                    <p class="text-sm text-gray-600 mb-4">Unggah kembali file naskah atau cover jika Anda sudah melakukan revisi sesuai catatan editor.</p>
+
+                    <form action="{{ route('user.submissions.revise', $submission->id) }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">File Naskah (PDF/DOC/DOCX)</label>
+                                <input type="file" name="manuscript_file" accept=".pdf,.doc,.docx" class="w-full" />
+                                <p class="text-xs text-gray-500 mt-1">Kosongkan jika tidak ingin mengganti file naskah.</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Cover Proposal (Gambar)</label>
+                                <input type="file" name="cover_proposal" accept="image/*" class="w-full" />
+                                <p class="text-xs text-gray-500 mt-1">Kosongkan jika tidak ingin mengganti cover.</p>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <button type="submit" class="inline-flex items-center px-5 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5-5 5 5M12 5v12"/>
+                                </svg>
+                                Kirim Revisi
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                @endif
+
                 <!-- Admin Notes (if any) -->
                 @if($submission->admin_notes && $submission->status == 'approved')
                 <div class="bg-green-50 border border-green-200 rounded-lg p-4">

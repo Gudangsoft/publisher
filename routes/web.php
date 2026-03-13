@@ -220,6 +220,7 @@ Route::middleware('auth')->prefix('user')->name('user.')->group(function () {
     Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
     Route::get('/submissions', [UserDashboardController::class, 'submissions'])->name('submissions');
     Route::get('/submissions/{id}', [UserDashboardController::class, 'showSubmission'])->name('submissions.show');
+    Route::post('/submissions/{id}/revise', [UserDashboardController::class, 'reviseSubmission'])->name('submissions.revise');
     Route::get('/orders', [UserDashboardController::class, 'orders'])->name('orders');
     Route::get('/orders/{id}', [UserDashboardController::class, 'showOrder'])->name('orders.show');
     Route::get('/orders/{id}/invoice', [InvoiceController::class, 'downloadUserInvoice'])->name('orders.invoice');
