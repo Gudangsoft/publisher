@@ -167,14 +167,16 @@
                 </div>
 
                 <!-- Revision Notes (if any) -->
-                @if($submission->revision_notes)
                 <div class="bg-orange-50 border border-orange-200 rounded-lg p-4">
                     <h4 class="font-semibold text-orange-800 mb-2">Catatan dari Editor</h4>
                     <div class="text-sm text-orange-700">
-                        {!! nl2br(e($submission->revision_notes)) !!}
+                        @if($submission->revision_notes)
+                            {!! nl2br(e($submission->revision_notes)) !!}
+                        @else
+                            <span class="text-orange-600">Belum ada catatan revisi dari tim editor.</span>
+                        @endif
                     </div>
                 </div>
-                @endif
 
                 <!-- Admin Notes (if any) -->
                 @if($submission->admin_notes && $submission->status == 'approved')
