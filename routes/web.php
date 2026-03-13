@@ -216,8 +216,8 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // User Dashboard routes (for logged-in users)
-Route::middleware('auth')->prefix('dashboard')->name('user.')->group(function () {
-    Route::get('/', [UserDashboardController::class, 'index'])->name('dashboard');
+Route::middleware('auth')->prefix('user')->name('user.')->group(function () {
+    Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
     Route::get('/submissions', [UserDashboardController::class, 'submissions'])->name('submissions');
     Route::get('/submissions/{id}', [UserDashboardController::class, 'showSubmission'])->name('submissions.show');
     Route::get('/orders', [UserDashboardController::class, 'orders'])->name('orders');

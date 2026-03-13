@@ -29,7 +29,7 @@ class AuthController extends Controller
                 return redirect()->intended(route('admin.dashboard'));
             }
             
-            return redirect()->intended(route('submissions.create'));
+            return redirect()->intended(route('user.dashboard'));
         }
 
         return back()->withErrors(['email' => 'Email atau password salah'])->onlyInput('email');
