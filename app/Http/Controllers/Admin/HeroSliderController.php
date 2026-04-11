@@ -41,7 +41,7 @@ class HeroSliderController extends Controller
         $validated['is_active'] = $request->has('is_active');
         $validated['display_order'] = $request->display_order ?? 0;
         $validated['model'] = $request->model ?? 'full_image';
-        $validated['title'] = $request->input('title', '');
+        $validated['title'] = $request->input('title') ?? '';
 
         HeroSlider::create($validated);
 
@@ -78,7 +78,7 @@ class HeroSliderController extends Controller
         $validated['is_active'] = $request->has('is_active');
         $validated['display_order'] = $request->display_order ?? $heroSlider->display_order;
         $validated['model'] = $request->model ?? $heroSlider->model ?? 'full_image';
-        $validated['title'] = $request->input('title', '');
+        $validated['title'] = $request->input('title') ?? '';
 
         $heroSlider->update($validated);
 
