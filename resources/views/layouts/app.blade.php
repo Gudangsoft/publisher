@@ -94,6 +94,8 @@
     
     <!-- Custom Styles -->
     <style>
+        [x-cloak] { display: none !important; }
+        
         @keyframes fadeInUp {
             from {
                 opacity: 0;

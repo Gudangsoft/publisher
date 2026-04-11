@@ -29,6 +29,7 @@ class HeroSliderController extends Controller
             'image' => 'required|image|mimes:jpeg,png,jpg|max:2048',
             'button_text' => 'nullable|string|max:255',
             'button_link' => 'nullable|string|max:255',
+            'model' => 'nullable|string|in:full_image,text_overlay,compact',
             'display_order' => 'nullable|integer',
             'is_active' => 'nullable|boolean',
         ]);
@@ -39,6 +40,7 @@ class HeroSliderController extends Controller
 
         $validated['is_active'] = $request->has('is_active');
         $validated['display_order'] = $request->display_order ?? 0;
+        $validated['model'] = $request->model ?? 'full_image';
 
         HeroSlider::create($validated);
 
@@ -60,6 +62,7 @@ class HeroSliderController extends Controller
             'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'button_text' => 'nullable|string|max:255',
             'button_link' => 'nullable|string|max:255',
+            'model' => 'nullable|string|in:full_image,text_overlay,compact',
             'display_order' => 'nullable|integer',
             'is_active' => 'nullable|boolean',
         ]);
@@ -73,6 +76,7 @@ class HeroSliderController extends Controller
 
         $validated['is_active'] = $request->has('is_active');
         $validated['display_order'] = $request->display_order ?? $heroSlider->display_order;
+        $validated['model'] = $request->model ?? $heroSlider->model ?? 'full_image';
 
         $heroSlider->update($validated);
 

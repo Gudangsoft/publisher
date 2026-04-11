@@ -4,120 +4,172 @@
 @section('meta_description', 'Temukan koleksi buku terbaik dari publisher terpercaya di Indonesia. Berbagai genre untuk semua kalangan.')
 
 @section('content')
-<!-- Hero Section with Slider -->
-<section class="relative bg-gradient-to-br from-primary-50 via-white to-purple-50 overflow-hidden">
+<!-- Professional Hero Slider Section -->
+<section class="relative w-full h-screen max-h-[800px] overflow-hidden bg-slate-900">
     @if($heroSliders->count() > 0)
-    <div x-data="{ 
+    
+    <!-- Alpine.js Slider Data -->
+    <div x-data="{
         currentSlide: 0,
         slides: {{ $heroSliders->count() }},
-        autoplay: true,
-        interval: null,
         init() {
-            if (this.autoplay && this.slides > 1) {
-                this.startAutoplay();
+            if (this.slides > 1) {
+                setInterval(() => { this.currentSlide = (this.currentSlide + 1) % this.slides; }, 6000);
             }
-        },
-        startAutoplay() {
-            this.interval = setInterval(() => {
-                this.next();
-            }, 5000);
-        },
-        stopAutoplay() {
-            clearInterval(this.interval);
-        },
-        next() {
-            this.currentSlide = (this.currentSlide + 1) % this.slides;
-        },
-        prev() {
-            this.currentSlide = (this.currentSlide - 1 + this.slides) % this.slides;
         }
-    }" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
+    }" class="relative h-full">
         
-        <div class="relative min-h-[600px] lg:min-h-[500px]">
-            @foreach($heroSliders as $index => $slider)
-            <div x-show="currentSlide === {{ $index }}" 
-                 x-transition:enter="transition ease-out duration-700"
-                 x-transition:enter-start="opacity-0"
-                 x-transition:enter-end="opacity-100"
-                 x-transition:leave="transition ease-in duration-700"
-                 x-transition:leave-start="opacity-100"
-                 x-transition:leave-end="opacity-0"
-                 :class="currentSlide === {{ $index }} ? '' : 'absolute inset-0'"
-                 class="grid lg:grid-cols-2 gap-12 items-center">
-                
-                <div class="animate-fade-in-up">
-                    <h1 class="text-5xl lg:text-7xl font-display font-bold text-gray-900 mb-6 leading-tight">
-                        {{ $slider->title }} <br>
+        <!-- Slider Items -->
+        @foreach($heroSliders as $index => $slider)
+        <div x-cloak x-show="currentSlide === {{ $index }}" 
+             x-transition:enter="transition duration-1000"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition duration-1000"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="absolute inset-0">
+            
+            <!-- Image Background -->
+            <img src="{{ str_starts_with($slider->image, 'http') ? $slider->image : asset('storage/' . $slider->image) }}" 
+                 alt="{{ $slider->title }}" 
+                 class="absolute inset-0 w-full h-full object-cover"
+                 loading="lazy">
+            
+            <!-- Professional Overlay -->
+            <div class="absolute inset-0 bg-gradient-to-r from-slate-900/85 via-slate-900/50 to-slate-900/20"></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent"></div>
+            
+            <!-- Content -->
+            <div class="absolute inset-0 flex items-center">
+                <div class="w-full px-6 sm:px-8 md:px-12 lg:px-16">
+                    <div class="max-w-3xl">
+                        <!-- Subtitle Badge -->
                         @if($slider->subtitle)
-                        <span class="text-gradient">{{ $slider->subtitle }}</span>
-                        @endif
-                    </h1>
-                    @if($slider->description)
-                    <p class="text-xl text-gray-600 mb-8 leading-relaxed">
-                        {{ $slider->description }}
-                    </p>
-                    @endif
-                    @if($slider->button_text && $slider->button_link)
-                    <div class="flex flex-wrap gap-4">
-                        <a href="{{ $slider->button_link }}" class="px-8 py-4 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-200">
-                            {{ $slider->button_text }}
-                        </a>
-                    </div>
-                    @endif
-                    
-                    <!-- Stats -->
-                    @if($statistics->count() > 0)
-                    <div class="grid grid-cols-{{ min($statistics->count(), 3) }} gap-6 mt-12">
-                        @foreach($statistics as $stat)
-                        <div class="text-center">
-                            <div class="text-3xl font-bold text-{{ $stat->color }}-600">{{ $stat->value }}{{ $stat->suffix }}</div>
-                            <div class="text-sm text-gray-600 mt-1">{{ $stat->label }}</div>
+                        <div class="inline-block mb-4 sm:mb-6"
+                             x-show="currentSlide === {{ $index }}"
+                             x-transition:enter="transition ease-out duration-700 delay-100"
+                             x-transition:enter-start="opacity-0 -translate-y-4"
+                             x-transition:enter-end="opacity-100 translate-y-0">
+                            <span class="inline-block px-4 py-2 bg-gradient-to-r from-primary-500/80 to-primary-600/80 text-white text-sm font-semibold rounded-full backdrop-blur-sm border border-primary-400/30">
+                                {{ $slider->subtitle }}
+                            </span>
                         </div>
-                        @endforeach
+                        @endif
+                        
+                        <!-- Main Title -->
+                        <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-black text-white mb-4 md:mb-6 leading-tight tracking-tight drop-shadow-2xl"
+                            x-show="currentSlide === {{ $index }}"
+                            x-transition:enter="transition ease-out duration-700 delay-200"
+                            x-transition:enter-start="opacity-0 -translate-y-8"
+                            x-transition:enter-end="opacity-100 translate-y-0">
+                            {{ $slider->title }}
+                        </h1>
+                        
+                        <!-- Description -->
+                        @if($slider->description)
+                        <p class="text-lg sm:text-xl text-gray-100 mb-8 md:mb-10 max-w-2xl leading-relaxed font-light drop-shadow-lg"
+                           x-show="currentSlide === {{ $index }}"
+                           x-transition:enter="transition ease-out duration-700 delay-300"
+                           x-transition:enter-start="opacity-0 -translate-y-4"
+                           x-transition:enter-end="opacity-100 translate-y-0">
+                            {{ $slider->description }}
+                        </p>
+                        @endif
+                        
+                        <!-- CTA Button -->
+                        @if($slider->button_text && $slider->button_link)
+                        <div class="flex flex-wrap gap-4"
+                             x-show="currentSlide === {{ $index }}"
+                             x-transition:enter="transition ease-out duration-700 delay-400"
+                             x-transition:enter-start="opacity-0 -translate-y-4"
+                             x-transition:enter-end="opacity-100 translate-y-0">
+                            <a href="{{ $slider->button_link }}" 
+                               class="group inline-flex items-center px-8 py-4 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300">
+                                <span>{{ $slider->button_text }}</span>
+                                <svg class="w-5 h-5 ml-3 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                                </svg>
+                            </a>
+                        </div>
+                        @endif
                     </div>
-                    @endif
-                </div>
-
-                <div class="relative hidden lg:block">
-                    <div class="relative z-10">
-                        <img src="{{ str_starts_with($slider->image, 'http') ? $slider->image : asset('storage/' . $slider->image) }}" 
-                             alt="{{ $slider->title }}" 
-                             class="rounded-2xl shadow-2xl transform rotate-2 hover:rotate-0 transition-transform duration-300 object-cover w-full h-[500px]">
-                    </div>
-                    <div class="absolute top-10 -right-10 w-72 h-72 bg-primary-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse"></div>
-                    <div class="absolute -bottom-10 -left-10 w-72 h-72 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse" style="animation-delay: 1s;"></div>
                 </div>
             </div>
-            @endforeach
         </div>
-
-        <!-- Slider Controls -->
+        @endforeach
+        
+        <!-- Navigation Controls -->
         @if($heroSliders->count() > 1)
-        <div class="flex items-center justify-center mt-12 space-x-4">
-            <button @click="prev(); stopAutoplay()" 
-                    class="p-3 bg-white rounded-full shadow-lg hover:shadow-xl hover:bg-gray-50 transition-all duration-200">
-                <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                </svg>
-            </button>
-
-            <div class="flex space-x-2">
-                @foreach($heroSliders as $index => $slider)
-                <button @click="currentSlide = {{ $index }}; stopAutoplay()"
-                        :class="currentSlide === {{ $index }} ? 'bg-primary-600 w-8' : 'bg-gray-300 w-2'"
-                        class="h-2 rounded-full transition-all duration-300"></button>
-                @endforeach
+        <div class="absolute bottom-8 left-0 right-0 z-20">
+            <div class="flex items-center justify-center md:justify-start md:pl-12 lg:pl-16 gap-8">
+                <!-- Previous Button -->
+                <button @click="currentSlide = (currentSlide - 1 + slides) % slides" 
+                        class="group p-3 rounded-full bg-white/10 hover:bg-white/20 border border-white/30 hover:border-white/50 text-white transition-all duration-300 backdrop-blur-sm">
+                    <svg class="w-6 h-6 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                </button>
+                
+                <!-- Slide Indicators -->
+                <div class="flex gap-3">
+                    @foreach($heroSliders as $index => $slider)
+                    <button @click="currentSlide = {{ $index }}"
+                            :class="currentSlide === {{ $index }} ? 'bg-white w-10' : 'bg-white/50 hover:bg-white/70 w-3'"
+                            class="h-1.5 rounded-full transition-all duration-300">
+                    </button>
+                    @endforeach
+                </div>
+                
+                <!-- Next Button -->
+                <button @click="currentSlide = (currentSlide + 1) % slides" 
+                        class="group p-3 rounded-full bg-white/10 hover:bg-white/20 border border-white/30 hover:border-white/50 text-white transition-all duration-300 backdrop-blur-sm">
+                    <svg class="w-6 h-6 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </button>
             </div>
-
-            <button @click="next(); stopAutoplay()" 
-                    class="p-3 bg-white rounded-full shadow-lg hover:shadow-xl hover:bg-gray-50 transition-all duration-200">
-                <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                </svg>
-            </button>
         </div>
-        @endif
+        
+        <!-- Slide Counter -->
+        <div class="absolute top-8 right-8 z-20 text-white">
+            <div class="text-sm font-medium">
+                <span x-text="currentSlide + 1"></span> / <span>{{ $heroSliders->count() }}</span>
+            </div>
+        </div>
+        
     </div>
+    @else
+    <!-- Fallback Banner -->
+    <div class="relative h-full flex items-center bg-gradient-to-br from-slate-900 to-slate-800 overflow-hidden">
+        <div class="absolute inset-0 opacity-10">
+            <div class="absolute top-20 left-10 w-72 h-72 bg-primary-500 rounded-full filter blur-3xl"></div>
+            <div class="absolute -bottom-40 right-10 w-96 h-96 bg-primary-600 rounded-full filter blur-3xl"></div>
+        </div>
+        
+        <div class="relative w-full px-6 sm:px-8 md:px-12 lg:px-16">
+            <div class="max-w-3xl">
+                <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-black text-white mb-6 leading-tight tracking-tight">
+                    Jendela Ilmu <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-primary-600">Untuk Semua</span>
+                </h1>
+                <p class="text-lg sm:text-xl text-gray-300 mb-8 max-w-2xl leading-relaxed font-light">
+                    Temukan koleksi buku terlengkap dan berkualitas dari penerbit terpercaya. Berbagai genre untuk semua kalangan.
+                </p>
+                <div class="flex flex-wrap gap-4">
+                    <a href="/books" 
+                       class="group inline-flex items-center px-8 py-4 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300">
+                        <span>Jelajahi Katalog</span>
+                        <svg class="w-5 h-5 ml-3 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+</section>
+
     @else
     <!-- Default/Fallback Hero when no sliders are active -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">

@@ -42,6 +42,7 @@
                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Preview</th>
                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Judul</th>
                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Subtitle</th>
+                    <th class="px-6 py-4 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">Model</th>
                     <th class="px-6 py-4 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">Urutan</th>
                     <th class="px-6 py-4 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">Status</th>
                     <th class="px-6 py-4 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Aksi</th>
@@ -60,6 +61,25 @@
                     </td>
                     <td class="px-6 py-4">
                         <span class="text-sm text-gray-600">{{ Str::limit($slider->subtitle ?? '-', 50) }}</span>
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                        @php
+                            $modelLabels = [
+                                'full_image' => 'Gambar Penuh',
+                                'text_overlay' => 'Gambar + Overlay',
+                                'compact' => 'Kompak'
+                            ];
+                            $modelColors = [
+                                'full_image' => 'purple',
+                                'text_overlay' => 'blue',
+                                'compact' => 'gray'
+                            ];
+                            $model = $slider->model ?? 'compact';
+                            $color = $modelColors[$model] ?? 'gray';
+                        @endphp
+                        <span class="inline-block px-3 py-1 bg-{{ $color }}-100 text-{{ $color }}-700 rounded-full text-xs font-medium">
+                            {{ $modelLabels[$model] ?? 'Kompak' }}
+                        </span>
                     </td>
                     <td class="px-6 py-4 text-center">
                         <span class="inline-block px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-medium">{{ $slider->display_order }}</span>

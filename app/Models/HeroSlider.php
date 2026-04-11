@@ -13,6 +13,7 @@ class HeroSlider extends Model
         'image',
         'button_text',
         'button_link',
+        'model',
         'display_order',
         'is_active',
     ];

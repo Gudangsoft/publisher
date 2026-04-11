@@ -138,7 +138,80 @@
                 
                 <div class="space-y-6">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Urutan Tampil</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-4">Model Slider</label>
+                        <div class="grid grid-cols-3 gap-4">
+                            <!-- Full Image Model -->
+                            <label class="relative cursor-pointer group">
+                                <input type="radio" name="model" value="full_image" 
+                                    {{ old('model', $heroSlider->model ?? 'full_image') == 'full_image' ? 'checked' : '' }}
+                                    class="sr-only">
+                                <div class="relative border-2 rounded-lg overflow-hidden transition-all duration-200 border-gray-300 group-hover:border-primary-400 " :class="{'border-primary-500 ring-2 ring-primary-500': (old('model', $heroSlider->model ?? 'full_image') === 'full_image')}">
+                                    <div class="bg-gradient-to-br from-gray-900 to-gray-700 h-32 relative">
+                                        <div class="absolute inset-0 bg-cover bg-center opacity-50" style="background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22%3E%3Crect fill=%22%23666%22 width=%22400%22 height=%22300%22/%3E%3C/svg%3E')"></div>
+                                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-3">
+                                            <p class="text-white text-xs font-semibold">Judul Slider</p>
+                                            <p class="text-gray-300 text-xs">Subtitle</p>
+                                        </div>
+                                    </div>
+                                    <div class="p-3 bg-white">
+                                        <p class="text-xs font-medium text-gray-900">Gambar Penuh</p>
+                                        <p class="text-xs text-gray-500">Full header image</p>
+                                    </div>
+                                </div>
+                            </label>
+
+                            <!-- Text Overlay Model -->
+                            <label class="relative cursor-pointer group">
+                                <input type="radio" name="model" value="text_overlay" 
+                                    {{ old('model', $heroSlider->model ?? 'full_image') == 'text_overlay' ? 'checked' : '' }}
+                                    class="sr-only">
+                                <div class="relative border-2 rounded-lg overflow-hidden transition-all duration-200 border-gray-300 group-hover:border-primary-400" :class="{'border-primary-500 ring-2 ring-primary-500': (old('model', $heroSlider->model ?? 'full_image') === 'text_overlay')}">
+                                    <div class="bg-gradient-to-br from-blue-600 to-blue-400 h-32 relative">
+                                        <div class="absolute inset-0 opacity-40 flex items-center justify-center">
+                                            <div class="text-center text-white">
+                                                <p class="text-sm font-bold">Gambar</p>
+                                            </div>
+                                        </div>
+                                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent p-3 flex flex-col justify-between">
+                                            <div></div>
+                                            <div>
+                                                <p class="text-white text-xs font-semibold">Judul Besar</p>
+                                                <p class="text-gray-200 text-xs">Teks deskripsi singkat</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="p-3 bg-white">
+                                        <p class="text-xs font-medium text-gray-900">Gambar + Overlay</p>
+                                        <p class="text-xs text-gray-500">Teks di atas gambar</p>
+                                    </div>
+                                </div>
+                            </label>
+
+                            <!-- Compact Model -->
+                            <label class="relative cursor-pointer group">
+                                <input type="radio" name="model" value="compact" 
+                                    {{ old('model', $heroSlider->model ?? 'full_image') == 'compact' ? 'checked' : '' }}
+                                    class="sr-only">
+                                <div class="relative border-2 rounded-lg overflow-hidden transition-all duration-200 border-gray-300 group-hover:border-primary-400" :class="{'border-primary-500 ring-2 ring-primary-500': (old('model', $heroSlider->model ?? 'full_image') === 'compact')}">
+                                    <div class="bg-white h-32 border-b border-gray-200 flex">
+                                        <div class="w-1/2 p-3 flex flex-col justify-center border-r border-gray-200">
+                                            <p class="text-gray-900 text-xs font-bold leading-tight">Judul</p>
+                                            <p class="text-gray-600 text-xs mt-1 line-clamp-2">Deskripsi singkat</p>
+                                        </div>
+                                        <div class="w-1/2 bg-gradient-to-br from-purple-200 to-purple-100 flex items-center justify-center">
+                                            <span class="text-xs text-purple-600 font-semibold">Gambar</span>
+                                        </div>
+                                    </div>
+                                    <div class="p-3 bg-white">
+                                        <p class="text-xs font-medium text-gray-900">Kompak</p>
+                                        <p class="text-xs text-gray-500">Teks & gambar berdampingan</p>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div>
                         <input type="number" name="display_order" value="{{ old('display_order', $heroSlider->display_order ?? 0) }}" 
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                             min="0">
