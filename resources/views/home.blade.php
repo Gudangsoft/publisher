@@ -33,7 +33,7 @@
             <!-- Image Background -->
             <img src="{{ str_starts_with($slider->image, 'http') ? $slider->image : asset('storage/' . $slider->image) }}" 
                  alt="{{ $slider->title }}" 
-                 class="absolute inset-0 w-full h-full object-cover"
+                 class="absolute inset-0 w-full h-full object-contain object-center"
                  loading="lazy">
             
             <!-- Professional Overlay -->
