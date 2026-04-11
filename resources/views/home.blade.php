@@ -5,7 +5,7 @@
 
 @section('content')
 <!-- Professional Hero Slider Section -->
-<section class="relative w-full h-screen max-h-[800px] overflow-hidden bg-slate-900">
+<section class="relative w-full overflow-hidden bg-slate-900 -mt-32 lg:-mt-28" style="height: 100vh; min-height: 600px;">
     @if($heroSliders->count() > 0)
     
     <!-- Alpine.js Slider Data -->
@@ -42,7 +42,7 @@
             
             <!-- Content -->
             <div class="absolute inset-0 flex items-center">
-                <div class="w-full px-6 sm:px-8 md:px-12 lg:px-16">
+                <div class="w-full px-6 sm:px-8 md:px-12 lg:px-16 pt-32 lg:pt-28">
                     <div class="max-w-3xl">
                         <!-- Subtitle Badge -->
                         @if($slider->subtitle)
@@ -147,7 +147,7 @@
             <div class="absolute -bottom-40 right-10 w-96 h-96 bg-primary-600 rounded-full filter blur-3xl"></div>
         </div>
         
-        <div class="relative w-full px-6 sm:px-8 md:px-12 lg:px-16">
+        <div class="relative w-full px-6 sm:px-8 md:px-12 lg:px-16 pt-32 lg:pt-28">
             <div class="max-w-3xl">
                 <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-black text-white mb-6 leading-tight tracking-tight">
                     Jendela Ilmu <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-primary-600">Untuk Semua</span>

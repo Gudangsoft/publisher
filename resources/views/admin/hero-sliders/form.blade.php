@@ -50,11 +50,11 @@
                 <div class="space-y-6">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">
-                            Judul <span class="text-red-500">*</span>
+                            Judul
                         </label>
                         <input type="text" name="title" value="{{ old('title', $heroSlider->title ?? '') }}" 
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 @error('title') border-red-500 @enderror"
-                            placeholder="Jendela Ilmu Untuk Semua" required>
+                            placeholder="Jendela Ilmu Untuk Semua">
                         @error('title')
                         <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
                         @enderror
