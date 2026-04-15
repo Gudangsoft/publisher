@@ -17,9 +17,18 @@ class Gallery extends Model
         'video_url',
         'thumbnail',
         'category',
+        'gallery_album_id',
         'is_active',
         'display_order',
     ];
+
+    /**
+     * Relationship: Gallery belongs to an album
+     */
+    public function album()
+    {
+        return $this->belongsTo(GalleryAlbum::class, 'gallery_album_id');
+    }
 
     protected $casts = [
         'is_active' => 'boolean',

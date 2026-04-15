@@ -30,17 +30,17 @@
                 <option value="photo" {{ request('type') == 'photo' ? 'selected' : '' }}>📷 Foto</option>
                 <option value="video" {{ request('type') == 'video' ? 'selected' : '' }}>🎬 Video</option>
             </select>
-            <select name="category" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm">
-                <option value="">Semua Kategori</option>
-                @foreach($categories as $cat)
-                <option value="{{ $cat }}" {{ request('category') == $cat ? 'selected' : '' }}>{{ $cat }}</option>
+            <select name="album" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm">
+                <option value="">Semua Album</option>
+                @foreach($albums as $alb)
+                <option value="{{ $alb->id }}" {{ request('album') == $alb->id ? 'selected' : '' }}>{{ $alb->name }}</option>
                 @endforeach
             </select>
             <div class="flex gap-2">
                 <button type="submit" class="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition text-sm font-medium">
                     Filter
                 </button>
-                @if(request()->hasAny(['search', 'type', 'category']))
+                @if(request()->hasAny(['search', 'type', 'album']))
                 <a href="{{ route('admin.galleries.index') }}" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-sm font-medium">
                     Reset
                 </a>
@@ -142,8 +142,8 @@
             <!-- Info -->
             <div class="p-4">
                 <h3 class="font-semibold text-gray-900 truncate">{{ $gallery->title }}</h3>
-                @if($gallery->category)
-                <p class="text-xs text-primary-600 font-medium mt-1">{{ $gallery->category }}</p>
+                @if($gallery->album)
+                <p class="text-xs text-primary-600 font-medium mt-1">{{ $gallery->album->name }}</p>
                 @endif
                 @if($gallery->description)
                 <p class="text-sm text-gray-500 mt-1 line-clamp-2">{{ $gallery->description }}</p>

@@ -22,7 +22,7 @@ use App\Http\Controllers\Admin\SubmissionController as AdminSubmissionController
 use App\Http\Controllers\Admin\BookTemplateController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ExportController;
-use App\Http\Controllers\Admin\GalleryController;
+use App\Http\Controllers\Admin\GalleryAlbumController;
 use App\Http\Controllers\MenuController as PublicMenuController;
 use App\Http\Controllers\SubmissionController;
 use App\Http\Controllers\UserDashboardController;
@@ -211,26 +211,25 @@ Route::post('/contact', function () {
 
 // Gallery Route
 Route::get('/gallery', function () {
-    $query = \App\Models\Gallery::active();
+    $query = \App\Models\Gallery::with('album')->active();
     
     if (request('type')) {
         $query->where('type', request('type'));
     }
     
-    if (request('category')) {
-        $query->where('category', request('category'));
+    if (request('album')) {
+        $query->where('gallery_album_id', request('album'));
     }
     
     $galleries = $query->ordered()->paginate(12);
-    $categories = \App\Models\Gallery::active()->getQuery()
-        ->whereNotNull('category')
-        ->where('category', '!=', '')
-        ->distinct()
-        ->pluck('category')
-        ->sort()
-        ->values();
+    $albums = \App\Models\GalleryAlbum::active()->ordered()
+        ->withCount(['galleries' => function($q) {
+            $q->where('is_active', true);
+        }])
+        ->having('galleries_count', '>', 0)
+        ->get();
     
-    return view('gallery', compact('galleries', 'categories'));
+    return view('gallery', compact('galleries', 'albums'));
 })->name('gallery');
 
 // Authentication Routes
@@ -309,7 +308,9 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::delete('submissions/{submission}', [AdminSubmissionController::class, 'destroy'])->name('admin.submissions.destroy');
     Route::get('submissions/{submission}/download/{fileType}', [AdminSubmissionController::class, 'download'])->name('admin.submissions.download');
 
-    // Gallery routes
-    Route::resource('galleries', GalleryController::class, ['as' => 'admin']);
-    Route::patch('galleries/{gallery}/toggle', [GalleryController::class, 'toggleActive'])->name('admin.galleries.toggle');
+    // Gallery Album routes (unified gallery management)
+    Route::resource('gallery-albums', GalleryAlbumController::class, ['as' => 'admin']);
+    Route::patch('gallery-albums/{gallery_album}/toggle', [GalleryAlbumController::class, 'toggleActive'])->name('admin.gallery-albums.toggle');
+    Route::post('gallery-albums/{gallery_album}/photos', [GalleryAlbumController::class, 'addPhotos'])->name('admin.gallery-albums.add-photos');
+    Route::delete('gallery-albums/{gallery_album}/photos/{gallery}', [GalleryAlbumController::class, 'deletePhoto'])->name('admin.gallery-albums.delete-photo');
 });

@@ -129,20 +129,18 @@
                 </div>
             </div>
 
-            <!-- Category -->
+            <!-- Album -->
             <div>
-                <label for="category" class="block text-sm font-semibold text-gray-700 mb-2">Kategori / Album</label>
-                <div class="flex gap-3">
-                    <select id="category" name="category" class="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm">
-                        <option value="">-- Tanpa Kategori --</option>
-                        @foreach($categories as $cat)
-                        <option value="{{ $cat }}" {{ old('category') == $cat ? 'selected' : '' }}>{{ $cat }}</option>
-                        @endforeach
-                    </select>
-                    <input type="text" name="category_new" value="{{ old('category_new') }}" 
-                           class="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
-                           placeholder="Atau buat kategori baru...">
-                </div>
+                <label for="gallery_album_id" class="block text-sm font-semibold text-gray-700 mb-2">Album</label>
+                <select id="gallery_album_id" name="gallery_album_id" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm">
+                    <option value="">-- Tanpa Album --</option>
+                    @foreach($albums as $album)
+                    <option value="{{ $album->id }}" {{ old('gallery_album_id') == $album->id ? 'selected' : '' }}>{{ $album->name }}</option>
+                    @endforeach
+                </select>
+                <p class="text-xs text-gray-400 mt-1">
+                    Belum ada album? <a href="{{ route('admin.gallery-albums.create') }}" class="text-primary-500 hover:underline">Buat album baru</a>
+                </p>
             </div>
 
             <!-- Display Order & Active -->

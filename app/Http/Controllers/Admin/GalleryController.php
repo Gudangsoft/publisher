@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Gallery;
+use App\Models\GalleryAlbum;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -14,14 +15,19 @@ class GalleryController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Gallery::query();
+        $query = Gallery::with('album');
 
         // Filter by type
         if ($request->filled('type')) {
             $query->where('type', $request->type);
         }
 
-        // Filter by category
+        // Filter by album
+        if ($request->filled('album')) {
+            $query->where('gallery_album_id', $request->album);
+        }
+
+        // Filter by category (legacy support)
         if ($request->filled('category')) {
             $query->where('category', $request->category);
         }
@@ -37,9 +43,10 @@ class GalleryController extends Controller
         }
 
         $galleries = $query->ordered()->paginate(20);
+        $albums = GalleryAlbum::ordered()->get();
         $categories = Gallery::getCategories();
 
-        return view('admin.galleries.index', compact('galleries', 'categories'));
+        return view('admin.galleries.index', compact('galleries', 'albums', 'categories'));
     }
 
     /**
@@ -47,8 +54,9 @@ class GalleryController extends Controller
      */
     public function create()
     {
+        $albums = GalleryAlbum::active()->ordered()->get();
         $categories = Gallery::getCategories();
-        return view('admin.galleries.create', compact('categories'));
+        return view('admin.galleries.create', compact('albums', 'categories'));
     }
 
     /**
@@ -60,6 +68,7 @@ class GalleryController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'type' => 'required|in:photo,video',
+            'gallery_album_id' => 'nullable|exists:gallery_albums,id',
             'category' => 'nullable|string|max:255',
             'is_active' => 'boolean',
             'display_order' => 'integer|min:0',
@@ -78,6 +87,7 @@ class GalleryController extends Controller
             'title' => $validated['title'],
             'description' => $validated['description'] ?? null,
             'type' => $validated['type'],
+            'gallery_album_id' => $validated['gallery_album_id'] ?? null,
             'category' => $request->category_new ?: ($validated['category'] ?? null),
             'is_active' => $request->has('is_active'),
             'display_order' => $validated['display_order'] ?? 0,
@@ -108,8 +118,9 @@ class GalleryController extends Controller
      */
     public function edit(Gallery $gallery)
     {
+        $albums = GalleryAlbum::active()->ordered()->get();
         $categories = Gallery::getCategories();
-        return view('admin.galleries.edit', compact('gallery', 'categories'));
+        return view('admin.galleries.edit', compact('gallery', 'albums', 'categories'));
     }
 
     /**
@@ -121,6 +132,7 @@ class GalleryController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'type' => 'required|in:photo,video',
+            'gallery_album_id' => 'nullable|exists:gallery_albums,id',
             'category' => 'nullable|string|max:255',
             'is_active' => 'boolean',
             'display_order' => 'integer|min:0',
@@ -139,6 +151,7 @@ class GalleryController extends Controller
             'title' => $validated['title'],
             'description' => $validated['description'] ?? null,
             'type' => $validated['type'],
+            'gallery_album_id' => $validated['gallery_album_id'] ?? null,
             'category' => $request->category_new ?: ($validated['category'] ?? null),
             'is_active' => $request->has('is_active'),
             'display_order' => $validated['display_order'] ?? 0,

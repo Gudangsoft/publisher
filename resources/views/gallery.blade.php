@@ -31,11 +31,57 @@
         </div>
     </section>
 
+    <!-- Albums Section -->
+    @if($albums->count() && !request('album'))
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-900">Album</h2>
+                <p class="text-sm text-gray-500 mt-1">Pilih album untuk melihat koleksi</p>
+            </div>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
+            @foreach($albums as $album)
+            <a href="{{ route('gallery', ['album' => $album->id]) }}" 
+               class="group relative bg-white rounded-2xl shadow-sm hover:shadow-xl border border-gray-100 overflow-hidden transition-all duration-500">
+                <!-- Album Cover -->
+                <div class="relative aspect-[4/3] overflow-hidden">
+                    @if($album->cover_url)
+                        <img src="{{ $album->cover_url }}" alt="{{ $album->name }}" 
+                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                             loading="lazy">
+                    @else
+                        <div class="w-full h-full bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center">
+                            <svg class="w-16 h-16 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                            </svg>
+                        </div>
+                    @endif
+
+                    <!-- Overlay Gradient -->
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+
+                    <!-- Album Info Overlay -->
+                    <div class="absolute bottom-0 left-0 right-0 p-4">
+                        <h3 class="font-bold text-white text-lg group-hover:text-primary-300 transition-colors duration-300">{{ $album->name }}</h3>
+                        <div class="flex items-center gap-1.5 mt-1">
+                            <svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                            <span class="text-sm text-gray-300">{{ $album->galleries_count }} item</span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+            @endforeach
+        </div>
+    </section>
+    @endif
+
     <!-- Filter & Gallery Section -->
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12" 
              x-data="{ 
                 activeFilter: '{{ request('type', 'all') }}', 
-                activeCategory: '{{ request('category', '') }}',
                 lightbox: false,
                 lightboxImg: '',
                 lightboxTitle: '',
@@ -67,36 +113,56 @@
         <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-10">
             <!-- Type Tabs -->
             <div class="flex items-center bg-gray-100 rounded-xl p-1 gap-1">
-                <a href="{{ route('gallery', ['category' => request('category')]) }}" 
+                <a href="{{ route('gallery', ['album' => request('album')]) }}" 
                    class="px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 {{ !request('type') ? 'bg-white shadow-sm text-primary-600' : 'text-gray-600 hover:text-gray-900' }}">
                     Semua
                 </a>
-                <a href="{{ route('gallery', ['type' => 'photo', 'category' => request('category')]) }}" 
+                <a href="{{ route('gallery', ['type' => 'photo', 'album' => request('album')]) }}" 
                    class="px-5 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-2 transition-all duration-200 {{ request('type') === 'photo' ? 'bg-white shadow-sm text-blue-600' : 'text-gray-600 hover:text-gray-900' }}">
                     📷 Foto
                 </a>
-                <a href="{{ route('gallery', ['type' => 'video', 'category' => request('category')]) }}" 
+                <a href="{{ route('gallery', ['type' => 'video', 'album' => request('album')]) }}" 
                    class="px-5 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-2 transition-all duration-200 {{ request('type') === 'video' ? 'bg-white shadow-sm text-red-600' : 'text-gray-600 hover:text-gray-900' }}">
                     🎬 Video
                 </a>
             </div>
 
-            <!-- Category Filter -->
-            @if($categories->count())
+            <!-- Album Filter -->
             <div class="flex items-center gap-2 flex-wrap justify-center">
                 <a href="{{ route('gallery', ['type' => request('type')]) }}" 
-                   class="px-3 py-1.5 rounded-full text-xs font-medium border transition-all {{ !request('category') ? 'bg-primary-50 border-primary-300 text-primary-700' : 'bg-white border-gray-200 text-gray-600 hover:border-primary-300' }}">
+                   class="px-3 py-1.5 rounded-full text-xs font-medium border transition-all {{ !request('album') ? 'bg-primary-50 border-primary-300 text-primary-700' : 'bg-white border-gray-200 text-gray-600 hover:border-primary-300' }}">
                     Semua Album
                 </a>
-                @foreach($categories as $cat)
-                <a href="{{ route('gallery', ['type' => request('type'), 'category' => $cat]) }}" 
-                   class="px-3 py-1.5 rounded-full text-xs font-medium border transition-all {{ request('category') === $cat ? 'bg-primary-50 border-primary-300 text-primary-700' : 'bg-white border-gray-200 text-gray-600 hover:border-primary-300' }}">
-                    {{ $cat }}
+                @foreach($albums as $album)
+                <a href="{{ route('gallery', ['type' => request('type'), 'album' => $album->id]) }}" 
+                   class="px-3 py-1.5 rounded-full text-xs font-medium border transition-all {{ request('album') == $album->id ? 'bg-primary-50 border-primary-300 text-primary-700' : 'bg-white border-gray-200 text-gray-600 hover:border-primary-300' }}">
+                    {{ $album->name }}
                 </a>
                 @endforeach
             </div>
-            @endif
         </div>
+
+        <!-- Current Album Header -->
+        @if(request('album'))
+        @php
+            $currentAlbum = $albums->firstWhere('id', request('album'));
+        @endphp
+        @if($currentAlbum)
+        <div class="mb-8 flex items-center gap-3">
+            <a href="{{ route('gallery') }}" class="p-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition">
+                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+            </a>
+            <div>
+                <h2 class="text-xl font-bold text-gray-900">{{ $currentAlbum->name }}</h2>
+                @if($currentAlbum->description)
+                <p class="text-sm text-gray-500 mt-0.5">{{ $currentAlbum->description }}</p>
+                @endif
+            </div>
+        </div>
+        @endif
+        @endif
 
         <!-- Gallery Grid -->
         @if($galleries->count())
@@ -160,11 +226,11 @@
                         </span>
                     </div>
 
-                    <!-- Category -->
-                    @if($gallery->category)
+                    <!-- Album Badge -->
+                    @if($gallery->album && !request('album'))
                     <div class="absolute top-3 right-3">
                         <span class="px-2.5 py-1 text-xs font-medium rounded-full bg-black/40 text-white backdrop-blur-sm">
-                            {{ $gallery->category }}
+                            {{ $gallery->album->name }}
                         </span>
                     </div>
                     @endif
@@ -194,6 +260,14 @@
             </div>
             <h3 class="text-xl font-bold text-gray-900 mb-2">Belum Ada Galeri</h3>
             <p class="text-gray-500">Konten galeri sedang disiapkan. Silakan kunjungi kembali nanti.</p>
+            @if(request('album'))
+            <a href="{{ route('gallery') }}" class="inline-flex items-center gap-2 mt-4 px-5 py-2.5 bg-primary-500 text-white rounded-xl font-semibold hover:bg-primary-600 transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+                Kembali ke Semua Galeri
+            </a>
+            @endif
         </div>
         @endif
 

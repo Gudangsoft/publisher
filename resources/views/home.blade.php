@@ -695,6 +695,167 @@
     </div>
 </section>
 
+<!-- Gallery Section -->
+@php
+    $galleryAlbums = \App\Models\GalleryAlbum::active()->ordered()
+        ->withCount(['galleries' => function($q) {
+            $q->where('is_active', true);
+        }])
+        ->having('galleries_count', '>', 0)
+        ->take(8)
+        ->get();
+    $recentGalleries = \App\Models\Gallery::with('album')->active()->ordered()->take(6)->get();
+@endphp
+
+@if($recentGalleries->count() > 0)
+<section class="py-20 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <span class="inline-block px-4 py-2 bg-primary-100 text-primary-600 rounded-full text-sm font-semibold mb-4">GALERI</span>
+            <h2 class="text-4xl lg:text-5xl font-display font-bold text-gray-900 mb-4">Galeri Foto & Video</h2>
+            <p class="text-xl text-gray-600 max-w-2xl mx-auto">Dokumentasi kegiatan, acara, dan momen berharga kami</p>
+        </div>
+
+        <!-- Albums Row -->
+        @if($galleryAlbums->count() > 0)
+        <div class="mb-12">
+            <h3 class="text-lg font-bold text-gray-800 mb-5 flex items-center gap-2">
+                <svg class="w-5 h-5 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                </svg>
+                Album
+            </h3>
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                @foreach($galleryAlbums as $album)
+                <a href="{{ route('gallery', ['album' => $album->id]) }}" 
+                   class="group relative rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-500">
+                    <div class="aspect-[4/3] overflow-hidden">
+                        @if($album->cover_url)
+                            <img src="{{ $album->cover_url }}" alt="{{ $album->name }}" 
+                                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                 loading="lazy">
+                        @else
+                            <div class="w-full h-full bg-gradient-to-br from-primary-200 to-primary-400 flex items-center justify-center">
+                                <svg class="w-12 h-12 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                                </svg>
+                            </div>
+                        @endif
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+                        <div class="absolute bottom-0 left-0 right-0 p-4">
+                            <h4 class="font-bold text-white text-sm sm:text-base group-hover:text-primary-300 transition-colors">{{ $album->name }}</h4>
+                            <span class="text-xs text-gray-300">{{ $album->galleries_count }} item</span>
+                        </div>
+                    </div>
+                </a>
+                @endforeach
+            </div>
+        </div>
+        @endif
+
+        <!-- Recent Gallery Items -->
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6"
+             x-data="{
+                lightbox: false, lightboxImg: '', lightboxTitle: '', lightboxVideo: '', lightboxType: 'photo',
+                openLb(type, src, title) {
+                    this.lightboxType = type;
+                    if (type === 'photo') { this.lightboxImg = src; this.lightboxVideo = ''; }
+                    else { this.lightboxVideo = src; this.lightboxImg = ''; }
+                    this.lightboxTitle = title;
+                    this.lightbox = true;
+                    document.body.style.overflow = 'hidden';
+                },
+                closeLb() { this.lightbox = false; this.lightboxVideo = ''; document.body.style.overflow = ''; }
+             }">
+            @foreach($recentGalleries as $gallery)
+            <div class="group relative rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-500 cursor-pointer"
+                 @click="openLb('{{ $gallery->type }}', '{{ $gallery->type === 'photo' ? asset('storage/' . $gallery->file_path) : $gallery->youtube_embed_url }}', '{{ addslashes($gallery->title) }}')">
+                <div class="aspect-square overflow-hidden">
+                    @if($gallery->type === 'photo' && $gallery->file_path)
+                        <img src="{{ asset('storage/' . $gallery->file_path) }}" alt="{{ $gallery->title }}" 
+                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                             loading="lazy">
+                    @elseif($gallery->display_thumbnail)
+                        <img src="{{ $gallery->display_thumbnail }}" alt="{{ $gallery->title }}" 
+                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                             loading="lazy">
+                    @else
+                        <div class="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+                            <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                    @endif
+
+                    <!-- Overlay on Hover -->
+                    <div class="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-500 flex items-center justify-center">
+                        @if($gallery->type === 'video')
+                        <div class="w-14 h-14 bg-white/90 rounded-full flex items-center justify-center shadow-xl">
+                            <svg class="w-7 h-7 text-red-600 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                        </div>
+                        @else
+                        <div class="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center shadow-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/>
+                            </svg>
+                        </div>
+                        @endif
+                    </div>
+
+                    <!-- Type Badge -->
+                    <div class="absolute top-3 left-3">
+                        <span class="inline-flex items-center px-2 py-1 text-xs font-bold rounded-full backdrop-blur-sm {{ $gallery->type === 'photo' ? 'bg-blue-500/80 text-white' : 'bg-red-500/80 text-white' }}">
+                            {{ $gallery->type === 'photo' ? '📷' : '🎬' }}
+                        </span>
+                    </div>
+
+                    <!-- Album Badge -->
+                    @if($gallery->album)
+                    <div class="absolute top-3 right-3">
+                        <span class="px-2 py-1 text-xs font-medium rounded-full bg-black/40 text-white backdrop-blur-sm">{{ $gallery->album->name }}</span>
+                    </div>
+                    @endif
+                </div>
+                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
+                    <h4 class="font-bold text-white text-sm truncate">{{ $gallery->title }}</h4>
+                </div>
+            </div>
+            @endforeach
+
+            <!-- Lightbox -->
+            <div x-show="lightbox" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                 x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                 @click="closeLb()" @keydown.escape.window="closeLb()"
+                 class="fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4" x-cloak>
+                <button @click="closeLb()" class="absolute top-4 right-4 z-50 p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+                <div @click.stop class="max-w-5xl w-full max-h-[90vh] flex flex-col items-center">
+                    <template x-if="lightboxType === 'photo'">
+                        <img :src="lightboxImg" :alt="lightboxTitle" class="max-h-[80vh] max-w-full object-contain rounded-lg shadow-2xl">
+                    </template>
+                    <template x-if="lightboxType === 'video'">
+                        <div class="w-full aspect-video rounded-lg overflow-hidden shadow-2xl bg-black">
+                            <iframe :src="lightboxVideo + '?autoplay=1'" class="w-full h-full" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        </div>
+                    </template>
+                    <h3 class="mt-4 text-xl font-bold text-white" x-text="lightboxTitle" x-show="lightboxTitle"></h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-12">
+            <a href="{{ route('gallery') }}" class="inline-flex items-center px-8 py-4 bg-gray-900 hover:bg-gray-800 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200">
+                Lihat Semua Galeri
+                <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                </svg>
+            </a>
+        </div>
+    </div>
+</section>
+@endif
+
 <!-- Social Media Section -->
 <section class="py-16 bg-gradient-to-r from-orange-500 to-orange-600">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
