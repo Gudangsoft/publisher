@@ -22,6 +22,7 @@ use App\Http\Controllers\Admin\SubmissionController as AdminSubmissionController
 use App\Http\Controllers\Admin\BookTemplateController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ExportController;
+use App\Http\Controllers\Admin\GalleryController;
 use App\Http\Controllers\MenuController as PublicMenuController;
 use App\Http\Controllers\SubmissionController;
 use App\Http\Controllers\UserDashboardController;
@@ -208,6 +209,30 @@ Route::post('/contact', function () {
     return redirect()->back()->with('success', 'Terima kasih! Pesan Anda telah terkirim. Kami akan menghubungi Anda segera.');
 })->name('contact.submit');
 
+// Gallery Route
+Route::get('/gallery', function () {
+    $query = \App\Models\Gallery::active();
+    
+    if (request('type')) {
+        $query->where('type', request('type'));
+    }
+    
+    if (request('category')) {
+        $query->where('category', request('category'));
+    }
+    
+    $galleries = $query->ordered()->paginate(12);
+    $categories = \App\Models\Gallery::active()->getQuery()
+        ->whereNotNull('category')
+        ->where('category', '!=', '')
+        ->distinct()
+        ->pluck('category')
+        ->sort()
+        ->values();
+    
+    return view('gallery', compact('galleries', 'categories'));
+})->name('gallery');
+
 // Authentication Routes
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
@@ -283,4 +308,8 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::put('submissions/{submission}', [AdminSubmissionController::class, 'update'])->name('admin.submissions.update');
     Route::delete('submissions/{submission}', [AdminSubmissionController::class, 'destroy'])->name('admin.submissions.destroy');
     Route::get('submissions/{submission}/download/{fileType}', [AdminSubmissionController::class, 'download'])->name('admin.submissions.download');
+
+    // Gallery routes
+    Route::resource('galleries', GalleryController::class, ['as' => 'admin']);
+    Route::patch('galleries/{gallery}/toggle', [GalleryController::class, 'toggleActive'])->name('admin.galleries.toggle');
 });

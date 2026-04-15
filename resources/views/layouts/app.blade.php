@@ -685,6 +685,7 @@
                         <li><a href="/books" class="text-gray-400 hover:text-primary-400 transition-colors duration-200">Katalog Buku</a></li>
                         <li><a href="/news" class="text-gray-400 hover:text-primary-400 transition-colors duration-200">Berita</a></li>
                         <li><a href="/journals" class="text-gray-400 hover:text-primary-400 transition-colors duration-200">Jurnal</a></li>
+                        <li><a href="/gallery" class="text-gray-400 hover:text-primary-400 transition-colors duration-200">Galeri</a></li>
                         <li><a href="/authors" class="text-gray-400 hover:text-primary-400 transition-colors duration-200">Penulis</a></li>
                         <li><a href="/submissions/create" class="text-gray-400 hover:text-primary-400 transition-colors duration-200">Ajukan Naskah</a></li>
                         <li><a href="/submissions/track" class="text-gray-400 hover:text-primary-400 transition-colors duration-200">Lacak Pengajuan</a></li>
