@@ -22,7 +22,6 @@ class ExportController extends Controller
      */
     public function orders(Request $request)
     {
-        $this->checkAdmin();
         
         $query = Order::with(['user', 'items']);
         
@@ -96,7 +95,6 @@ class ExportController extends Controller
      */
     public function submissions(Request $request)
     {
-        $this->checkAdmin();
         
         $query = Submission::with(['category', 'bookTemplate']);
         
@@ -195,7 +193,6 @@ class ExportController extends Controller
      */
     public function books(Request $request)
     {
-        $this->checkAdmin();
         
         $query = Book::with(['category']);
         
@@ -261,7 +258,6 @@ class ExportController extends Controller
      */
     public function users(Request $request)
     {
-        $this->checkAdmin();
         
         $users = User::orderBy('created_at', 'desc')->get();
 
@@ -322,13 +318,4 @@ class ExportController extends Controller
         return $value;
     }
 
-    /**
-     * Check if user is admin
-     */
-    private function checkAdmin()
-    {
-        if (!auth()->user()->is_admin) {
-            abort(403);
-        }
-    }
 }

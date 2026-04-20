@@ -11,29 +11,17 @@ class BookController extends Controller
 {
     public function index()
     {
-        if (!auth()->check() || !auth()->user()->is_admin) {
-            abort(403, 'Unauthorized action.');
-        }
-        
         $books = Book::orderBy('created_at', 'desc')->paginate(15);
         return view('admin.books.index', compact('books'));
     }
 
     public function create()
     {
-        if (!auth()->check() || !auth()->user()->is_admin) {
-            abort(403, 'Unauthorized action.');
-        }
-        
         return view('admin.books.form', ['book' => new Book]);
     }
 
     public function store(Request $request)
     {
-        if (!auth()->check() || !auth()->user()->is_admin) {
-            abort(403, 'Unauthorized action.');
-        }
-        
         $data = $request->validate([
             'category_id' => 'nullable|exists:categories,id',
             'title' => 'required|string|max:255',
@@ -82,19 +70,11 @@ class BookController extends Controller
 
     public function edit(Book $book)
     {
-        if (!auth()->check() || !auth()->user()->is_admin) {
-            abort(403, 'Unauthorized action.');
-        }
-        
         return view('admin.books.form', compact('book'));
     }
 
     public function update(Request $request, Book $book)
     {
-        if (!auth()->check() || !auth()->user()->is_admin) {
-            abort(403, 'Unauthorized action.');
-        }
-        
         $data = $request->validate([
             'category_id' => 'nullable|exists:categories,id',
             'title' => 'required|string|max:255',
@@ -156,10 +136,6 @@ class BookController extends Controller
 
     public function destroy(Book $book)
     {
-        if (!auth()->check() || !auth()->user()->is_admin) {
-            abort(403, 'Unauthorized action.');
-        }
-        
         $book->delete();
         return redirect()->route('admin.books.index')->with('success', 'Buku berhasil dihapus');
     }
