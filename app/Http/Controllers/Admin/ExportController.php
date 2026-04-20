@@ -46,7 +46,8 @@ class ExportController extends Controller
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
         ];
 
-        $callback = function () use ($orders) {
+        $callback = function () {
+            $orders = Order::with(['user', 'items'])->latest()->get();
             $file = fopen('php://output', 'w');
             
             // Add BOM for proper UTF-8 encoding in Excel
@@ -69,7 +70,7 @@ class ExportController extends Controller
 
             // Data
             foreach ($orders as $order) {
-                fputcsv($file, [
+                fputcsv($file, array_map([$this, 'sanitizeForCsv'], [
                     $order->order_number,
                     $order->created_at->format('Y-m-d H:i:s'),
                     $order->customer_name,
@@ -81,7 +82,7 @@ class ExportController extends Controller
                     ucfirst($order->payment_method ?? '-'),
                     $order->shipping_address,
                     $order->items->count(),
-                ]);
+                ]));
             }
 
             fclose($file);
@@ -165,7 +166,7 @@ class ExportController extends Controller
             ];
 
             foreach ($submissions as $submission) {
-                fputcsv($file, [
+                fputcsv($file, array_map([$this, 'sanitizeForCsv'], [
                     $submission->submission_number,
                     $submission->created_at->format('Y-m-d H:i:s'),
                     $submission->title,
@@ -180,7 +181,7 @@ class ExportController extends Controller
                     $submission->estimated_cost ?? '-',
                     $submission->reviewed_by ?? '-',
                     $submission->reviewed_at ? $submission->reviewed_at->format('Y-m-d H:i:s') : '-',
-                ]);
+                ]));
             }
 
             fclose($file);
@@ -234,7 +235,7 @@ class ExportController extends Controller
             ]);
 
             foreach ($books as $book) {
-                fputcsv($file, [
+                fputcsv($file, array_map([$this, 'sanitizeForCsv'], [
                     $book->id,
                     $book->title,
                     $book->author ?? '-',
@@ -246,7 +247,7 @@ class ExportController extends Controller
                     $book->publish_year ?? '-',
                     $book->pages ?? '-',
                     $book->created_at->format('Y-m-d H:i:s'),
-                ]);
+                ]));
             }
 
             fclose($file);
@@ -287,19 +288,38 @@ class ExportController extends Controller
             ]);
 
             foreach ($users as $user) {
-                fputcsv($file, [
+                fputcsv($file, array_map([$this, 'sanitizeForCsv'], [
                     $user->id,
                     $user->name,
                     $user->email,
                     $user->is_admin ? 'Ya' : 'Tidak',
                     $user->created_at->format('Y-m-d H:i:s'),
-                ]);
+                ]));
             }
 
             fclose($file);
         };
 
         return new StreamedResponse($callback, 200, $headers);
+    }
+
+    /**
+     * Sanitize data for CSV to prevent formula injection
+     */
+    private function sanitizeForCsv($value)
+    {
+        if (is_numeric($value)) {
+            return $value;
+        }
+
+        $value = (string) $value;
+        $triggers = ['=', '+', '-', '@'];
+
+        if (strlen($value) > 0 && in_array($value[0], $triggers)) {
+            return "'" . $value;
+        }
+
+        return $value;
     }
 
     /**

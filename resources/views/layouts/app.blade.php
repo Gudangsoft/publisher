@@ -83,12 +83,12 @@
     
     @if($googleAnalytics)
     <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id={{ $googleAnalytics }}"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ urlencode($googleAnalytics) }}"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
-        gtag('config', '{{ $googleAnalytics }}');
+        gtag('config', '{{ e($googleAnalytics) }}');
     </script>
     @endif
     
@@ -712,7 +712,6 @@
                             <span>{!! nl2br(e($contactAddress)) !!}</span>
                         </li>
                         @endif
-                        @endphp
                         <li class="flex items-center">
                             <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>

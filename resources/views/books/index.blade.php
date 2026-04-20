@@ -149,21 +149,10 @@
 
         <!-- Pagination -->
         @if($books->hasPages())
-        <div class="flex justify-center">
+        <div class="mt-12 flex justify-center">
             {{ $books->links() }}
         </div>
         @endif
-                Previous
-            </button>
-            @for($i = 1; $i <= 5; $i++)
-            <button class="px-4 py-2 {{ $i == 1 ? 'bg-primary-500 text-white' : 'border border-gray-300 text-gray-600 hover:bg-gray-50' }} rounded-lg transition-colors duration-200">
-                {{ $i }}
-            </button>
-            @endfor
-            <button class="px-4 py-2 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors duration-200">
-                Next
-            </button>
-        </div>
     </div>
 </section>
 
