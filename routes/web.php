@@ -251,8 +251,8 @@ Route::middleware('auth')->prefix('user')->name('user.')->group(function () {
     Route::get('/orders/{id}/invoice/view', [InvoiceController::class, 'streamInvoice'])->name('orders.invoice.view');
 });
 
-// Admin routes (fully protected by admin middleware)
-Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
+// Admin routes (simple admin check is implemented in controllers)
+Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('admin.dashboard');
 
     Route::resource('books', BookController::class, ['as' => 'admin']);
