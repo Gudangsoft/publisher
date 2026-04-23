@@ -107,7 +107,12 @@ Route::get('/news', function () {
     }
     
     $newsItems = $query->orderBy('published_at', 'desc')->paginate(12);
-    return view('news.index', compact('newsItems'));
+    
+    $featuredNews = \App\Models\News::whereNotNull('published_at')->where('is_featured', true)->orderBy('published_at', 'desc')->first() 
+        ?? \App\Models\News::whereNotNull('published_at')->orderBy('published_at', 'desc')->first();
+    $categories = \App\Models\Category::where('type', 'news')->get();
+    
+    return view('news.index', compact('newsItems', 'featuredNews', 'categories'));
 })->name('news.index');
 
 Route::get('/news/{news}', function (\App\Models\News $news) {
