@@ -131,53 +131,6 @@
                 {!! nl2br(e($news->content)) !!}
             </div>
 
-            <div class="grid md:grid-cols-2 gap-6 my-8">
-                <div class="bg-white border-2 border-gray-200 rounded-xl p-6 hover:border-primary-500 transition-colors duration-200">
-                    <img src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=600&h=400&fit=crop&q=80" 
-                         alt="Event" 
-                         class="w-full h-48 object-cover rounded-lg mb-4">
-                    <h4 class="font-bold text-lg text-gray-900 mb-2">Book Fair Jakarta</h4>
-                    <p class="text-gray-600 text-sm mb-2">15-17 Desember 2024</p>
-                    <p class="text-gray-700">Jakarta Convention Center</p>
-                </div>
-                <div class="bg-white border-2 border-gray-200 rounded-xl p-6 hover:border-primary-500 transition-colors duration-200">
-                    <img src="https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=600&h=400&fit=crop&q=80" 
-                         alt="Event" 
-                         class="w-full h-48 object-cover rounded-lg mb-4">
-                    <h4 class="font-bold text-lg text-gray-900 mb-2">Author Meet & Greet</h4>
-                    <p class="text-gray-600 text-sm mb-2">20 Desember 2024</p>
-                    <p class="text-gray-700">Toko Buku Publisher Jakarta</p>
-                </div>
-            </div>
-
-            <h3 class="text-2xl font-bold text-gray-900 mt-10 mb-4">Cara Pemesanan</h3>
-
-            <p class="text-gray-700 leading-relaxed mb-6">
-                Buku-buku dari koleksi terbaru ini sudah dapat dipesan melalui:
-            </p>
-
-            <ol class="list-decimal list-inside space-y-2 mb-8 text-gray-700">
-                <li>Website resmi Publisher di <a href="/books" class="text-primary-600 hover:text-primary-700 font-semibold">katalog buku</a></li>
-                <li>Toko buku Partner di seluruh Indonesia</li>
-                <li>Marketplace online (Tokopedia, Shopee, Bukalapak)</li>
-                <li>Pemesanan langsung via WhatsApp: +62 812 3456 7890</li>
-            </ol>
-
-            <p class="text-gray-700 leading-relaxed">
-                Untuk informasi lebih lanjut tentang koleksi terbaru kami atau untuk jadwal acara peluncuran di kota Anda, silakan hubungi tim customer service kami atau kunjungi halaman <a href="/contact" class="text-primary-600 hover:text-primary-700 font-semibold">kontak</a> kami.
-            </p>
-        </div>
-
-        <!-- Tags -->
-        <div class="mt-12 pt-8 border-t border-gray-200">
-            <div class="flex flex-wrap items-center gap-2">
-                <span class="text-sm font-semibold text-gray-600">Tags:</span>
-                @foreach(['Rilis Buku', 'Koleksi Baru', 'Promo', 'Event'] as $tag)
-                <a href="#" class="px-4 py-2 bg-gray-100 hover:bg-primary-50 hover:text-primary-600 text-gray-700 rounded-full text-sm font-medium transition-colors duration-200">
-                    {{ $tag }}
-                </a>
-                @endforeach
-            </div>
         </div>
     </div>
 </article>
@@ -188,24 +141,36 @@
         <h2 class="text-3xl font-display font-bold text-gray-900 mb-8">Berita Terkait</h2>
         
         <div class="grid md:grid-cols-3 gap-8">
-            @for($i = 1; $i <= 3; $i++)
+            @forelse($relatedNews as $related)
             <article class="group bg-white rounded-xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden">
-                <div class="relative overflow-hidden aspect-[16/9]">
-                    <img src="https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=600&h=400&fit=crop&q=80&sig={{ $i }}" 
-                         alt="Related News" 
-                         class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                <div class="relative overflow-hidden aspect-[16/9] bg-gray-100">
+                    <a href="{{ route('news.show', $related->slug) }}">
+                        @if($related->image)
+                        <img src="{{ asset('storage/' . $related->image) }}" 
+                             alt="{{ $related->title }}" 
+                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                        @else
+                        <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary-100 to-purple-100">
+                            <svg class="w-16 h-16 text-primary-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
+                            </svg>
+                        </div>
+                        @endif
+                    </a>
                 </div>
                 <div class="p-6">
                     <div class="flex items-center text-sm text-gray-500 mb-3">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                         </svg>
-                        {{ date('d M Y', strtotime('-'.$i.' days')) }}
+                        {{ $related->published_at ? $related->published_at->format('d M Y') : '' }}
                     </div>
-                    <h3 class="font-bold text-xl text-gray-900 mb-3 line-clamp-2 group-hover:text-primary-600 transition-colors duration-200">
-                        Berita Menarik Lainnya Tentang Dunia Literasi {{ $i }}
-                    </h3>
-                    <a href="/news/{{ $i }}" class="inline-flex items-center text-primary-600 hover:text-primary-700 font-semibold group/link">
+                    <a href="{{ route('news.show', $related->slug) }}">
+                        <h3 class="font-bold text-xl text-gray-900 mb-3 line-clamp-2 group-hover:text-primary-600 transition-colors duration-200 leading-tight">
+                            {{ $related->title }}
+                        </h3>
+                    </a>
+                    <a href="{{ route('news.show', $related->slug) }}" class="inline-flex items-center text-primary-600 hover:text-primary-700 font-semibold group/link">
                         Baca Selengkapnya
                         <svg class="w-4 h-4 ml-2 group-hover/link:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
@@ -213,7 +178,11 @@
                     </a>
                 </div>
             </article>
-            @endfor
+            @empty
+            <div class="col-span-full text-center py-8">
+                <p class="text-gray-500">Belum ada berita terkait.</p>
+            </div>
+            @endforelse
         </div>
     </div>
 </section>

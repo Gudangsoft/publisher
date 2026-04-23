@@ -117,7 +117,29 @@ Route::get('/news', function () {
 
 Route::get('/news/{news}', function (\App\Models\News $news) {
     $news->load('category');
-    return view('news.show', compact('news'));
+    
+    // Get related news (same category, excluding current, max 3)
+    $relatedNews = \App\Models\News::with('category')
+        ->where('category_id', $news->category_id)
+        ->where('id', '!=', $news->id)
+        ->whereNotNull('published_at')
+        ->latest('published_at')
+        ->take(3)
+        ->get();
+        
+    // If not enough related news in the same category, fill with latest news
+    if ($relatedNews->count() < 3) {
+        $moreNews = \App\Models\News::with('category')
+            ->where('id', '!=', $news->id)
+            ->whereNotIn('id', $relatedNews->pluck('id'))
+            ->whereNotNull('published_at')
+            ->latest('published_at')
+            ->take(3 - $relatedNews->count())
+            ->get();
+        $relatedNews = $relatedNews->concat($moreNews);
+    }
+    
+    return view('news.show', compact('news', 'relatedNews'));
 })->name('news.show');
 
 // Journals Routes
