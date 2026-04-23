@@ -23,6 +23,7 @@ use App\Http\Controllers\Admin\BookTemplateController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ExportController;
 use App\Http\Controllers\Admin\GalleryAlbumController;
+use App\Http\Controllers\Admin\GalleryController;
 use App\Http\Controllers\MenuController as PublicMenuController;
 use App\Http\Controllers\SubmissionController;
 use App\Http\Controllers\UserDashboardController;
@@ -307,6 +308,10 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::put('submissions/{submission}', [AdminSubmissionController::class, 'update'])->name('admin.submissions.update');
     Route::delete('submissions/{submission}', [AdminSubmissionController::class, 'destroy'])->name('admin.submissions.destroy');
     Route::get('submissions/{submission}/download/{fileType}', [AdminSubmissionController::class, 'download'])->name('admin.submissions.download');
+
+    // Gallery (Individual photos/videos without specific album UI)
+    Route::resource('galleries', GalleryController::class, ['as' => 'admin']);
+    Route::patch('galleries/{gallery}/toggle', [GalleryController::class, 'toggleActive'])->name('admin.galleries.toggle');
 
     // Gallery Album routes (unified gallery management)
     Route::resource('gallery-albums', GalleryAlbumController::class, ['as' => 'admin']);
