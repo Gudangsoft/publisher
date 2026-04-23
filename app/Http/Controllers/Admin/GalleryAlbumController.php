@@ -258,6 +258,31 @@ class GalleryAlbumController extends Controller
     /**
      * Delete a single photo from album
      */
+    public function addVideo(Request $request, GalleryAlbum $gallery_album)
+    {
+        $request->validate([
+            'video_url' => 'required|url',
+            'title' => 'required|string|max:255',
+        ]);
+
+        $maxOrder = $gallery_album->galleries()->max('display_order') ?? -1;
+
+        Gallery::create([
+            'title' => $request->title,
+            'type' => 'video',
+            'video_url' => $request->video_url,
+            'gallery_album_id' => $gallery_album->id,
+            'is_active' => true,
+            'display_order' => $maxOrder + 1,
+        ]);
+
+        return redirect()->route('admin.gallery-albums.show', $gallery_album)
+            ->with('success', 'Video berhasil ditambahkan ke album!');
+    }
+
+    /**
+     * Delete a single photo from album
+     */
     public function deletePhoto(GalleryAlbum $gallery_album, Gallery $gallery)
     {
         if ($gallery->gallery_album_id !== $gallery_album->id) {

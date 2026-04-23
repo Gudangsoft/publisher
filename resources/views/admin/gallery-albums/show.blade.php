@@ -116,21 +116,78 @@
     <div class="p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm">{{ $message }}</div>
     @enderror
 
+    <!-- Add Video Section -->
+    <div x-data="{ showUploadVideo: false }" class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mt-4">
+        <div class="px-6 py-4 bg-gradient-to-r from-red-50 to-orange-50 border-b border-gray-200 flex items-center justify-between cursor-pointer"
+             @click="showUploadVideo = !showUploadVideo">
+            <h2 class="text-base font-semibold text-gray-900 flex items-center gap-2">
+                <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                </svg>
+                Tambah Video YouTube
+            </h2>
+            <svg class="w-5 h-5 text-gray-400 transition-transform" :class="showUploadVideo ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </div>
+        <div x-show="showUploadVideo" x-collapse>
+            <form action="{{ route('admin.gallery-albums.add-video', $album) }}" method="POST" class="p-6 space-y-4">
+                @csrf
+                <div>
+                    <label for="title" class="block text-sm font-semibold text-gray-700 mb-2">Judul Video <span class="text-red-500">*</span></label>
+                    <input type="text" id="title" name="title" value="{{ old('title') }}" required
+                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                           placeholder="Contoh: Kegiatan Seminar Sesi 1">
+                    @error('title')
+                    <p class="text-sm text-red-500 mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+                <div>
+                    <label for="video_url" class="block text-sm font-semibold text-gray-700 mb-2">URL YouTube <span class="text-red-500">*</span></label>
+                    <input type="url" id="video_url" name="video_url" value="{{ old('video_url') }}" required
+                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                           placeholder="Contoh: https://www.youtube.com/watch?v=...">
+                    @error('video_url')
+                    <p class="text-sm text-red-500 mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+                <div class="mt-4 flex justify-end">
+                    <button type="submit" class="px-5 py-2.5 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl hover:from-red-600 hover:to-red-700 transition-all duration-200 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Simpan Video
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Photos Grid -->
     @if($album->galleries->count())
     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
         @foreach($album->galleries as $gallery)
         <div class="relative group rounded-xl overflow-hidden border border-gray-200 bg-white shadow-sm hover:shadow-lg transition-all duration-300">
             <!-- Image -->
-            <div class="aspect-square bg-gray-100 overflow-hidden">
-                @if($gallery->file_path)
-                <img src="{{ asset('storage/' . $gallery->file_path) }}" alt="{{ $gallery->title }}" 
+            <div class="aspect-square bg-gray-100 overflow-hidden relative">
+                @if($gallery->display_thumbnail)
+                <img src="{{ $gallery->display_thumbnail }}" alt="{{ $gallery->title }}" 
                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                 @else
                 <div class="w-full h-full flex items-center justify-center text-gray-400">
                     <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                     </svg>
+                </div>
+                @endif
+                
+                @if($gallery->type === 'video')
+                <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <div class="w-12 h-12 bg-red-600/90 rounded-full flex items-center justify-center shadow-lg">
+                        <svg class="w-6 h-6 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8 5v14l11-7z"/>
+                        </svg>
+                    </div>
                 </div>
                 @endif
             </div>

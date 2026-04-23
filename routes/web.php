@@ -312,5 +312,6 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::resource('gallery-albums', GalleryAlbumController::class, ['as' => 'admin']);
     Route::patch('gallery-albums/{gallery_album}/toggle', [GalleryAlbumController::class, 'toggleActive'])->name('admin.gallery-albums.toggle');
     Route::post('gallery-albums/{gallery_album}/photos', [GalleryAlbumController::class, 'addPhotos'])->name('admin.gallery-albums.add-photos');
+    Route::post('gallery-albums/{gallery_album}/video', [GalleryAlbumController::class, 'addVideo'])->name('admin.gallery-albums.add-video');
     Route::delete('gallery-albums/{gallery_album}/photos/{gallery}', [GalleryAlbumController::class, 'deletePhoto'])->name('admin.gallery-albums.delete-photo');
 });
