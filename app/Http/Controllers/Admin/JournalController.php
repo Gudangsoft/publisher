@@ -34,8 +34,9 @@ class JournalController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
+            'abstract' => 'nullable|string',
             'journal_link' => 'required|url',
-            'cover_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'cover_image' => 'nullable|image|mimes:jpeg,png,jpg|max:51200',
         ]);
 
         if ($request->hasFile('cover_image')) {
@@ -75,8 +76,9 @@ class JournalController extends Controller
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
+            'abstract' => 'nullable|string',
             'journal_link' => 'required|url',
-            'cover_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'cover_image' => 'nullable|image|mimes:jpeg,png,jpg|max:51200',
         ]);
 
         if ($request->hasFile('cover_image')) {

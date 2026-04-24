@@ -60,6 +60,18 @@
                     </div>
 
                     <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Deskripsi Jurnal
+                        </label>
+                        <textarea name="abstract" rows="4" 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 @error('abstract') border-red-500 @enderror"
+                            placeholder="Tulis deskripsi jurnal...">{{ old('abstract', $journal->abstract ?? '') }}</textarea>
+                        @error('abstract')
+                        <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Link Jurnal <span class="text-red-500">*</span></label>
                         <input type="url" name="journal_link" value="{{ old('journal_link', $journal->journal_link ?? '') }}" 
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 @error('journal_link') border-red-500 @enderror"
@@ -97,7 +109,7 @@
                                     </label>
                                     <p class="pl-1">atau drag and drop</p>
                                 </div>
-                                <p class="text-xs text-gray-500">PNG, JPG, GIF hingga 2MB</p>
+                                <p class="text-xs text-gray-500">PNG, JPG, GIF hingga 50MB</p>
                             </div>
                         </div>
                         <div id="imagePreview" class="mt-4 hidden">
