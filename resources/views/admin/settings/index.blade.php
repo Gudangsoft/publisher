@@ -9,10 +9,10 @@
     <p class="text-gray-600 mt-1">Kelola konfigurasi website dan sistem</p>
 </div>
 
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6" x-data="{ active: 'general' }">
     <!-- Settings Navigation -->
     <div class="lg:col-span-1">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden" x-data="{ active: 'general' }">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             <div class="p-4 border-b border-gray-200">
                 <h3 class="font-semibold text-gray-900">Menu Pengaturan</h3>
             </div>
@@ -61,7 +61,7 @@
 
     <!-- Settings Content -->
     <div class="lg:col-span-2">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6" x-data="{ active: 'general' }">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <!-- General Settings -->
             <div x-show="active === 'general'">
                 <h2 class="text-xl font-bold text-gray-900 mb-6">Pengaturan Umum</h2>
