@@ -43,6 +43,9 @@ class JournalController extends Controller
             $validated['cover_image'] = $request->file('cover_image')->store('journals/covers', 'public');
         }
 
+        $validated['is_published'] = true;
+        $validated['publication_date'] = now();
+
         Journal::create($validated);
 
         return redirect()->route('admin.journals.index')
@@ -88,6 +91,8 @@ class JournalController extends Controller
             }
             $validated['cover_image'] = $request->file('cover_image')->store('journals/covers', 'public');
         }
+
+        $validated['is_published'] = true;
 
         $journal->update($validated);
 
