@@ -42,11 +42,6 @@
                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">No</th>
                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Cover</th>
                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Judul</th>
-                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Penulis</th>
-                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Vol/Issue</th>
-                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Tahun</th>
-                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Kategori</th>
-                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Status</th>
                     <th class="px-6 py-4 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Aksi</th>
                 </tr>
             </thead>
@@ -69,46 +64,6 @@
                     </td>
                     <td class="px-6 py-4">
                         <p class="font-semibold text-gray-900">{{ $journal->title }}</p>
-                        @if($journal->doi)
-                            <p class="text-xs text-gray-500 mt-1">DOI: {{ $journal->doi }}</p>
-                        @endif
-                    </td>
-                    <td class="px-6 py-4">
-                        <span class="text-sm text-gray-900">{{ Str::limit($journal->authors, 50) }}</span>
-                    </td>
-                    <td class="px-6 py-4">
-                        <span class="text-sm text-gray-600">
-                            @if($journal->volume || $journal->issue)
-                                Vol. {{ $journal->volume ?? '-' }}, No. {{ $journal->issue ?? '-' }}
-                            @else
-                                -
-                            @endif
-                        </span>
-                    </td>
-                    <td class="px-6 py-4">
-                        <span class="text-sm text-gray-600">{{ $journal->year ?? '-' }}</span>
-                    </td>
-                    <td class="px-6 py-4">
-                        @if($journal->category)
-                            <span class="inline-block px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-700">
-                                {{ $journal->category->name }}
-                            </span>
-                        @else
-                            <span class="inline-block px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-700">
-                                Tidak ada kategori
-                            </span>
-                        @endif
-                    </td>
-                    <td class="px-6 py-4">
-                        @if($journal->is_published)
-                            <span class="inline-block px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-700">
-                                Published
-                            </span>
-                        @else
-                            <span class="inline-block px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-700">
-                                Draft
-                            </span>
-                        @endif
                     </td>
                     <td class="px-6 py-4 text-right">
                         <div class="flex items-center justify-end space-x-2">
