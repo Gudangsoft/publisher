@@ -52,9 +52,19 @@ Route::get('/', function () {
     
     $featuredJournals = \App\Models\Journal::with('category')
         ->where('is_published', true)
+        ->where('is_featured', true)
         ->latest('publication_date')
         ->take(3)
         ->get();
+
+    // Fallback to latest published if no featured journals exist yet
+    if ($featuredJournals->isEmpty()) {
+        $featuredJournals = \App\Models\Journal::with('category')
+            ->where('is_published', true)
+            ->latest('publication_date')
+            ->take(3)
+            ->get();
+    }
     
     return view('home', compact('heroSliders', 'statistics', 'latestNews', 'featuredBooks', 'featuredJournals'));
 })->name('home');

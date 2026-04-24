@@ -81,6 +81,15 @@
                         <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
                         @enderror
                     </div>
+
+                    <div class="flex items-center pt-2">
+                        <input type="checkbox" name="is_featured" id="is_featured" value="1" 
+                            {{ old('is_featured', $journal->is_featured ?? false) ? 'checked' : '' }}
+                            class="w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500">
+                        <label for="is_featured" class="ml-3 block text-sm font-medium text-gray-900">
+                            Tampilkan di Halaman Utama (Jurnal Unggulan)
+                        </label>
+                    </div>
                 </div>
             </div>
 
