@@ -154,7 +154,6 @@ Route::get('/news/{news}', function (\App\Models\News $news) {
     $popularNews = \App\Models\News::with('category')
         ->where('id', '!=', $news->id)
         ->whereNotNull('published_at')
-        ->orderBy('views', 'desc')
         ->latest('published_at')
         ->take(4)
         ->get();
