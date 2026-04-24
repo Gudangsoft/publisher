@@ -148,8 +148,18 @@ Route::get('/news/{news}', function (\App\Models\News $news) {
             ->get();
         $relatedNews = $relatedNews->concat($moreNews);
     }
+
+    $categories = \App\Models\Category::where('type', 'news')->withCount('news')->get();
     
-    return view('news.show', compact('news', 'relatedNews'));
+    $popularNews = \App\Models\News::with('category')
+        ->where('id', '!=', $news->id)
+        ->whereNotNull('published_at')
+        ->orderBy('views', 'desc')
+        ->latest('published_at')
+        ->take(4)
+        ->get();
+    
+    return view('news.show', compact('news', 'relatedNews', 'categories', 'popularNews'));
 })->name('news.show');
 
 // Journals Routes
