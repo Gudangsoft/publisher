@@ -45,6 +45,7 @@ class JournalController extends Controller
 
         $validated['is_published'] = true;
         $validated['publication_date'] = now();
+        $validated['is_featured'] = $request->has('is_featured');
 
         Journal::create($validated);
 
@@ -93,6 +94,7 @@ class JournalController extends Controller
         }
 
         $validated['is_published'] = true;
+        $validated['is_featured'] = $request->has('is_featured');
 
         $journal->update($validated);
 

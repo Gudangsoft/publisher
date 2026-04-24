@@ -30,11 +30,13 @@ class Journal extends Model
         'views',
         'downloads',
         'is_published',
+        'is_featured',
     ];
 
     protected $casts = [
         'publication_date' => 'date',
         'is_published' => 'boolean',
+        'is_featured' => 'boolean',
     ];
 
     protected static function boot()
