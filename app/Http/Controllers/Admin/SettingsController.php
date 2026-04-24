@@ -34,6 +34,16 @@ class SettingsController extends Controller
             'meta_keywords' => Setting::get('meta_keywords', ''),
             'meta_description' => Setting::get('meta_description', ''),
             'google_analytics' => Setting::get('google_analytics', ''),
+            'home_news_title' => Setting::get('home_news_title', 'Berita Terkini'),
+            'home_news_subtitle' => Setting::get('home_news_subtitle', 'Update terbaru seputar dunia literasi dan buku'),
+            'home_books_title' => Setting::get('home_books_title', 'Buku Pilihan'),
+            'home_books_subtitle' => Setting::get('home_books_subtitle', 'Koleksi buku terbaik dan terpopuler yang wajib Anda baca'),
+            'home_categories_title' => Setting::get('home_categories_title', 'Kategori Buku'),
+            'home_categories_subtitle' => Setting::get('home_categories_subtitle', 'Temukan buku sesuai dengan minat dan kebutuhan Anda'),
+            'home_journals_title' => Setting::get('home_journals_title', 'Jurnal Ilmiah'),
+            'home_journals_subtitle' => Setting::get('home_journals_subtitle', 'Akses publikasi akademik dan penelitian terkini dari berbagai bidang ilmu'),
+            'home_testimonials_title' => Setting::get('home_testimonials_title', 'Apa Kata Pembaca Kami'),
+            'home_testimonials_subtitle' => Setting::get('home_testimonials_subtitle', 'Kepuasan pembaca adalah prioritas kami. Lihat apa kata mereka tentang buku-buku kami'),
         ];
         
         return view('admin.settings.index', compact('settings'));
@@ -63,6 +73,16 @@ class SettingsController extends Controller
             'meta_keywords' => 'nullable|string',
             'meta_description' => 'nullable|string',
             'google_analytics' => 'nullable|string',
+            'home_news_title' => 'nullable|string|max:255',
+            'home_news_subtitle' => 'nullable|string|max:255',
+            'home_books_title' => 'nullable|string|max:255',
+            'home_books_subtitle' => 'nullable|string|max:255',
+            'home_categories_title' => 'nullable|string|max:255',
+            'home_categories_subtitle' => 'nullable|string|max:255',
+            'home_journals_title' => 'nullable|string|max:255',
+            'home_journals_subtitle' => 'nullable|string|max:255',
+            'home_testimonials_title' => 'nullable|string|max:255',
+            'home_testimonials_subtitle' => 'nullable|string|max:255',
         ]);
 
         // Handle logo upload
@@ -108,6 +128,16 @@ class SettingsController extends Controller
             'meta_keywords' => 'textarea',
             'meta_description' => 'textarea',
             'google_analytics' => 'textarea',
+            'home_news_title' => 'text',
+            'home_news_subtitle' => 'text',
+            'home_books_title' => 'text',
+            'home_books_subtitle' => 'text',
+            'home_categories_title' => 'text',
+            'home_categories_subtitle' => 'text',
+            'home_journals_title' => 'text',
+            'home_journals_subtitle' => 'text',
+            'home_testimonials_title' => 'text',
+            'home_testimonials_subtitle' => 'text',
         ];
 
         foreach ($settingsToSave as $key => $type) {

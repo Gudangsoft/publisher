@@ -237,8 +237,8 @@
 <section class="py-20 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-16">
-            <h2 class="text-4xl lg:text-5xl font-display font-bold text-gray-900 mb-4">Buku Pilihan</h2>
-            <p class="text-xl text-gray-600 max-w-2xl mx-auto">Koleksi buku terbaik dan terpopuler yang wajib Anda baca</p>
+            <h2 class="text-4xl lg:text-5xl font-display font-bold text-gray-900 mb-4">{{ \App\Models\Setting::get('home_books_title', 'Buku Pilihan') }}</h2>
+            <p class="text-xl text-gray-600 max-w-2xl mx-auto">{{ \App\Models\Setting::get('home_books_subtitle', 'Koleksi buku terbaik dan terpopuler yang wajib Anda baca') }}</p>
         </div>
 
         <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -322,8 +322,8 @@
 <section class="py-20 bg-gray-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-16">
-            <h2 class="text-4xl lg:text-5xl font-display font-bold text-gray-900 mb-4">Kategori Buku</h2>
-            <p class="text-xl text-gray-600 max-w-2xl mx-auto">Temukan buku sesuai dengan minat dan kebutuhan Anda</p>
+            <h2 class="text-4xl lg:text-5xl font-display font-bold text-gray-900 mb-4">{{ \App\Models\Setting::get('home_categories_title', 'Kategori Buku') }}</h2>
+            <p class="text-xl text-gray-600 max-w-2xl mx-auto">{{ \App\Models\Setting::get('home_categories_subtitle', 'Temukan buku sesuai dengan minat dan kebutuhan Anda') }}</p>
         </div>
 
         <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -364,8 +364,8 @@
 <section class="py-20 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-16">
-            <h2 class="text-4xl lg:text-5xl font-display font-bold text-gray-900 mb-4">Jurnal Ilmiah</h2>
-            <p class="text-xl text-gray-600 max-w-2xl mx-auto">Akses publikasi akademik dan penelitian terkini dari berbagai bidang ilmu</p>
+            <h2 class="text-4xl lg:text-5xl font-display font-bold text-gray-900 mb-4">{{ \App\Models\Setting::get('home_journals_title', 'Jurnal Ilmiah') }}</h2>
+            <p class="text-xl text-gray-600 max-w-2xl mx-auto">{{ \App\Models\Setting::get('home_journals_subtitle', 'Akses publikasi akademik dan penelitian terkini dari berbagai bidang ilmu') }}</p>
         </div>
 
         <div class="grid md:grid-cols-3 gap-8">
@@ -461,8 +461,8 @@
 <section class="py-20 bg-gray-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-16">
-            <h2 class="text-4xl lg:text-5xl font-display font-bold text-gray-900 mb-4">Berita Terkini</h2>
-            <p class="text-xl text-gray-600 max-w-2xl mx-auto">Update terbaru seputar dunia literasi dan buku</p>
+            <h2 class="text-4xl lg:text-5xl font-display font-bold text-gray-900 mb-4">{{ \App\Models\Setting::get('home_news_title', 'Berita Terkini') }}</h2>
+            <p class="text-xl text-gray-600 max-w-2xl mx-auto">{{ \App\Models\Setting::get('home_news_subtitle', 'Update terbaru seputar dunia literasi dan buku') }}</p>
         </div>
 
         <div class="grid md:grid-cols-3 gap-8">
@@ -540,9 +540,9 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-16">
             <span class="inline-block px-4 py-2 bg-primary-100 text-primary-600 rounded-full text-sm font-semibold mb-4">TESTIMONI</span>
-            <h2 class="text-4xl lg:text-5xl font-display font-bold text-gray-900 mb-4">Apa Kata Pembaca Kami</h2>
+            <h2 class="text-4xl lg:text-5xl font-display font-bold text-gray-900 mb-4">{{ \App\Models\Setting::get('home_testimonials_title', 'Apa Kata Pembaca Kami') }}</h2>
             <p class="text-xl text-gray-600 max-w-2xl mx-auto">
-                Kepuasan pembaca adalah prioritas kami. Lihat apa kata mereka tentang buku-buku kami
+                {{ \App\Models\Setting::get('home_testimonials_subtitle', 'Kepuasan pembaca adalah prioritas kami. Lihat apa kata mereka tentang buku-buku kami') }}
             </p>
         </div>
 
