@@ -132,28 +132,7 @@
                     </div>
                 </article>
 
-                <!-- Comments Section Placeholder -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-                    <h3 class="text-2xl font-bold text-gray-900 mb-2">Tinggalkan Komentar</h3>
-                    <p class="text-gray-500 mb-8">Beritahu kami pendapat Anda tentang artikel ini. Alamat email Anda tidak akan dipublikasikan.</p>
-                    <form class="space-y-6">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap *</label>
-                                <input type="text" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:outline-none bg-gray-50 focus:bg-white transition-colors">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Email *</label>
-                                <input type="email" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:outline-none bg-gray-50 focus:bg-white transition-colors">
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Komentar *</label>
-                            <textarea rows="5" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:outline-none bg-gray-50 focus:bg-white transition-colors"></textarea>
-                        </div>
-                        <button type="button" class="px-8 py-3 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-xl transition shadow-lg hover:shadow-xl">Kirim Komentar</button>
-                    </form>
-                </div>
+
             </div>
 
             <!-- Right Column: Sidebar -->
