@@ -20,6 +20,7 @@ use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\ThemeController;
 use App\Http\Controllers\Admin\SubmissionController as AdminSubmissionController;
 use App\Http\Controllers\Admin\BookTemplateController;
+use App\Http\Controllers\Admin\ManualController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ExportController;
 use App\Http\Controllers\Admin\GalleryAlbumController;
@@ -301,6 +302,7 @@ Route::middleware('auth')->prefix('user')->name('user.')->group(function () {
 // Admin routes (simple admin check is implemented in controllers)
 Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('admin.dashboard');
+    Route::get('manual', [ManualController::class, 'index'])->name('admin.manual.index');
 
     Route::resource('books', BookController::class, ['as' => 'admin']);
     Route::resource('news', NewsController::class, ['as' => 'admin']);
