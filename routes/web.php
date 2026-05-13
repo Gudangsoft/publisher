@@ -67,7 +67,9 @@ Route::get('/', function () {
             ->get();
     }
     
-    return view('home', compact('heroSliders', 'statistics', 'latestNews', 'featuredBooks', 'featuredJournals'));
+    $featuredVideo = \App\Models\Gallery::active()->videos()->featured()->first();
+
+    return view('home', compact('heroSliders', 'statistics', 'latestNews', 'featuredBooks', 'featuredJournals', 'featuredVideo'));
 })->name('home');
 
 // Books Routes

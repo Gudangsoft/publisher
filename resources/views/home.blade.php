@@ -695,6 +695,132 @@
     </div>
 </section>
 
+<!-- Featured Video Full Page Section -->
+@if(isset($featuredVideo) && $featuredVideo)
+<section class="relative w-full min-h-screen bg-gray-950 flex flex-col items-center justify-center overflow-hidden"
+         x-data="{ playing: false, embedUrl: '{{ $featuredVideo->youtube_embed_url }}' }">
+
+    <!-- Blurred background thumbnail -->
+    @if($featuredVideo->display_thumbnail)
+    <div class="absolute inset-0">
+        <img src="{{ $featuredVideo->display_thumbnail }}" alt="" class="w-full h-full object-cover scale-110 blur-2xl opacity-25">
+    </div>
+    @endif
+
+    <!-- Dark gradient overlay -->
+    <div class="absolute inset-0 bg-gradient-to-b from-gray-950/60 via-transparent to-gray-950/80"></div>
+
+    <!-- Content -->
+    <div class="relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 flex flex-col items-center">
+
+        <!-- Badge -->
+        <div class="inline-flex items-center gap-2.5 px-5 py-2 bg-amber-500/20 border border-amber-500/40 backdrop-blur-sm text-amber-300 rounded-full text-sm font-bold mb-8 tracking-wide">
+            <span class="w-2 h-2 bg-amber-400 rounded-full animate-pulse"></span>
+            ⭐ VIDEO UNGGULAN
+        </div>
+
+        <!-- Title -->
+        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-white text-center leading-tight mb-4 max-w-4xl">
+            {{ $featuredVideo->title }}
+        </h2>
+
+        @if($featuredVideo->description)
+        <p class="text-gray-300 text-lg text-center max-w-2xl mb-10 leading-relaxed">
+            {{ $featuredVideo->description }}
+        </p>
+        @else
+        <div class="mb-10"></div>
+        @endif
+
+        <!-- Video Player -->
+        <div class="w-full max-w-5xl">
+            <!-- Thumbnail + play button -->
+            <div x-show="!playing"
+                 x-transition:leave="transition ease-in duration-200"
+                 x-transition:leave-start="opacity-100 scale-100"
+                 x-transition:leave-end="opacity-0 scale-95"
+                 class="relative aspect-video rounded-2xl overflow-hidden cursor-pointer group shadow-[0_30px_80px_rgba(0,0,0,0.8)]"
+                 @click="playing = true">
+
+                @if($featuredVideo->display_thumbnail)
+                <img src="{{ $featuredVideo->display_thumbnail }}" alt="{{ $featuredVideo->title }}"
+                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
+                @else
+                <div class="w-full h-full bg-gray-800 flex items-center justify-center">
+                    <svg class="w-24 h-24 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+                @endif
+
+                <!-- Dark overlay -->
+                <div class="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-300"></div>
+
+                <!-- Play Button -->
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="relative">
+                        <div class="absolute inset-0 bg-red-600/40 rounded-full animate-ping scale-150"></div>
+                        <div class="relative w-24 h-24 bg-red-600 hover:bg-red-500 rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-all duration-300">
+                            <svg class="w-10 h-10 text-white ml-2" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hint -->
+                <div class="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-black/60 backdrop-blur-sm rounded-full text-white text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
+                    Klik untuk memutar video
+                </div>
+            </div>
+
+            <!-- Iframe when playing -->
+            <div x-show="playing"
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 scale-95"
+                 x-transition:enter-end="opacity-100 scale-100"
+                 class="relative aspect-video rounded-2xl overflow-hidden bg-black shadow-[0_30px_80px_rgba(0,0,0,0.8)]">
+                <template x-if="playing">
+                    <iframe :src="embedUrl + '?autoplay=1&rel=0'"
+                            class="absolute inset-0 w-full h-full"
+                            frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen>
+                    </iframe>
+                </template>
+            </div>
+        </div>
+
+        <!-- Meta row -->
+        <div class="flex items-center gap-6 mt-8">
+            @if($featuredVideo->album)
+            <div class="flex items-center gap-2 text-gray-400 text-sm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                </svg>
+                <span>{{ $featuredVideo->album->name }}</span>
+            </div>
+            @endif
+            <a href="{{ route('gallery', ['type' => 'video']) }}"
+               class="inline-flex items-center gap-2 px-5 py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-xl font-semibold text-sm transition-all duration-200 backdrop-blur-sm">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z"/>
+                </svg>
+                Lihat Semua Video
+            </a>
+        </div>
+    </div>
+
+    <!-- Scroll indicator -->
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-gray-400 animate-bounce">
+        <span class="text-xs font-medium tracking-widest uppercase opacity-60">Scroll</span>
+        <svg class="w-5 h-5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+        </svg>
+    </div>
+</section>
+@endif
+
 <!-- Gallery Section -->
 @php
     $galleryAlbums = \App\Models\GalleryAlbum::active()->ordered()
