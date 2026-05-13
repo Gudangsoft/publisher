@@ -277,7 +277,7 @@ Route::get('/gallery', function () {
         ->having('galleries_count', '>', 0)
         ->get();
 
-    $featuredVideo = \App\Models\Gallery::active()->videos()->ordered()->first();
+    $featuredVideo = \App\Models\Gallery::active()->videos()->featured()->first();
 
     return view('gallery', compact('galleries', 'albums', 'featuredVideo'));
 })->name('gallery');

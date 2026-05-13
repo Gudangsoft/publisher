@@ -143,6 +143,24 @@
                 </p>
             </div>
 
+            <!-- Featured Video (only for video type) -->
+            <div x-show="type === 'video'" x-transition>
+                <label class="block text-sm font-semibold text-gray-700 mb-3">Kategori Khusus</label>
+                <label class="flex items-start gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all"
+                       :class="$refs.featuredCheck.checked ? 'border-amber-400 bg-amber-50' : 'border-gray-200 hover:border-amber-300'">
+                    <input type="checkbox" name="is_featured" value="1" x-ref="featuredCheck"
+                           {{ old('is_featured') ? 'checked' : '' }}
+                           class="mt-0.5 w-5 h-5 text-amber-500 border-gray-300 rounded focus:ring-amber-400">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm font-bold text-gray-900">⭐ Video Unggulan (Full Page)</span>
+                            <span class="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs font-bold rounded-full">Khusus</span>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">Video ini akan ditampilkan secara besar di halaman galeri. Hanya 1 video yang bisa menjadi unggulan.</p>
+                    </div>
+                </label>
+            </div>
+
             <!-- Display Order & Active -->
             <div class="grid grid-cols-2 gap-4">
                 <div>

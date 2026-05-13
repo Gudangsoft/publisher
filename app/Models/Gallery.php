@@ -19,6 +19,7 @@ class Gallery extends Model
         'category',
         'gallery_album_id',
         'is_active',
+        'is_featured',
         'display_order',
     ];
 
@@ -32,6 +33,7 @@ class Gallery extends Model
 
     protected $casts = [
         'is_active' => 'boolean',
+        'is_featured' => 'boolean',
         'display_order' => 'integer',
     ];
 
@@ -57,6 +59,14 @@ class Gallery extends Model
     public function scopeVideos($query)
     {
         return $query->where('type', 'video');
+    }
+
+    /**
+     * Scope: featured item
+     */
+    public function scopeFeatured($query)
+    {
+        return $query->where('is_featured', true);
     }
 
     /**

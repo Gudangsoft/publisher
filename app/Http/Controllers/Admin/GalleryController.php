@@ -83,6 +83,8 @@ class GalleryController extends Controller
 
         $validated = $request->validate($rules);
 
+        $isFeatured = $request->has('is_featured') && $request->type === 'video';
+
         $data = [
             'title' => $validated['title'],
             'description' => $validated['description'] ?? null,
@@ -90,8 +92,13 @@ class GalleryController extends Controller
             'gallery_album_id' => $validated['gallery_album_id'] ?? null,
             'category' => $request->category_new ?: ($validated['category'] ?? null),
             'is_active' => $request->has('is_active'),
+            'is_featured' => $isFeatured,
             'display_order' => $validated['display_order'] ?? 0,
         ];
+
+        if ($isFeatured) {
+            Gallery::where('is_featured', true)->update(['is_featured' => false]);
+        }
 
         // Handle photo upload
         if ($request->type === 'photo' && $request->hasFile('file')) {
@@ -101,7 +108,7 @@ class GalleryController extends Controller
         // Handle video
         if ($request->type === 'video') {
             $data['video_url'] = $validated['video_url'] ?? null;
-            
+
             if ($request->hasFile('thumbnail_file')) {
                 $data['thumbnail'] = $request->file('thumbnail_file')->store('galleries/thumbnails', 'public');
             }
@@ -147,6 +154,8 @@ class GalleryController extends Controller
 
         $validated = $request->validate($rules);
 
+        $isFeatured = $request->has('is_featured') && $request->type === 'video';
+
         $data = [
             'title' => $validated['title'],
             'description' => $validated['description'] ?? null,
@@ -154,12 +163,16 @@ class GalleryController extends Controller
             'gallery_album_id' => $validated['gallery_album_id'] ?? null,
             'category' => $request->category_new ?: ($validated['category'] ?? null),
             'is_active' => $request->has('is_active'),
+            'is_featured' => $isFeatured,
             'display_order' => $validated['display_order'] ?? 0,
         ];
 
+        if ($isFeatured) {
+            Gallery::where('is_featured', true)->where('id', '!=', $gallery->id)->update(['is_featured' => false]);
+        }
+
         // Handle photo upload
         if ($request->type === 'photo' && $request->hasFile('file')) {
-            // Delete old file
             if ($gallery->file_path) {
                 Storage::disk('public')->delete($gallery->file_path);
             }
@@ -169,9 +182,8 @@ class GalleryController extends Controller
         // Handle video
         if ($request->type === 'video') {
             $data['video_url'] = $validated['video_url'] ?? null;
-            
+
             if ($request->hasFile('thumbnail_file')) {
-                // Delete old thumbnail
                 if ($gallery->thumbnail) {
                     Storage::disk('public')->delete($gallery->thumbnail);
                 }
