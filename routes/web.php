@@ -276,8 +276,10 @@ Route::get('/gallery', function () {
         }])
         ->having('galleries_count', '>', 0)
         ->get();
-    
-    return view('gallery', compact('galleries', 'albums'));
+
+    $featuredVideo = \App\Models\Gallery::active()->videos()->ordered()->first();
+
+    return view('gallery', compact('galleries', 'albums', 'featuredVideo'));
 })->name('gallery');
 
 // Authentication Routes

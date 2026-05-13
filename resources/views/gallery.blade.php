@@ -31,6 +31,62 @@
         </div>
     </section>
 
+    <!-- Featured Video Section -->
+    @if(isset($featuredVideo) && $featuredVideo)
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div class="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-5 gap-0">
+                <!-- Video Player -->
+                <div class="lg:col-span-3 relative bg-black">
+                    <div class="relative aspect-video w-full">
+                        @if($featuredVideo->youtube_embed_url)
+                            <iframe src="{{ $featuredVideo->youtube_embed_url }}"
+                                    class="absolute inset-0 w-full h-full"
+                                    frameborder="0"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowfullscreen>
+                            </iframe>
+                        @elseif($featuredVideo->display_thumbnail)
+                            <img src="{{ $featuredVideo->display_thumbnail }}" alt="{{ $featuredVideo->title }}"
+                                 class="absolute inset-0 w-full h-full object-cover">
+                        @endif
+                    </div>
+                </div>
+                <!-- Info Panel -->
+                <div class="lg:col-span-2 flex flex-col justify-center p-8 bg-gradient-to-br from-gray-50 to-white">
+                    <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-red-50 text-red-600 rounded-full text-xs font-bold mb-5 w-fit">
+                        <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                        Video Unggulan
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-900 leading-tight mb-4">
+                        {{ $featuredVideo->title }}
+                    </h2>
+                    @if($featuredVideo->description)
+                    <p class="text-gray-500 text-sm leading-relaxed mb-6">
+                        {{ $featuredVideo->description }}
+                    </p>
+                    @endif
+                    @if($featuredVideo->album)
+                    <div class="flex items-center gap-2 text-xs text-gray-400 mb-6">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                        </svg>
+                        <span>{{ $featuredVideo->album->name }}</span>
+                    </div>
+                    @endif
+                    <a href="{{ route('gallery', ['type' => 'video']) }}"
+                       class="inline-flex items-center gap-2 px-5 py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-semibold text-sm transition-colors duration-200 w-fit">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8 5v14l11-7z"/>
+                        </svg>
+                        Lihat Semua Video
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+    @endif
+
     <!-- Albums Section -->
     @if($albums->count() && !request('album'))
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
