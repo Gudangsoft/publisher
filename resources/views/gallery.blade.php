@@ -56,7 +56,7 @@
             </div>
 
             <!-- Title -->
-            <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-white text-center leading-tight mb-4 max-w-4xl">
+            <h2 class="text-lg sm:text-xl lg:text-2xl font-bold text-white text-center leading-tight mb-4 max-w-4xl">
                 {{ $featuredVideo->title }}
             </h2>
 
