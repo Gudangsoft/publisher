@@ -308,6 +308,24 @@ Route::prefix('admin')->middleware(['auth', 'staff.access'])->group(function () 
     Route::get('/', [DashboardController::class, 'index'])->name('admin.dashboard');
     Route::get('manual', [ManualController::class, 'index'])->name('admin.manual.index');
 
+    // TEMPORARY DEBUG ROUTE - remove after fixing permission issue
+    Route::get('debug-permissions', function () {
+        $user = auth()->user();
+        $user->load('role');
+        $rawRole = $user->role
+            ? \DB::selectOne('SELECT id, name, permissions FROM roles WHERE id = ?', [$user->role_id])
+            : null;
+        return response()->json([
+            'user'              => ['id' => $user->id, 'email' => $user->email, 'is_admin' => $user->is_admin, 'role_id' => $user->role_id],
+            'role_loaded'       => $user->relationLoaded('role'),
+            'role_object'       => $user->role ? ['id' => $user->role->id, 'name' => $user->role->name, 'permissions_cast' => $user->role->permissions] : null,
+            'raw_db_row'        => $rawRole,
+            'has_news'          => $user->hasPermission('news'),
+            'has_galleries'     => $user->hasPermission('galleries'),
+        ], 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    })->name('admin.debug.permissions');
+
+
     // Profile (always accessible to any staff)
     Route::get('profile', [ProfileController::class, 'edit'])->name('admin.profile.edit');
     Route::put('profile', [ProfileController::class, 'update'])->name('admin.profile.update');
