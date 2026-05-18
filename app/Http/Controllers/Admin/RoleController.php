@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Permission;
 use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -20,50 +19,39 @@ class RoleController extends Controller
     public function index()
     {
         $this->adminOnly();
-        $roles = Role::withCount('users')
-            ->with('permissions')
-            ->orderBy('is_system', 'desc')
-            ->orderBy('name')
-            ->get();
-
-        return view('admin.roles.index', compact('roles'));
+        $roles = Role::withCount('users')->orderBy('is_system', 'desc')->orderBy('name')->get();
+        $allPermissions = Role::allPermissions();
+        return view('admin.roles.index', compact('roles', 'allPermissions'));
     }
 
     public function create()
     {
         $this->adminOnly();
-        $rawPerms  = \DB::table('permissions')->orderBy('sort_order')->get();
-        $permissions = $rawPerms->groupBy('group');
-        $colors = array_keys(Role::colorClasses());
-        return view('admin.roles.create', compact('permissions', 'colors'));
+        $allPermissions = Role::allPermissions();
+        return view('admin.roles.create', compact('allPermissions'));
     }
 
     public function store(Request $request)
     {
         $this->adminOnly();
-        $validated = $request->validate([
+        $request->validate([
             'name'        => 'required|string|max:100',
             'description' => 'nullable|string|max:255',
             'color'       => 'required|string',
-            'permissions' => 'nullable|array',
-            'permissions.*' => 'exists:permissions,id',
         ]);
 
-        $role = Role::create([
-            'name'        => $validated['name'],
-            'slug'        => Str::slug($validated['name']),
-            'description' => $validated['description'] ?? null,
-            'color'       => $validated['color'],
+        Role::create([
+            'name'        => $request->name,
+            'slug'        => Str::slug($request->name),
+            'description' => $request->description,
+            'color'       => $request->color,
+            'permissions' => $request->input('permissions', []),
             'is_system'   => false,
             'is_active'   => true,
         ]);
 
-        if (!empty($validated['permissions'])) {
-            $role->permissions()->sync($validated['permissions']);
-        }
-
         return redirect()->route('admin.roles.index')
-            ->with('success', "Role \"{$role->name}\" berhasil dibuat.");
+            ->with('success', "Role \"{$request->name}\" berhasil dibuat.");
     }
 
     public function show(Role $role)
@@ -75,41 +63,25 @@ class RoleController extends Controller
     public function edit(Role $role)
     {
         $this->adminOnly();
-        $role->load('permissions');
-
-        // Fetch ALL permissions grouped — bypass any model-level issue
-        $rawPerms    = \DB::table('permissions')->orderBy('sort_order')->get();
-        $permissions = $rawPerms->groupBy('group');
-        \Log::debug('RoleController@edit', [
-            'raw_count'   => $rawPerms->count(),
-            'group_count' => $permissions->count(),
-            'model_count' => Permission::count(),
-        ]);
-
-        $colors = array_keys(Role::colorClasses());
-        $selectedPermissions = $role->permissions->pluck('id')->toArray();
-
-        return view('admin.roles.edit', compact('role', 'permissions', 'colors', 'selectedPermissions'));
+        $allPermissions = Role::allPermissions();
+        return view('admin.roles.edit', compact('role', 'allPermissions'));
     }
 
     public function update(Request $request, Role $role)
     {
         $this->adminOnly();
-        $validated = $request->validate([
+        $request->validate([
             'name'        => 'required|string|max:100',
             'description' => 'nullable|string|max:255',
             'color'       => 'required|string',
-            'permissions' => 'nullable|array',
-            'permissions.*' => 'exists:permissions,id',
         ]);
 
         $role->update([
-            'name'        => $validated['name'],
-            'description' => $validated['description'] ?? null,
-            'color'       => $validated['color'],
+            'name'        => $request->name,
+            'description' => $request->description,
+            'color'       => $request->color,
+            'permissions' => $request->input('permissions', []),
         ]);
-
-        $role->permissions()->sync($validated['permissions'] ?? []);
 
         return redirect()->route('admin.roles.index')
             ->with('success', "Role \"{$role->name}\" berhasil diperbarui.");
@@ -119,18 +91,13 @@ class RoleController extends Controller
     {
         $this->adminOnly();
         if ($role->is_system) {
-            return redirect()->route('admin.roles.index')
-                ->with('error', 'Role sistem tidak dapat dihapus.');
+            return back()->with('error', 'Role sistem tidak dapat dihapus.');
         }
-
         if ($role->users()->count() > 0) {
-            return redirect()->route('admin.roles.index')
-                ->with('error', "Role ini masih digunakan oleh {$role->users()->count()} pengguna. Pindahkan pengguna terlebih dahulu.");
+            return back()->with('error', "Role ini masih digunakan oleh {$role->users()->count()} pengguna.");
         }
-
         $name = $role->name;
         $role->delete();
-
         return redirect()->route('admin.roles.index')
             ->with('success', "Role \"{$name}\" berhasil dihapus.");
     }
@@ -141,10 +108,8 @@ class RoleController extends Controller
         if ($role->is_system) {
             return back()->with('error', 'Role sistem tidak dapat dinonaktifkan.');
         }
-
         $role->update(['is_active' => !$role->is_active]);
         $status = $role->is_active ? 'diaktifkan' : 'dinonaktifkan';
-
         return back()->with('success', "Role \"{$role->name}\" berhasil {$status}.");
     }
 }

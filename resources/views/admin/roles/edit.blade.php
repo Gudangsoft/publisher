@@ -21,12 +21,20 @@
         </div>
     </div>
 
+    @if($errors->any())
+    <div class="bg-red-50 border border-red-200 rounded-xl p-4 text-sm text-red-700">
+        <ul class="list-disc list-inside space-y-1">
+            @foreach($errors->all() as $err)<li>{{ $err }}</li>@endforeach
+        </ul>
+    </div>
+    @endif
+
     <form action="{{ route('admin.roles.update', $role) }}" method="POST" class="space-y-6">
         @csrf @method('PUT')
 
-        <!-- Nama & Warna -->
+        <!-- Informasi Role -->
         <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-5">
-            <h2 class="font-semibold text-gray-800 text-sm uppercase tracking-wider">Informasi Role</h2>
+            <h2 class="font-bold text-gray-700 text-xs uppercase tracking-widest pb-2 border-b border-gray-100">Informasi Role</h2>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
@@ -45,13 +53,15 @@
             <!-- Color Picker -->
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-2">Warna Badge</label>
-                <div class="flex flex-wrap gap-2">
+                <div class="flex flex-wrap gap-3">
                     @foreach(['blue','green','purple','red','orange','yellow','teal','pink'] as $c)
                     <label class="cursor-pointer">
                         <input type="radio" name="color" value="{{ $c }}" class="sr-only peer"
                                {{ old('color', $role->color) === $c ? 'checked' : '' }}>
-                        <div class="w-8 h-8 rounded-full transition-all peer-checked:ring-2 peer-checked:ring-offset-2 peer-checked:ring-gray-500
-                            @if($c==='blue') bg-blue-500 @elseif($c==='green') bg-green-500 @elseif($c==='purple') bg-purple-500 @elseif($c==='red') bg-red-500 @elseif($c==='orange') bg-orange-500 @elseif($c==='yellow') bg-yellow-400 @elseif($c==='teal') bg-teal-500 @else bg-pink-500 @endif">
+                        <div class="w-9 h-9 rounded-full ring-2 ring-transparent peer-checked:ring-offset-2 peer-checked:ring-gray-700 transition-all
+                            @if($c==='blue') bg-blue-500 @elseif($c==='green') bg-green-500 @elseif($c==='purple') bg-purple-500
+                            @elseif($c==='red') bg-red-500 @elseif($c==='orange') bg-orange-500 @elseif($c==='yellow') bg-yellow-400
+                            @elseif($c==='teal') bg-teal-500 @else bg-pink-500 @endif">
                         </div>
                     </label>
                     @endforeach
@@ -59,8 +69,8 @@
             </div>
         </div>
 
-        <!-- Permissions -->
-        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden" id="permBox">
+        <!-- Hak Akses -->
+        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
             <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50">
                 <div>
                     <h2 class="font-bold text-gray-700 text-xs uppercase tracking-widest">Hak Akses</h2>
@@ -73,31 +83,31 @@
             </div>
 
             <div class="p-6 space-y-7">
-                @forelse($permissions as $group => $groupPerms)
+                @php $savedPerms = old('permissions', $role->permissions ?? []); @endphp
+                @foreach($allPermissions as $group => $perms)
                 <div>
                     <div class="flex items-center gap-2 mb-3">
                         <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">{{ $group }}</span>
                         <div class="flex-1 h-px bg-gray-100"></div>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                        @foreach($groupPerms as $perm)
-                        <label class="perm-label flex items-center gap-3 px-3 py-2.5 rounded-lg border cursor-pointer transition-colors {{ in_array($perm->id, old('permissions', $selectedPermissions)) ? 'bg-blue-50 border-blue-300' : 'bg-white border-gray-200' }}">
+                        @foreach($perms as $slug => $info)
+                        @php $checked = in_array($slug, $savedPerms); @endphp
+                        <label class="perm-label flex items-center gap-3 px-3 py-2.5 rounded-lg border cursor-pointer transition-colors {{ $checked ? 'bg-blue-50 border-blue-300' : 'bg-white border-gray-200' }}">
                             <input type="checkbox"
                                    name="permissions[]"
-                                   value="{{ $perm->id }}"
+                                   value="{{ $slug }}"
                                    class="perm-check w-4 h-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500 shrink-0"
-                                   {{ in_array($perm->id, old('permissions', $selectedPermissions)) ? 'checked' : '' }}>
+                                   {{ $checked ? 'checked' : '' }}>
                             <div class="flex items-center gap-1.5 min-w-0">
-                                <span class="text-base leading-none">{{ $perm->icon }}</span>
-                                <span class="text-sm font-medium text-gray-700 truncate">{{ $perm->name }}</span>
+                                <span class="text-base leading-none">{{ $info['icon'] }}</span>
+                                <span class="text-sm font-medium text-gray-700 truncate">{{ $info['label'] }}</span>
                             </div>
                         </label>
                         @endforeach
                     </div>
                 </div>
-                @empty
-                <p class="text-sm text-gray-500 text-center py-4">Tidak ada hak akses tersedia.</p>
-                @endforelse
+                @endforeach
             </div>
         </div>
 
@@ -128,17 +138,14 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.perm-check').forEach(function (cb) {
         cb.addEventListener('change', function () { updateLabel(cb); });
     });
-    var btn = document.getElementById('btnSelectAll');
-    if (btn) {
-        btn.addEventListener('click', function () {
-            var checks = document.querySelectorAll('.perm-check');
-            var allChecked = Array.from(checks).every(function (c) { return c.checked; });
-            checks.forEach(function (c) {
-                c.checked = !allChecked;
-                updateLabel(c);
-            });
+    document.getElementById('btnSelectAll').addEventListener('click', function () {
+        var checks = document.querySelectorAll('.perm-check');
+        var allChecked = Array.from(checks).every(function (c) { return c.checked; });
+        checks.forEach(function (c) {
+            c.checked = !allChecked;
+            updateLabel(c);
         });
-    }
+    });
 });
 </script>
 @endsection

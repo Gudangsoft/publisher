@@ -68,18 +68,23 @@
 
             <!-- Permissions -->
             <div class="px-5 py-4">
-                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2.5">Hak Akses ({{ $role->permissions->count() }})</p>
+                @php
+                    $rolePerms = $role->permissions ?? [];
+                    $flatPerms = collect($allPermissions)->flatMap(fn($g) => $g);
+                    $displayPerms = array_slice($rolePerms, 0, 8);
+                @endphp
+                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2.5">Hak Akses ({{ count($rolePerms) }})</p>
                 <div class="flex flex-wrap gap-1.5">
-                    @forelse($role->permissions->take(8) as $perm)
+                    @forelse($displayPerms as $slug)
                     <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-50 border border-gray-200 text-gray-600 rounded-lg text-xs">
-                        {{ $perm->icon }} {{ $perm->name }}
+                        {{ $flatPerms[$slug]['icon'] ?? '' }} {{ $flatPerms[$slug]['label'] ?? $slug }}
                     </span>
                     @empty
                     <span class="text-xs text-gray-400 italic">Belum ada hak akses</span>
                     @endforelse
-                    @if($role->permissions->count() > 8)
+                    @if(count($rolePerms) > 8)
                     <span class="inline-flex items-center px-2 py-0.5 bg-gray-100 text-gray-500 rounded-lg text-xs">
-                        +{{ $role->permissions->count() - 8 }} lainnya
+                        +{{ count($rolePerms) - 8 }} lainnya
                     </span>
                     @endif
                 </div>
