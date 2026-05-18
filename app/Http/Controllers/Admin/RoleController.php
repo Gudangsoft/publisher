@@ -32,7 +32,8 @@ class RoleController extends Controller
     public function create()
     {
         $this->adminOnly();
-        $permissions = Permission::allGrouped();
+        $rawPerms  = \DB::table('permissions')->orderBy('sort_order')->get();
+        $permissions = $rawPerms->groupBy('group');
         $colors = array_keys(Role::colorClasses());
         return view('admin.roles.create', compact('permissions', 'colors'));
     }
@@ -75,7 +76,16 @@ class RoleController extends Controller
     {
         $this->adminOnly();
         $role->load('permissions');
-        $permissions = Permission::allGrouped();
+
+        // Fetch ALL permissions grouped — bypass any model-level issue
+        $rawPerms    = \DB::table('permissions')->orderBy('sort_order')->get();
+        $permissions = $rawPerms->groupBy('group');
+        \Log::debug('RoleController@edit', [
+            'raw_count'   => $rawPerms->count(),
+            'group_count' => $permissions->count(),
+            'model_count' => Permission::count(),
+        ]);
+
         $colors = array_keys(Role::colorClasses());
         $selectedPermissions = $role->permissions->pluck('id')->toArray();
 
