@@ -82,15 +82,19 @@
         <form method="GET" action="{{ route('admin.users.index') }}" class="flex items-center justify-between">
             <div class="flex items-center space-x-4">
                 <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari pengguna..." class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 w-64">
-                <select name="role" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500" onchange="this.form.submit()">
+                <select name="role_filter" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500" onchange="this.form.submit()">
                     <option value="">Semua Role</option>
-                    <option value="admin" {{ request('role') == 'admin' ? 'selected' : '' }}>Administrator</option>
-                    <option value="user" {{ request('role') == 'user' ? 'selected' : '' }}>Pelanggan</option>
+                    <option value="admin" {{ request('role_filter') == 'admin' ? 'selected' : '' }}>Administrator</option>
+                    <option value="staff" {{ request('role_filter') == 'staff' ? 'selected' : '' }}>Semua Staf</option>
+                    <option value="user" {{ request('role_filter') == 'user' ? 'selected' : '' }}>Pelanggan</option>
+                    @foreach($roles as $r)
+                    <option value="{{ $r->id }}" {{ request('role_filter') == $r->id ? 'selected' : '' }}>{{ $r->name }}</option>
+                    @endforeach
                 </select>
                 <button type="submit" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors duration-200">
                     Cari
                 </button>
-                @if(request('search') || request('role'))
+                @if(request('search') || request('role_filter'))
                 <a href="{{ route('admin.users.index') }}" class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors duration-200">
                     Reset
                 </a>
@@ -134,8 +138,27 @@
                             </svg>
                             Administrator
                         </span>
+                        @elseif($user->role)
+                        @php
+                            $roleBadge = [
+                                'blue'   => 'bg-blue-100 text-blue-800',
+                                'green'  => 'bg-green-100 text-green-800',
+                                'purple' => 'bg-purple-100 text-purple-800',
+                                'red'    => 'bg-red-100 text-red-800',
+                                'orange' => 'bg-orange-100 text-orange-800',
+                                'yellow' => 'bg-yellow-100 text-yellow-800',
+                                'teal'   => 'bg-teal-100 text-teal-800',
+                                'pink'   => 'bg-pink-100 text-pink-800',
+                            ][$user->role->color] ?? 'bg-gray-100 text-gray-700';
+                        @endphp
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium {{ $roleBadge }}">
+                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" clip-rule="evenodd"/>
+                            </svg>
+                            {{ $user->role->name }}
+                        </span>
                         @else
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
                             <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
                             </svg>
