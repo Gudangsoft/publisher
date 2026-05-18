@@ -73,6 +73,9 @@
             </div>
 
             <div class="p-6 space-y-7">
+                {{-- DEBUG: remove after fix --}}
+                @php $debugCount = isset($permissions) ? $permissions->count() : 'NOT SET'; @endphp
+                <p style="color:red;font-size:12px">DEBUG permissions count: {{ $debugCount }}</p>
                 @forelse($permissions as $group => $groupPerms)
                 <div>
                     <div class="flex items-center gap-2 mb-3">
