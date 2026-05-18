@@ -60,31 +60,53 @@
         </div>
 
         <!-- Permissions -->
-        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden"
+             x-data="{
+                 checked: {},
+                 init() {
+                     document.querySelectorAll('.perm-check').forEach(cb => {
+                         this.checked[cb.value] = cb.checked;
+                     });
+                 },
+                 toggle(id) { this.checked[id] = !this.checked[id]; },
+                 selectAll() {
+                     const all = Object.values(this.checked).every(v => v);
+                     Object.keys(this.checked).forEach(k => this.checked[k] = !all);
+                     document.querySelectorAll('.perm-check').forEach(cb => cb.checked = !all);
+                 }
+             }">
+            <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50">
                 <div>
-                    <h2 class="font-semibold text-gray-800 text-sm uppercase tracking-wider">Hak Akses</h2>
+                    <h2 class="font-bold text-gray-700 text-xs uppercase tracking-widest">Hak Akses</h2>
                     <p class="text-xs text-gray-400 mt-0.5">Centang menu yang boleh diakses oleh role ini</p>
                 </div>
-                <button type="button" id="selectAll"
-                        class="text-xs text-primary-600 hover:text-primary-700 font-semibold">
-                    Pilih Semua
+                <button type="button" @click="selectAll()"
+                        class="text-xs font-semibold text-primary-600 hover:text-primary-800 px-3 py-1.5 rounded-lg hover:bg-primary-50 transition">
+                    Pilih / Hapus Semua
                 </button>
             </div>
 
-            <div class="p-6 space-y-6">
+            <div class="p-6 space-y-7">
                 @foreach($permissions as $group => $groupPerms)
                 <div>
-                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">{{ $group }}</h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">{{ $group }}</span>
+                        <div class="flex-1 h-px bg-gray-100"></div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                         @foreach($groupPerms as $perm)
-                        <label class="flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all hover:border-primary-300 has-[:checked]:border-primary-400 has-[:checked]:bg-primary-50">
-                            <input type="checkbox" name="permissions[]" value="{{ $perm->id }}"
-                                   class="perm-check w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                        <label class="flex items-center gap-3 px-3 py-2.5 rounded-lg border cursor-pointer transition-colors"
+                               :class="checked['{{ $perm->id }}'] ? 'bg-primary-50 border-primary-300' : 'bg-white border-gray-200 hover:border-gray-300'"
+                               @click="toggle('{{ $perm->id }}')">
+                            <input type="checkbox"
+                                   name="permissions[]"
+                                   value="{{ $perm->id }}"
+                                   class="perm-check w-4 h-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500 shrink-0"
+                                   x-model="checked['{{ $perm->id }}']"
                                    {{ in_array($perm->id, old('permissions', $selectedPermissions)) ? 'checked' : '' }}>
-                            <div class="flex items-center gap-2 text-sm">
-                                <span>{{ $perm->icon }}</span>
-                                <span class="font-medium text-gray-700">{{ $perm->name }}</span>
+                            <div class="flex items-center gap-1.5 min-w-0">
+                                <span class="text-base leading-none">{{ $perm->icon }}</span>
+                                <span class="text-sm font-medium text-gray-700 truncate">{{ $perm->name }}</span>
                             </div>
                         </label>
                         @endforeach
@@ -106,12 +128,4 @@
     </form>
 </div>
 
-<script>
-document.getElementById('selectAll').addEventListener('click', function() {
-    const checks = document.querySelectorAll('.perm-check');
-    const allChecked = [...checks].every(c => c.checked);
-    checks.forEach(c => c.checked = !allChecked);
-    this.textContent = allChecked ? 'Pilih Semua' : 'Hapus Semua';
-});
-</script>
 @endsection
