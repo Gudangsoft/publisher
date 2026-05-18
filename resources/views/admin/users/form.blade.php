@@ -122,19 +122,41 @@
                        {{ isset($user->id) ? '' : 'required' }}>
             </div>
             
-            <!-- Role -->
-            <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Role</label>
-                <div class="flex items-center space-x-2">
-                    <input type="checkbox" 
-                           id="is_admin" 
-                           name="is_admin" 
-                           value="1" 
-                           {{ old('is_admin', $user->is_admin ?? false) ? 'checked' : '' }}
-                           class="w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-2 focus:ring-primary-500">
-                    <label for="is_admin" class="text-sm text-gray-700 cursor-pointer">Administrator</label>
+            <!-- Tipe Akun -->
+            <div x-data="{ isAdmin: {{ old('is_admin', $user->is_admin ?? false) ? 'true' : 'false' }} }">
+                <label class="block text-sm font-semibold text-gray-700 mb-3">Tipe & Hak Akses</label>
+
+                <!-- Admin toggle -->
+                <label class="flex items-start gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all mb-3"
+                       :class="isAdmin ? 'border-purple-400 bg-purple-50' : 'border-gray-200 hover:border-gray-300'">
+                    <input type="checkbox" id="is_admin" name="is_admin" value="1"
+                           x-model="isAdmin"
+                           class="mt-0.5 w-5 h-5 text-purple-600 border-gray-300 rounded focus:ring-purple-500">
+                    <div>
+                        <p class="text-sm font-bold text-gray-900">👑 Administrator</p>
+                        <p class="text-xs text-gray-500 mt-0.5">Akses penuh ke semua menu. Tidak memerlukan role staf.</p>
+                    </div>
+                </label>
+
+                <!-- Role dropdown (hidden when is_admin) -->
+                <div x-show="!isAdmin" x-transition>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Role Staf</label>
+                    <select name="role_id"
+                            class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+                        <option value="">-- Pengguna Biasa (tanpa akses admin) --</option>
+                        @foreach($roles as $role)
+                        <option value="{{ $role->id }}"
+                            {{ old('role_id', $user->role_id ?? '') == $role->id ? 'selected' : '' }}>
+                            {{ $role->name }}
+                            @if($role->description) — {{ $role->description }} @endif
+                        </option>
+                        @endforeach
+                    </select>
+                    <p class="text-xs text-gray-400 mt-1.5">
+                        Pilih role untuk memberikan akses terbatas ke panel admin.
+                        <a href="{{ route('admin.roles.index') }}" class="text-primary-500 hover:underline" target="_blank">Kelola role</a>
+                    </p>
                 </div>
-                <p class="mt-2 text-xs text-gray-500">Administrator memiliki akses penuh ke panel admin dan dapat mengelola semua konten</p>
             </div>
         </div>
         

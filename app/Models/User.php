@@ -25,6 +25,7 @@ class User extends Authenticatable
         'institution',
         'address',
         'is_admin',
+        'role_id',
     ];
 
     /**
@@ -49,5 +50,27 @@ class User extends Authenticatable
             'password' => 'hashed',
             'is_admin' => 'boolean',
         ];
+    }
+
+    public function role()
+    {
+        return $this->belongsTo(Role::class);
+    }
+
+    public function hasPermission(string $slug): bool
+    {
+        if ($this->is_admin) return true;
+        if (!$this->role) return false;
+        return $this->role->hasPermission($slug);
+    }
+
+    public function isStaff(): bool
+    {
+        return !$this->is_admin && $this->role_id !== null;
+    }
+
+    public function canAccessAdmin(): bool
+    {
+        return $this->is_admin || $this->role_id !== null;
     }
 }

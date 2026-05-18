@@ -273,7 +273,7 @@
                     </a>
                 </li>
 
-                <!-- Books Management -->
+                @if(auth()->user()->hasPermission('books'))
                 <li>
                     <a href="/admin/books" class="flex items-center p-3 text-gray-900 rounded-lg hover:bg-primary-50 group {{ request()->is('admin/books*') ? 'bg-primary-50 text-primary-600' : '' }}">
                         <svg class="w-5 h-5 transition duration-75 {{ request()->is('admin/books*') ? 'text-primary-600' : 'text-gray-500 group-hover:text-primary-600' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -282,8 +282,9 @@
                         <span :class="sidebarOpen ? 'ml-3' : 'lg:hidden ml-3'">Manajemen Buku</span>
                     </a>
                 </li>
+                @endif
 
-                <!-- News Management -->
+                @if(auth()->user()->hasPermission('news'))
                 <li>
                     <a href="/admin/news" class="flex items-center p-3 text-gray-900 rounded-lg hover:bg-primary-50 group {{ request()->is('admin/news*') ? 'bg-primary-50 text-primary-600' : '' }}">
                         <svg class="w-5 h-5 transition duration-75 {{ request()->is('admin/news*') ? 'text-primary-600' : 'text-gray-500 group-hover:text-primary-600' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -292,8 +293,9 @@
                         <span :class="sidebarOpen ? 'ml-3' : 'lg:hidden ml-3'">Manajemen Berita</span>
                     </a>
                 </li>
+                @endif
 
-                <!-- Journal Management -->
+                @if(auth()->user()->hasPermission('journals'))
                 <li>
                     <a href="/admin/journals" class="flex items-center p-3 text-gray-900 rounded-lg hover:bg-primary-50 group {{ request()->is('admin/journals*') ? 'bg-primary-50 text-primary-600' : '' }}">
                         <svg class="w-5 h-5 transition duration-75 {{ request()->is('admin/journals*') ? 'text-primary-600' : 'text-gray-500 group-hover:text-primary-600' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -302,8 +304,9 @@
                         <span :class="sidebarOpen ? 'ml-3' : 'lg:hidden ml-3'">Manajemen Jurnal</span>
                     </a>
                 </li>
+                @endif
 
-                <!-- Hero Slider Management -->
+                @if(auth()->user()->hasPermission('hero-sliders'))
                 <li>
                     <a href="{{ route('admin.hero-sliders.index') }}" class="flex items-center p-3 text-gray-900 rounded-lg hover:bg-primary-50 group {{ request()->is('admin/hero-sliders*') ? 'bg-primary-50 text-primary-600' : '' }}">
                         <svg class="w-5 h-5 transition duration-75 {{ request()->is('admin/hero-sliders*') ? 'text-primary-600' : 'text-gray-500 group-hover:text-primary-600' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -312,8 +315,9 @@
                         <span :class="sidebarOpen ? 'ml-3' : 'lg:hidden ml-3'">Hero Slider</span>
                     </a>
                 </li>
+                @endif
 
-                <!-- Galeri Management -->
+                @if(auth()->user()->hasPermission('galleries'))
                 <li>
                     <a href="{{ route('admin.gallery-albums.index') }}" class="flex items-center p-3 text-gray-900 rounded-lg hover:bg-primary-50 group {{ request()->is('admin/gallery-albums*') ? 'bg-primary-50 text-primary-600' : '' }}">
                         <svg class="w-5 h-5 transition duration-75 {{ request()->is('admin/gallery-albums*') ? 'text-primary-600' : 'text-gray-500 group-hover:text-primary-600' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -322,8 +326,6 @@
                         <span :class="sidebarOpen ? 'ml-3' : 'lg:hidden ml-3'">Album Galeri</span>
                     </a>
                 </li>
-
-                <!-- Video Gallery -->
                 <li>
                     <a href="{{ route('admin.galleries.index', ['type' => 'video']) }}" class="flex items-center p-3 text-gray-900 rounded-lg hover:bg-primary-50 group {{ request()->is('admin/galleries*') && request('type') == 'video' ? 'bg-primary-50 text-primary-600' : '' }}">
                         <svg class="w-5 h-5 transition duration-75 {{ request()->is('admin/galleries*') && request('type') == 'video' ? 'text-primary-600' : 'text-gray-500 group-hover:text-primary-600' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -332,8 +334,9 @@
                         <span :class="sidebarOpen ? 'ml-3' : 'lg:hidden ml-3'">Galeri Video</span>
                     </a>
                 </li>
+                @endif
 
-                <!-- Statistics Management -->
+                @if(auth()->user()->hasPermission('statistics'))
                 <li>
                     <a href="{{ route('admin.statistics.index') }}" class="flex items-center p-3 text-gray-900 rounded-lg hover:bg-primary-50 group {{ request()->is('admin/statistics*') ? 'bg-primary-50 text-primary-600' : '' }}">
                         <svg class="w-5 h-5 transition duration-75 {{ request()->is('admin/statistics*') ? 'text-primary-600' : 'text-gray-500 group-hover:text-primary-600' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -342,8 +345,9 @@
                         <span :class="sidebarOpen ? 'ml-3' : 'lg:hidden ml-3'">Statistik</span>
                     </a>
                 </li>
+                @endif
 
-                <!-- Menu Management -->
+                @if(auth()->user()->hasPermission('menus'))
                 <li>
                     <a href="{{ route('admin.menus.index') }}" class="flex items-center p-3 text-gray-900 rounded-lg hover:bg-primary-50 group {{ request()->is('admin/menus*') ? 'bg-primary-50 text-primary-600' : '' }}">
                         <svg class="w-5 h-5 transition duration-75 {{ request()->is('admin/menus*') ? 'text-primary-600' : 'text-gray-500 group-hover:text-primary-600' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -352,8 +356,9 @@
                         <span :class="sidebarOpen ? 'ml-3' : 'lg:hidden ml-3'">Menu Website</span>
                     </a>
                 </li>
+                @endif
 
-                <!-- Pages Management -->
+                @if(auth()->user()->hasPermission('pages'))
                 <li>
                     <a href="{{ route('admin.pages.index') }}" class="flex items-center p-3 text-gray-900 rounded-lg hover:bg-primary-50 group {{ request()->is('admin/pages*') ? 'bg-primary-50 text-primary-600' : '' }}">
                         <svg class="w-5 h-5 transition duration-75 {{ request()->is('admin/pages*') ? 'text-primary-600' : 'text-gray-500 group-hover:text-primary-600' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -362,8 +367,9 @@
                         <span :class="sidebarOpen ? 'ml-3' : 'lg:hidden ml-3'">Halaman</span>
                     </a>
                 </li>
+                @endif
 
-                <!-- Categories -->
+                @if(auth()->user()->hasPermission('categories'))
                 <li>
                     <a href="/admin/categories" class="flex items-center p-3 text-gray-900 rounded-lg hover:bg-primary-50 group {{ request()->is('admin/categories*') ? 'bg-primary-50 text-primary-600' : '' }}">
                         <svg class="w-5 h-5 transition duration-75 {{ request()->is('admin/categories*') ? 'text-primary-600' : 'text-gray-500 group-hover:text-primary-600' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -372,8 +378,9 @@
                         <span :class="sidebarOpen ? 'ml-3' : 'lg:hidden ml-3'">Kategori</span>
                     </a>
                 </li>
+                @endif
 
-                <!-- Authors -->
+                @if(auth()->user()->hasPermission('authors'))
                 <li>
                     <a href="/admin/authors" class="flex items-center p-3 text-gray-900 rounded-lg hover:bg-primary-50 group {{ request()->is('admin/authors*') ? 'bg-primary-50 text-primary-600' : '' }}">
                         <svg class="w-5 h-5 transition duration-75 {{ request()->is('admin/authors*') ? 'text-primary-600' : 'text-gray-500 group-hover:text-primary-600' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -382,8 +389,9 @@
                         <span :class="sidebarOpen ? 'ml-3' : 'lg:hidden ml-3'">Penulis</span>
                     </a>
                 </li>
+                @endif
 
-                <!-- Reviews -->
+                @if(auth()->user()->hasPermission('reviews'))
                 <li>
                     <a href="/admin/reviews" class="flex items-center p-3 text-gray-900 rounded-lg hover:bg-primary-50 group {{ request()->is('admin/reviews*') ? 'bg-primary-50 text-primary-600' : '' }}">
                         <svg class="w-5 h-5 transition duration-75 {{ request()->is('admin/reviews*') ? 'text-primary-600' : 'text-gray-500 group-hover:text-primary-600' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -392,24 +400,24 @@
                         <span :class="sidebarOpen ? 'ml-3' : 'lg:hidden ml-3'">Ulasan</span>
                     </a>
                 </li>
+                @endif
 
-                <!-- Submissions -->
+                @if(auth()->user()->hasPermission('submissions'))
                 <li>
                     <a href="{{ route('admin.submissions.index') }}" class="flex items-center p-3 text-gray-900 rounded-lg hover:bg-primary-50 group {{ request()->is('admin/submissions*') ? 'bg-primary-50 text-primary-600' : '' }}">
                         <svg class="w-5 h-5 text-gray-500 transition duration-75 group-hover:text-primary-600 {{ request()->is('admin/submissions*') ? 'text-primary-600' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                         </svg>
                         <span :class="sidebarOpen ? 'ml-3' : 'lg:hidden ml-3'">Pengajuan Naskah</span>
-                        @php
-                            $pendingSubmissions = \App\Models\Submission::where('status', 'pending')->count();
-                        @endphp
+                        @php $pendingSubmissions = \App\Models\Submission::where('status', 'pending')->count(); @endphp
                         @if($pendingSubmissions > 0)
                         <span class="inline-flex items-center justify-center w-5 h-5 ml-auto text-xs font-semibold text-white bg-yellow-500 rounded-full">{{ $pendingSubmissions }}</span>
                         @endif
                     </a>
                 </li>
+                @endif
 
-                <!-- Book Templates -->
+                @if(auth()->user()->hasPermission('templates'))
                 <li>
                     <a href="{{ route('admin.templates.index') }}" class="flex items-center p-3 text-gray-900 rounded-lg hover:bg-primary-50 group {{ request()->is('admin/templates*') ? 'bg-primary-50 text-primary-600' : '' }}">
                         <svg class="w-5 h-5 text-gray-500 transition duration-75 group-hover:text-primary-600 {{ request()->is('admin/templates*') ? 'text-primary-600' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -418,24 +426,24 @@
                         <span :class="sidebarOpen ? 'ml-3' : 'lg:hidden ml-3'">Template Buku</span>
                     </a>
                 </li>
+                @endif
 
-                <!-- Orders -->
+                @if(auth()->user()->hasPermission('orders'))
                 <li>
                     <a href="{{ route('admin.orders.index') }}" class="flex items-center p-3 text-gray-900 rounded-lg hover:bg-primary-50 group {{ request()->routeIs('admin.orders.*') ? 'bg-primary-50 text-primary-600' : '' }}">
                         <svg class="w-5 h-5 text-gray-500 transition duration-75 group-hover:text-primary-600 {{ request()->routeIs('admin.orders.*') ? 'text-primary-600' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
                         </svg>
                         <span :class="sidebarOpen ? 'ml-3' : 'lg:hidden ml-3'">Pesanan</span>
-                        @php
-                            $pendingOrders = \App\Models\Order::where('status', 'pending')->count();
-                        @endphp
+                        @php $pendingOrders = \App\Models\Order::where('status', 'pending')->count(); @endphp
                         @if($pendingOrders > 0)
                         <span class="inline-flex items-center justify-center w-5 h-5 ml-auto text-xs font-semibold text-white bg-red-500 rounded-full">{{ $pendingOrders }}</span>
                         @endif
                     </a>
                 </li>
+                @endif
 
-                <!-- Users -->
+                @if(auth()->user()->hasPermission('users'))
                 <li>
                     <a href="{{ route('admin.users.index') }}" class="flex items-center p-3 text-gray-900 rounded-lg hover:bg-primary-50 group {{ request()->routeIs('admin.users.*') ? 'bg-primary-50 text-primary-600' : '' }}">
                         <svg class="w-5 h-5 text-gray-500 transition duration-75 group-hover:text-primary-600 {{ request()->routeIs('admin.users.*') ? 'text-primary-600' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -444,6 +452,7 @@
                         <span :class="sidebarOpen ? 'ml-3' : 'lg:hidden ml-3'">Pengguna</span>
                     </a>
                 </li>
+                @endif
 
                 <li class="pt-4 mt-4 space-y-2 border-t border-gray-200">
                     <p :class="sidebarOpen ? 'px-3 text-xs font-semibold text-gray-500 uppercase' : 'lg:hidden px-3 text-xs font-semibold text-gray-500 uppercase'">
@@ -451,7 +460,18 @@
                     </p>
                 </li>
 
-                <!-- Settings -->
+                @if(auth()->user()->is_admin)
+                <li>
+                    <a href="{{ route('admin.roles.index') }}" class="flex items-center p-3 text-gray-900 rounded-lg hover:bg-primary-50 group {{ request()->routeIs('admin.roles.*') ? 'bg-primary-50 text-primary-600' : '' }}">
+                        <svg class="w-5 h-5 text-gray-500 transition duration-75 group-hover:text-primary-600 {{ request()->routeIs('admin.roles.*') ? 'text-primary-600' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                        </svg>
+                        <span :class="sidebarOpen ? 'ml-3' : 'lg:hidden ml-3'">Role & Hak Akses</span>
+                    </a>
+                </li>
+                @endif
+
+                @if(auth()->user()->hasPermission('settings'))
                 <li>
                     <a href="{{ route('admin.settings.index') }}" class="flex items-center p-3 text-gray-900 rounded-lg hover:bg-primary-50 group {{ request()->routeIs('admin.settings.*') ? 'bg-primary-50 text-primary-700' : '' }}">
                         <svg class="w-5 h-5 text-gray-500 transition duration-75 group-hover:text-primary-600 {{ request()->routeIs('admin.settings.*') ? 'text-primary-600' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -461,8 +481,9 @@
                         <span :class="sidebarOpen ? 'ml-3' : 'lg:hidden ml-3'">Pengaturan</span>
                     </a>
                 </li>
+                @endif
 
-                <!-- Theme & Layout -->
+                @if(auth()->user()->hasPermission('theme'))
                 <li>
                     <a href="{{ route('admin.theme.index') }}" class="flex items-center p-3 text-gray-900 rounded-lg hover:bg-primary-50 group {{ request()->routeIs('admin.theme.*') ? 'bg-primary-50 text-primary-700' : '' }}">
                         <svg class="w-5 h-5 text-gray-500 transition duration-75 group-hover:text-primary-600 {{ request()->routeIs('admin.theme.*') ? 'text-primary-600' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -471,8 +492,9 @@
                         <span :class="sidebarOpen ? 'ml-3' : 'lg:hidden ml-3'">Tema & Layout</span>
                     </a>
                 </li>
+                @endif
 
-                <!-- Reports -->
+                @if(auth()->user()->hasPermission('reports'))
                 <li>
                     <a href="{{ route('admin.reports.index') }}" class="flex items-center p-3 text-gray-900 rounded-lg hover:bg-primary-50 group {{ request()->routeIs('admin.reports.*') ? 'bg-primary-50 text-primary-600' : '' }}">
                         <svg class="w-5 h-5 text-gray-500 transition duration-75 group-hover:text-primary-600 {{ request()->routeIs('admin.reports.*') ? 'text-primary-600' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -481,6 +503,7 @@
                         <span :class="sidebarOpen ? 'ml-3' : 'lg:hidden ml-3'">Laporan</span>
                     </a>
                 </li>
+                @endif
             </ul>
         </div>
     </aside>

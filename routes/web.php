@@ -303,72 +303,76 @@ Route::middleware('auth')->prefix('user')->name('user.')->group(function () {
     Route::get('/orders/{id}/invoice/view', [InvoiceController::class, 'streamInvoice'])->name('orders.invoice.view');
 });
 
-// Admin routes (simple admin check is implemented in controllers)
-Route::prefix('admin')->middleware('auth')->group(function () {
+// Admin routes
+Route::prefix('admin')->middleware(['auth', 'staff.access'])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('admin.dashboard');
     Route::get('manual', [ManualController::class, 'index'])->name('admin.manual.index');
 
-    Route::resource('books', BookController::class, ['as' => 'admin']);
-    Route::resource('news', NewsController::class, ['as' => 'admin']);
-    Route::resource('journals', JournalController::class, ['as' => 'admin']);
-    Route::resource('categories', CategoryController::class, ['as' => 'admin']);
-    Route::post('categories/quick-store', [CategoryController::class, 'storeQuick'])->name('admin.categories.quick-store');
-    Route::resource('hero-sliders', HeroSliderController::class, ['as' => 'admin']);
-    Route::resource('statistics', StatisticController::class, ['as' => 'admin']);
-    Route::resource('menus', MenuController::class, ['as' => 'admin']);
-    Route::resource('pages', AdminPageController::class, ['as' => 'admin']);
-    Route::resource('authors', AuthorController::class, ['as' => 'admin']);
-    Route::resource('reviews', ReviewController::class, ['as' => 'admin']);
-    Route::resource('users', UserController::class, ['as' => 'admin']);
-    Route::post('users/{user}/login-as', [UserController::class, 'loginAs'])->name('admin.users.login-as');
-    Route::post('users/switch-back', [UserController::class, 'switchBack'])->name('admin.users.switch-back');
-    Route::resource('orders', OrderController::class, ['as' => 'admin'])->only(['index', 'show', 'update', 'destroy']);
-    Route::get('orders/{order}/invoice', [InvoiceController::class, 'downloadAdminInvoice'])->name('admin.orders.invoice');
-    Route::get('settings', [SettingsController::class, 'index'])->name('admin.settings.index');
-    Route::post('settings', [SettingsController::class, 'update'])->name('admin.settings.update');
-    Route::get('reports', [ReportController::class, 'index'])->name('admin.reports.index');
-
-    // Export routes
-    Route::get('export/orders', [ExportController::class, 'orders'])->name('admin.export.orders');
-    Route::get('export/submissions', [ExportController::class, 'submissions'])->name('admin.export.submissions');
-    Route::get('export/books', [ExportController::class, 'books'])->name('admin.export.books');
-    Route::get('export/users', [ExportController::class, 'users'])->name('admin.export.users');
-
-    // Profile routes
+    // Profile (always accessible to any staff)
     Route::get('profile', [ProfileController::class, 'edit'])->name('admin.profile.edit');
     Route::put('profile', [ProfileController::class, 'update'])->name('admin.profile.update');
     Route::put('profile/password', [ProfileController::class, 'updatePassword'])->name('admin.profile.password');
 
+    // Role management (admin only)
+    Route::resource('roles', \App\Http\Controllers\Admin\RoleController::class, ['as' => 'admin']);
+    Route::patch('roles/{role}/toggle', [\App\Http\Controllers\Admin\RoleController::class, 'toggleActive'])->name('admin.roles.toggle');
+
+    Route::resource('books', BookController::class, ['as' => 'admin'])->middleware('permission:books');
+    Route::resource('news', NewsController::class, ['as' => 'admin'])->middleware('permission:news');
+    Route::resource('journals', JournalController::class, ['as' => 'admin'])->middleware('permission:journals');
+    Route::resource('categories', CategoryController::class, ['as' => 'admin'])->middleware('permission:categories');
+    Route::post('categories/quick-store', [CategoryController::class, 'storeQuick'])->name('admin.categories.quick-store')->middleware('permission:categories');
+    Route::resource('hero-sliders', HeroSliderController::class, ['as' => 'admin'])->middleware('permission:hero-sliders');
+    Route::resource('statistics', StatisticController::class, ['as' => 'admin'])->middleware('permission:statistics');
+    Route::resource('menus', MenuController::class, ['as' => 'admin'])->middleware('permission:menus');
+    Route::resource('pages', AdminPageController::class, ['as' => 'admin'])->middleware('permission:pages');
+    Route::resource('authors', AuthorController::class, ['as' => 'admin'])->middleware('permission:authors');
+    Route::resource('reviews', ReviewController::class, ['as' => 'admin'])->middleware('permission:reviews');
+    Route::resource('users', UserController::class, ['as' => 'admin'])->middleware('permission:users');
+    Route::post('users/{user}/login-as', [UserController::class, 'loginAs'])->name('admin.users.login-as')->middleware('permission:users');
+    Route::post('users/switch-back', [UserController::class, 'switchBack'])->name('admin.users.switch-back');
+    Route::resource('orders', OrderController::class, ['as' => 'admin'])->only(['index', 'show', 'update', 'destroy'])->middleware('permission:orders');
+    Route::get('orders/{order}/invoice', [InvoiceController::class, 'downloadAdminInvoice'])->name('admin.orders.invoice')->middleware('permission:orders');
+    Route::get('settings', [SettingsController::class, 'index'])->name('admin.settings.index')->middleware('permission:settings');
+    Route::post('settings', [SettingsController::class, 'update'])->name('admin.settings.update')->middleware('permission:settings');
+    Route::get('reports', [ReportController::class, 'index'])->name('admin.reports.index')->middleware('permission:reports');
+
+    // Export routes
+    Route::get('export/orders', [ExportController::class, 'orders'])->name('admin.export.orders')->middleware('permission:orders');
+    Route::get('export/submissions', [ExportController::class, 'submissions'])->name('admin.export.submissions')->middleware('permission:submissions');
+    Route::get('export/books', [ExportController::class, 'books'])->name('admin.export.books')->middleware('permission:books');
+    Route::get('export/users', [ExportController::class, 'users'])->name('admin.export.users')->middleware('permission:users');
+
     // Theme routes
-    Route::get('theme', [ThemeController::class, 'index'])->name('admin.theme.index');
-    Route::put('theme', [ThemeController::class, 'update'])->name('admin.theme.update');
+    Route::get('theme', [ThemeController::class, 'index'])->name('admin.theme.index')->middleware('permission:theme');
+    Route::put('theme', [ThemeController::class, 'update'])->name('admin.theme.update')->middleware('permission:theme');
 
     // Book Template routes
-    Route::get('templates', [BookTemplateController::class, 'index'])->name('admin.templates.index');
-    Route::get('templates/create', [BookTemplateController::class, 'create'])->name('admin.templates.create');
-    Route::post('templates', [BookTemplateController::class, 'store'])->name('admin.templates.store');
-    Route::get('templates/{template}', [BookTemplateController::class, 'show'])->name('admin.templates.show');
-    Route::get('templates/{template}/edit', [BookTemplateController::class, 'edit'])->name('admin.templates.edit');
-    Route::put('templates/{template}', [BookTemplateController::class, 'update'])->name('admin.templates.update');
-    Route::delete('templates/{template}', [BookTemplateController::class, 'destroy'])->name('admin.templates.destroy');
-    Route::get('templates/{template}/download', [BookTemplateController::class, 'download'])->name('admin.templates.download');
-    Route::patch('templates/{template}/toggle', [BookTemplateController::class, 'toggleActive'])->name('admin.templates.toggle');
+    Route::get('templates', [BookTemplateController::class, 'index'])->name('admin.templates.index')->middleware('permission:templates');
+    Route::get('templates/create', [BookTemplateController::class, 'create'])->name('admin.templates.create')->middleware('permission:templates');
+    Route::post('templates', [BookTemplateController::class, 'store'])->name('admin.templates.store')->middleware('permission:templates');
+    Route::get('templates/{template}', [BookTemplateController::class, 'show'])->name('admin.templates.show')->middleware('permission:templates');
+    Route::get('templates/{template}/edit', [BookTemplateController::class, 'edit'])->name('admin.templates.edit')->middleware('permission:templates');
+    Route::put('templates/{template}', [BookTemplateController::class, 'update'])->name('admin.templates.update')->middleware('permission:templates');
+    Route::delete('templates/{template}', [BookTemplateController::class, 'destroy'])->name('admin.templates.destroy')->middleware('permission:templates');
+    Route::get('templates/{template}/download', [BookTemplateController::class, 'download'])->name('admin.templates.download')->middleware('permission:templates');
+    Route::patch('templates/{template}/toggle', [BookTemplateController::class, 'toggleActive'])->name('admin.templates.toggle')->middleware('permission:templates');
 
     // Submission routes
-    Route::get('submissions', [AdminSubmissionController::class, 'index'])->name('admin.submissions.index');
-    Route::get('submissions/{submission}', [AdminSubmissionController::class, 'show'])->name('admin.submissions.show');
-    Route::put('submissions/{submission}', [AdminSubmissionController::class, 'update'])->name('admin.submissions.update');
-    Route::delete('submissions/{submission}', [AdminSubmissionController::class, 'destroy'])->name('admin.submissions.destroy');
-    Route::get('submissions/{submission}/download/{fileType}', [AdminSubmissionController::class, 'download'])->name('admin.submissions.download');
+    Route::get('submissions', [AdminSubmissionController::class, 'index'])->name('admin.submissions.index')->middleware('permission:submissions');
+    Route::get('submissions/{submission}', [AdminSubmissionController::class, 'show'])->name('admin.submissions.show')->middleware('permission:submissions');
+    Route::put('submissions/{submission}', [AdminSubmissionController::class, 'update'])->name('admin.submissions.update')->middleware('permission:submissions');
+    Route::delete('submissions/{submission}', [AdminSubmissionController::class, 'destroy'])->name('admin.submissions.destroy')->middleware('permission:submissions');
+    Route::get('submissions/{submission}/download/{fileType}', [AdminSubmissionController::class, 'download'])->name('admin.submissions.download')->middleware('permission:submissions');
 
-    // Gallery (Individual photos/videos without specific album UI)
-    Route::resource('galleries', GalleryController::class, ['as' => 'admin']);
-    Route::patch('galleries/{gallery}/toggle', [GalleryController::class, 'toggleActive'])->name('admin.galleries.toggle');
+    // Gallery
+    Route::resource('galleries', GalleryController::class, ['as' => 'admin'])->middleware('permission:galleries');
+    Route::patch('galleries/{gallery}/toggle', [GalleryController::class, 'toggleActive'])->name('admin.galleries.toggle')->middleware('permission:galleries');
 
-    // Gallery Album routes (unified gallery management)
-    Route::resource('gallery-albums', GalleryAlbumController::class, ['as' => 'admin']);
-    Route::patch('gallery-albums/{gallery_album}/toggle', [GalleryAlbumController::class, 'toggleActive'])->name('admin.gallery-albums.toggle');
-    Route::post('gallery-albums/{gallery_album}/photos', [GalleryAlbumController::class, 'addPhotos'])->name('admin.gallery-albums.add-photos');
-    Route::post('gallery-albums/{gallery_album}/video', [GalleryAlbumController::class, 'addVideo'])->name('admin.gallery-albums.add-video');
-    Route::delete('gallery-albums/{gallery_album}/photos/{gallery}', [GalleryAlbumController::class, 'deletePhoto'])->name('admin.gallery-albums.delete-photo');
+    // Gallery Album routes
+    Route::resource('gallery-albums', GalleryAlbumController::class, ['as' => 'admin'])->middleware('permission:galleries');
+    Route::patch('gallery-albums/{gallery_album}/toggle', [GalleryAlbumController::class, 'toggleActive'])->name('admin.gallery-albums.toggle')->middleware('permission:galleries');
+    Route::post('gallery-albums/{gallery_album}/photos', [GalleryAlbumController::class, 'addPhotos'])->name('admin.gallery-albums.add-photos')->middleware('permission:galleries');
+    Route::post('gallery-albums/{gallery_album}/video', [GalleryAlbumController::class, 'addVideo'])->name('admin.gallery-albums.add-video')->middleware('permission:galleries');
+    Route::delete('gallery-albums/{gallery_album}/photos/{gallery}', [GalleryAlbumController::class, 'deletePhoto'])->name('admin.gallery-albums.delete-photo')->middleware('permission:galleries');
 });
