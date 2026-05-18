@@ -23,12 +23,11 @@ class AuthController extends Controller
 
         if (Auth::attempt($data)) {
             $request->session()->regenerate();
-            
-            // Redirect based on user type
-            if (auth()->user()->is_admin) {
+
+            if (auth()->user()->canAccessAdmin()) {
                 return redirect()->intended(route('admin.dashboard'));
             }
-            
+
             return redirect()->intended(route('user.dashboard'));
         }
 

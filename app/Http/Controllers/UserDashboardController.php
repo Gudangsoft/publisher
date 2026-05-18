@@ -19,6 +19,10 @@ class UserDashboardController extends Controller
     public function index()
     {
         $user = auth()->user();
+
+        if ($user->canAccessAdmin()) {
+            return redirect()->route('admin.dashboard');
+        }
         
         // Get user's submissions
         $submissions = Submission::where('submitter_email', $user->email)
