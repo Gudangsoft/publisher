@@ -1,18 +1,9 @@
-@extends('layouts.app')
+@extends('layouts.user')
 
-@section('title', 'Submisi Saya - ' . config('app.name'))
+@section('title', 'Submisi Saya')
 
 @section('content')
-<div class="bg-gray-50 min-h-screen">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <!-- Breadcrumb -->
-        <nav class="mb-4">
-            <ol class="flex items-center space-x-2 text-sm">
-                <li><a href="{{ route('user.dashboard') }}" class="text-gray-500 hover:text-primary-600">Dashboard</a></li>
-                <li class="text-gray-400">/</li>
-                <li class="text-gray-900 font-medium">Submisi Saya</li>
-            </ol>
-        </nav>
+<div>
 
         <!-- Page Header -->
         <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
@@ -133,6 +124,5 @@
             {{ $submissions->links() }}
         </div>
         @endif
-    </div>
 </div>
 @endsection

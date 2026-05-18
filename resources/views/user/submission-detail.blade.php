@@ -1,10 +1,9 @@
-@extends('layouts.app')
+@extends('layouts.user')
 
-@section('title', $submission->title . ' - ' . config('app.name'))
+@section('title', $submission->title)
 
 @section('content')
-<div class="bg-gray-50 min-h-screen">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<div class="max-w-4xl">
         <!-- Breadcrumb -->
         <nav class="mb-4">
             <ol class="flex items-center space-x-2 text-sm">
