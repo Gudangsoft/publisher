@@ -60,34 +60,20 @@
         </div>
 
         <!-- Permissions -->
-        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden"
-             x-data="{
-                 checked: {},
-                 init() {
-                     document.querySelectorAll('.perm-check').forEach(cb => {
-                         this.checked[cb.value] = cb.checked;
-                     });
-                 },
-                 toggle(id) { this.checked[id] = !this.checked[id]; },
-                 selectAll() {
-                     const all = Object.values(this.checked).every(v => v);
-                     Object.keys(this.checked).forEach(k => this.checked[k] = !all);
-                     document.querySelectorAll('.perm-check').forEach(cb => cb.checked = !all);
-                 }
-             }">
+        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden" id="permBox">
             <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50">
                 <div>
                     <h2 class="font-bold text-gray-700 text-xs uppercase tracking-widest">Hak Akses</h2>
                     <p class="text-xs text-gray-400 mt-0.5">Centang menu yang boleh diakses oleh role ini</p>
                 </div>
-                <button type="button" @click="selectAll()"
+                <button type="button" id="btnSelectAll"
                         class="text-xs font-semibold text-primary-600 hover:text-primary-800 px-3 py-1.5 rounded-lg hover:bg-primary-50 transition">
                     Pilih / Hapus Semua
                 </button>
             </div>
 
             <div class="p-6 space-y-7">
-                @foreach($permissions as $group => $groupPerms)
+                @forelse($permissions as $group => $groupPerms)
                 <div>
                     <div class="flex items-center gap-2 mb-3">
                         <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">{{ $group }}</span>
@@ -95,14 +81,11 @@
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                         @foreach($groupPerms as $perm)
-                        <label class="flex items-center gap-3 px-3 py-2.5 rounded-lg border cursor-pointer transition-colors"
-                               :class="checked['{{ $perm->id }}'] ? 'bg-primary-50 border-primary-300' : 'bg-white border-gray-200 hover:border-gray-300'"
-                               @click="toggle('{{ $perm->id }}')">
+                        <label class="perm-label flex items-center gap-3 px-3 py-2.5 rounded-lg border cursor-pointer transition-colors {{ in_array($perm->id, old('permissions', $selectedPermissions)) ? 'bg-blue-50 border-blue-300' : 'bg-white border-gray-200' }}">
                             <input type="checkbox"
                                    name="permissions[]"
                                    value="{{ $perm->id }}"
                                    class="perm-check w-4 h-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500 shrink-0"
-                                   x-model="checked['{{ $perm->id }}']"
                                    {{ in_array($perm->id, old('permissions', $selectedPermissions)) ? 'checked' : '' }}>
                             <div class="flex items-center gap-1.5 min-w-0">
                                 <span class="text-base leading-none">{{ $perm->icon }}</span>
@@ -112,7 +95,9 @@
                         @endforeach
                     </div>
                 </div>
-                @endforeach
+                @empty
+                <p class="text-sm text-gray-500 text-center py-4">Tidak ada hak akses tersedia.</p>
+                @endforelse
             </div>
         </div>
 
@@ -128,4 +113,32 @@
     </form>
 </div>
 
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    function updateLabel(cb) {
+        var label = cb.closest('.perm-label');
+        if (cb.checked) {
+            label.classList.add('bg-blue-50', 'border-blue-300');
+            label.classList.remove('bg-white', 'border-gray-200');
+        } else {
+            label.classList.remove('bg-blue-50', 'border-blue-300');
+            label.classList.add('bg-white', 'border-gray-200');
+        }
+    }
+    document.querySelectorAll('.perm-check').forEach(function (cb) {
+        cb.addEventListener('change', function () { updateLabel(cb); });
+    });
+    var btn = document.getElementById('btnSelectAll');
+    if (btn) {
+        btn.addEventListener('click', function () {
+            var checks = document.querySelectorAll('.perm-check');
+            var allChecked = Array.from(checks).every(function (c) { return c.checked; });
+            checks.forEach(function (c) {
+                c.checked = !allChecked;
+                updateLabel(c);
+            });
+        });
+    }
+});
+</script>
 @endsection
