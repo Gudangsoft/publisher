@@ -3,15 +3,71 @@
 @section('title', 'Dashboard')
 
 @section('content')
+@php $user = auth()->user(); @endphp
+
 <!-- Page Header -->
-<div class="mb-8">
+<div class="mb-6">
     <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
-    <p class="text-gray-600 mt-1">Selamat datang kembali, {{ auth()->user()->name }}!</p>
+    <p class="text-gray-600 mt-1">Selamat datang kembali, {{ $user->name }}!</p>
 </div>
 
-<!-- Stats Grid -->
+{{-- Staff Role Info Banner --}}
+@if(!$user->is_admin && $user->role)
+@php
+    $rolePerms = $user->role->permissions ?? [];
+    $allPerms = collect(\App\Models\Role::allPermissions())->flatMap(fn($g) => $g);
+    $roleBadgeColors = [
+        'blue'   => 'bg-blue-50 border-blue-200 text-blue-900',
+        'green'  => 'bg-green-50 border-green-200 text-green-900',
+        'purple' => 'bg-purple-50 border-purple-200 text-purple-900',
+        'red'    => 'bg-red-50 border-red-200 text-red-900',
+        'orange' => 'bg-orange-50 border-orange-200 text-orange-900',
+        'yellow' => 'bg-yellow-50 border-yellow-200 text-yellow-900',
+        'teal'   => 'bg-teal-50 border-teal-200 text-teal-900',
+        'pink'   => 'bg-pink-50 border-pink-200 text-pink-900',
+    ];
+    $bannerColor = $roleBadgeColors[$user->role->color] ?? 'bg-gray-50 border-gray-200 text-gray-900';
+@endphp
+<div class="mb-6 rounded-xl border p-5 {{ $bannerColor }}">
+    <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg flex items-center justify-center bg-white/60">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                </svg>
+            </div>
+            <div>
+                <p class="font-bold text-sm">{{ $user->role->name }}</p>
+                @if($user->role->description)
+                <p class="text-xs opacity-70">{{ $user->role->description }}</p>
+                @endif
+            </div>
+        </div>
+        @if(count($rolePerms) > 0)
+        <div class="flex flex-wrap gap-1.5 sm:ml-auto">
+            @foreach($rolePerms as $slug)
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-white/60 rounded-lg text-xs font-medium">
+                {{ $allPerms[$slug]['icon'] ?? '' }} {{ $allPerms[$slug]['label'] ?? $slug }}
+            </span>
+            @endforeach
+        </div>
+        @endif
+    </div>
+</div>
+@endif
+
+{{-- Stats Grid (permission-gated) --}}
+@php
+$showBooks     = $user->is_admin || $user->hasPermission('books');
+$showOrders    = $user->is_admin || $user->hasPermission('orders');
+$showUsers     = $user->is_admin || $user->hasPermission('users');
+$showReports   = $user->is_admin || $user->hasPermission('reports');
+$anyStats      = $showBooks || $showOrders || $showUsers;
+@endphp
+
+@if($anyStats)
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-    <!-- Total Books -->
+    @if($showBooks)
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-lg transition-shadow duration-200">
         <div class="flex items-center justify-between">
             <div>
@@ -35,8 +91,9 @@
             </div>
         </div>
     </div>
+    @endif
 
-    <!-- Total Orders -->
+    @if($showOrders)
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-lg transition-shadow duration-200">
         <div class="flex items-center justify-between">
             <div>
@@ -61,7 +118,6 @@
         </div>
     </div>
 
-    <!-- Revenue -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-lg transition-shadow duration-200">
         <div class="flex items-center justify-between">
             <div>
@@ -85,8 +141,9 @@
             </div>
         </div>
     </div>
+    @endif
 
-    <!-- Active Users -->
+    @if($showUsers)
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-lg transition-shadow duration-200">
         <div class="flex items-center justify-between">
             <div>
@@ -110,10 +167,19 @@
             </div>
         </div>
     </div>
+    @endif
 </div>
+@endif
 
-<!-- Quick Stats Row -->
+{{-- Quick Stats Row --}}
+@php
+$showSubmissions = $user->is_admin || $user->hasPermission('submissions');
+$anyQuickStats   = $showOrders || $showSubmissions;
+@endphp
+
+@if($anyQuickStats)
 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+    @if($showOrders)
     <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-4 flex items-center">
         <div class="bg-yellow-100 p-3 rounded-lg mr-4">
             <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -130,6 +196,8 @@
             </svg>
         </a>
     </div>
+    @endif
+    @if($showSubmissions)
     <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-center">
         <div class="bg-blue-100 p-3 rounded-lg mr-4">
             <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -157,11 +225,14 @@
             <p class="text-2xl font-bold text-green-900">{{ $submissionStats['approved'] ?? 0 }}</p>
         </div>
     </div>
+    @endif
 </div>
+@endif
 
-<!-- Charts Row -->
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-    <!-- Sales Chart -->
+{{-- Charts Row (admin or orders/books permission) --}}
+@if($showOrders || $showBooks)
+<div class="grid grid-cols-1 {{ ($showOrders && $showBooks) ? 'lg:grid-cols-2' : '' }} gap-6 mb-8">
+    @if($showOrders)
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <div class="flex items-center justify-between mb-6">
             <div>
@@ -189,8 +260,9 @@
             </div>
         </div>
     </div>
+    @endif
 
-    <!-- Category Distribution -->
+    @if($showBooks)
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <div class="mb-6">
             <h2 class="text-xl font-bold text-gray-900">Distribusi Kategori</h2>
@@ -212,16 +284,17 @@
             </div>
         </div>
         @else
-        <div class="mt-6 pt-4 border-t border-gray-200 text-center text-gray-500">
-            Belum ada data kategori
-        </div>
+        <div class="mt-6 pt-4 border-t border-gray-200 text-center text-gray-500">Belum ada data kategori</div>
         @endif
     </div>
+    @endif
 </div>
+@endif
 
-<!-- Recent Orders & Top Books -->
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-    <!-- Recent Orders -->
+{{-- Recent Orders & Top Books --}}
+@if($showOrders || $showBooks)
+<div class="grid grid-cols-1 {{ ($showOrders && $showBooks) ? 'lg:grid-cols-2' : '' }} gap-6 mb-8">
+    @if($showOrders)
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div class="p-6 border-b border-gray-200">
             <div class="flex items-center justify-between">
@@ -251,14 +324,13 @@
                 </div>
             </div>
             @empty
-            <div class="p-6 text-center text-gray-500">
-                Belum ada pesanan
-            </div>
+            <div class="p-6 text-center text-gray-500">Belum ada pesanan</div>
             @endforelse
         </div>
     </div>
+    @endif
 
-    <!-- Top Selling Books -->
+    @if($showBooks)
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div class="p-6 border-b border-gray-200">
             <div class="flex items-center justify-between">
@@ -292,15 +364,15 @@
                 </div>
             </div>
             @empty
-            <div class="p-6 text-center text-gray-500">
-                Belum ada buku
-            </div>
+            <div class="p-6 text-center text-gray-500">Belum ada buku</div>
             @endforelse
         </div>
     </div>
+    @endif
 </div>
+@endif
 
-<!-- Recent Activities -->
+{{-- Recent Activities --}}
 <div class="bg-white rounded-xl shadow-sm border border-gray-200">
     <div class="p-6 border-b border-gray-200">
         <h2 class="text-xl font-bold text-gray-900">Aktivitas Terbaru</h2>
@@ -343,9 +415,7 @@
                                 </span>
                             </div>
                             <div class="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
-                                <div>
-                                    <p class="text-sm text-gray-900">{{ $activity['text'] }}</p>
-                                </div>
+                                <div><p class="text-sm text-gray-900">{{ $activity['text'] }}</p></div>
                                 <div class="whitespace-nowrap text-right text-sm text-gray-500">
                                     <time>{{ $activity['time_formatted'] }}</time>
                                 </div>
@@ -354,9 +424,7 @@
                     </div>
                 </li>
                 @empty
-                <li class="text-center text-gray-500 py-4">
-                    Belum ada aktivitas
-                </li>
+                <li class="text-center text-gray-500 py-4">Belum ada aktivitas</li>
                 @endforelse
             </ul>
         </div>
@@ -367,134 +435,85 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Sales Chart with dynamic data
-    const salesCtx = document.getElementById('salesChart').getContext('2d');
-    new Chart(salesCtx, {
-        type: 'line',
-        data: {
-            labels: {!! json_encode($monthlySales['labels']) !!},
-            datasets: [{
-                label: 'Penjualan',
-                data: {!! json_encode($monthlySales['data']) !!},
-                borderColor: 'rgb(238, 109, 38)',
-                backgroundColor: 'rgba(238, 109, 38, 0.1)',
-                tension: 0.4,
-                fill: true,
-                borderWidth: 3,
-                pointRadius: 4,
-                pointHoverRadius: 6,
-                pointBackgroundColor: 'rgb(238, 109, 38)',
-                pointBorderColor: '#fff',
-                pointBorderWidth: 2,
-                pointHoverBackgroundColor: 'rgb(238, 109, 38)',
-                pointHoverBorderColor: '#fff',
-                pointHoverBorderWidth: 2
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false
-                },
-                tooltip: {
-                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                    padding: 12,
-                    cornerRadius: 8,
-                    titleFont: {
-                        size: 14,
-                        weight: 'bold'
-                    },
-                    bodyFont: {
-                        size: 13
-                    },
-                    callbacks: {
-                        label: function(context) {
-                            return 'Penjualan: Rp ' + context.parsed.y + 'M';
-                        }
-                    }
-                }
+    @if($showOrders)
+    const salesCtx = document.getElementById('salesChart');
+    if (salesCtx) {
+        new Chart(salesCtx.getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: {!! json_encode($monthlySales['labels']) !!},
+                datasets: [{
+                    label: 'Penjualan',
+                    data: {!! json_encode($monthlySales['data']) !!},
+                    borderColor: 'rgb(238, 109, 38)',
+                    backgroundColor: 'rgba(238, 109, 38, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    borderWidth: 3,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: 'rgb(238, 109, 38)',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                }]
             },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    grid: {
-                        color: 'rgba(0, 0, 0, 0.05)',
-                        drawBorder: false
-                    },
-                    ticks: {
-                        padding: 10,
-                        font: {
-                            size: 12
-                        },
-                        callback: function(value) {
-                            return 'Rp ' + value + 'M';
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) { return 'Penjualan: Rp ' + context.parsed.y + 'M'; }
                         }
                     }
                 },
-                x: {
-                    grid: {
-                        display: false,
-                        drawBorder: false
-                    },
-                    ticks: {
-                        padding: 10,
-                        font: {
-                            size: 12
-                        }
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { callback: function(value) { return 'Rp ' + value + 'M'; } }
                     }
                 }
             }
-        }
-    });
+        });
+    }
+    @endif
 
-    // Category Chart with dynamic data
-    const categoryCtx = document.getElementById('categoryChart').getContext('2d');
-    @php
-    $categoryNames = array_column($categoryDistribution, 'name');
-    $categoryPercentages = array_column($categoryDistribution, 'percentage');
-    $categoryColors = array_column($categoryDistribution, 'color');
-    @endphp
-    new Chart(categoryCtx, {
-        type: 'doughnut',
-        data: {
-            labels: {!! json_encode($categoryNames) !!},
-            datasets: [{
-                data: {!! json_encode($categoryPercentages) !!},
-                backgroundColor: {!! json_encode($categoryColors) !!},
-                borderWidth: 0,
-                hoverOffset: 15
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            cutout: '65%',
-            plugins: {
-                legend: {
-                    display: false
-                },
-                tooltip: {
-                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                    padding: 12,
-                    cornerRadius: 8,
-                    titleFont: {
-                        size: 14,
-                        weight: 'bold'
-                    },
-                    bodyFont: {
-                        size: 13
-                    },
-                    callbacks: {
-                        label: function(context) {
-                            return context.label + ': ' + context.parsed + '%';
+    @if($showBooks)
+    const categoryCtx = document.getElementById('categoryChart');
+    if (categoryCtx) {
+        @php
+        $categoryNames = array_column($categoryDistribution, 'name');
+        $categoryPercentages = array_column($categoryDistribution, 'percentage');
+        $categoryColors = array_column($categoryDistribution, 'color');
+        @endphp
+        new Chart(categoryCtx.getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: {!! json_encode($categoryNames) !!},
+                datasets: [{
+                    data: {!! json_encode($categoryPercentages) !!},
+                    backgroundColor: {!! json_encode($categoryColors) !!},
+                    borderWidth: 0,
+                    hoverOffset: 15
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '65%',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) { return context.label + ': ' + context.parsed + '%'; }
                         }
                     }
                 }
             }
-        }
-    });
+        });
+    }
+    @endif
 });
 </script>
 @endpush
