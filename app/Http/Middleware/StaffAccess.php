@@ -19,6 +19,12 @@ class StaffAccess
             abort(403, 'Akses ditolak. Anda tidak memiliki hak akses ke panel admin.');
         }
 
+        // Eager-load role + permissions once per request so every
+        // hasPermission() call in the layout reuses the cached result.
+        if ($user->role_id && !$user->relationLoaded('role')) {
+            $user->load('role.permissions');
+        }
+
         return $next($request);
     }
 }

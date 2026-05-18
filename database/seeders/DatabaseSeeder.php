@@ -67,5 +67,8 @@ class DatabaseSeeder extends Seeder
         
         // Seed Reviews
         $this->call(ReviewSeeder::class);
+
+        // Seed Roles & Permissions
+        $this->call(RolePermissionSeeder::class);
     }
 }

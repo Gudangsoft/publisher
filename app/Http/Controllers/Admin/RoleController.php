@@ -10,8 +10,16 @@ use Illuminate\Support\Str;
 
 class RoleController extends Controller
 {
+    private function adminOnly(): void
+    {
+        if (!auth()->user()?->is_admin) {
+            abort(403, 'Hanya administrator yang dapat mengelola role.');
+        }
+    }
+
     public function index()
     {
+        $this->adminOnly();
         $roles = Role::withCount('users')
             ->with('permissions')
             ->orderBy('is_system', 'desc')
@@ -23,6 +31,7 @@ class RoleController extends Controller
 
     public function create()
     {
+        $this->adminOnly();
         $permissions = Permission::allGrouped();
         $colors = array_keys(Role::colorClasses());
         return view('admin.roles.create', compact('permissions', 'colors'));
@@ -30,6 +39,7 @@ class RoleController extends Controller
 
     public function store(Request $request)
     {
+        $this->adminOnly();
         $validated = $request->validate([
             'name'        => 'required|string|max:100',
             'description' => 'nullable|string|max:255',
@@ -55,8 +65,15 @@ class RoleController extends Controller
             ->with('success', "Role \"{$role->name}\" berhasil dibuat.");
     }
 
+    public function show(Role $role)
+    {
+        $this->adminOnly();
+        return redirect()->route('admin.roles.edit', $role);
+    }
+
     public function edit(Role $role)
     {
+        $this->adminOnly();
         $role->load('permissions');
         $permissions = Permission::allGrouped();
         $colors = array_keys(Role::colorClasses());
@@ -67,6 +84,7 @@ class RoleController extends Controller
 
     public function update(Request $request, Role $role)
     {
+        $this->adminOnly();
         $validated = $request->validate([
             'name'        => 'required|string|max:100',
             'description' => 'nullable|string|max:255',
@@ -89,6 +107,7 @@ class RoleController extends Controller
 
     public function destroy(Role $role)
     {
+        $this->adminOnly();
         if ($role->is_system) {
             return redirect()->route('admin.roles.index')
                 ->with('error', 'Role sistem tidak dapat dihapus.');
@@ -108,6 +127,7 @@ class RoleController extends Controller
 
     public function toggleActive(Role $role)
     {
+        $this->adminOnly();
         if ($role->is_system) {
             return back()->with('error', 'Role sistem tidak dapat dinonaktifkan.');
         }
