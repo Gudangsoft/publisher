@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Controllers\Admin;
 
@@ -17,9 +17,6 @@ class PageController extends Controller
 
     public function index()
     {
-        if (!auth()->check() || !auth()->user()->is_admin) {
-            abort(403, 'Unauthorized action.');
-        }
 
         $pages = Page::orderBy('display_order', 'asc')
             ->orderBy('created_at', 'desc')
@@ -30,19 +27,13 @@ class PageController extends Controller
 
     public function create()
     {
-        if (!auth()->check() || !auth()->user()->is_admin) {
-            abort(403, 'Unauthorized action.');
-        }
 
         return view('admin.pages.form', ['page' => new Page()]);
     }
 
     public function store(Request $request)
     {
-        if (!auth()->check() || !auth()->user()->is_admin) {
-            abort(403, 'Unauthorized action.');
-        }
-        $validated = $request->validate([
+$validated = $request->validate([
             'title' => 'required|string|max:255',
             'slug' => 'nullable|string|max:255|unique:pages,slug',
             'content' => 'required|string',
@@ -82,9 +73,6 @@ class PageController extends Controller
 
     public function edit(Page $page)
     {
-        if (!auth()->check() || !auth()->user()->is_admin) {
-            abort(403, 'Unauthorized action.');
-        }
 
         return view('admin.pages.form', compact('page'));
     }
@@ -97,10 +85,7 @@ class PageController extends Controller
 
     public function update(Request $request, Page $page)
     {
-        if (!auth()->check() || !auth()->user()->is_admin) {
-            abort(403, 'Unauthorized action.');
-        }
-        $validated = $request->validate([
+$validated = $request->validate([
             'title' => 'required|string|max:255',
             'slug' => 'nullable|string|max:255|unique:pages,slug,' . $page->id,
             'content' => 'required|string',
@@ -144,9 +129,6 @@ class PageController extends Controller
 
     public function destroy(Page $page)
     {
-        if (!auth()->check() || !auth()->user()->is_admin) {
-            abort(403, 'Unauthorized action.');
-        }
 
         // Delete featured image
         if ($page->featured_image) {

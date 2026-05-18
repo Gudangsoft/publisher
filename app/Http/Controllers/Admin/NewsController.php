@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Controllers\Admin;
 
@@ -12,29 +12,20 @@ class NewsController extends Controller
 {
     public function index()
     {
-        if (!auth()->check() || !auth()->user()->is_admin) {
-            abort(403, 'Unauthorized action.');
-        }
-        
+
         $items = News::orderBy('created_at', 'desc')->paginate(15);
         return view('admin.news.index', compact('items'));
     }
 
     public function create()
     {
-        if (!auth()->check() || !auth()->user()->is_admin) {
-            abort(403, 'Unauthorized action.');
-        }
-        
+
         return view('admin.news.form', ['news' => new News]);
     }
 
     public function store(Request $request)
     {
-        if (!auth()->check() || !auth()->user()->is_admin) {
-            abort(403, 'Unauthorized action.');
-        }
-        
+
         $data = $request->validate([
             'category_id' => 'nullable|exists:categories,id',
             'title' => 'required|string|max:255',
@@ -56,19 +47,13 @@ class NewsController extends Controller
 
     public function edit(News $news)
     {
-        if (!auth()->check() || !auth()->user()->is_admin) {
-            abort(403, 'Unauthorized action.');
-        }
-        
+
         return view('admin.news.form', compact('news'));
     }
 
     public function update(Request $request, News $news)
     {
-        if (!auth()->check() || !auth()->user()->is_admin) {
-            abort(403, 'Unauthorized action.');
-        }
-        
+
         $data = $request->validate([
             'category_id' => 'nullable|exists:categories,id',
             'title' => 'required|string|max:255',
@@ -97,10 +82,7 @@ class NewsController extends Controller
 
     public function destroy(News $news)
     {
-        if (!auth()->check() || !auth()->user()->is_admin) {
-            abort(403, 'Unauthorized action.');
-        }
-        
+
         $news->delete();
         return redirect()->route('admin.news.index')->with('success', 'Berita berhasil dihapus');
     }

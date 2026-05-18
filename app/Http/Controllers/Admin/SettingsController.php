@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Controllers\Admin;
 
@@ -11,10 +11,7 @@ class SettingsController extends Controller
 {
     public function index()
     {
-        if (!auth()->check() || !auth()->user()->is_admin) {
-            abort(403, 'Unauthorized action.');
-        }
-        
+
         // Load settings with default values
         $settings = [
             'site_name' => Setting::get('site_name', 'Publisher Bookstore'),
@@ -51,9 +48,6 @@ class SettingsController extends Controller
 
     public function update(Request $request)
     {
-        if (!auth()->check() || !auth()->user()->is_admin) {
-            abort(403, 'Unauthorized action.');
-        }
 
         $validated = $request->validate([
             'site_name' => 'nullable|string|max:255',

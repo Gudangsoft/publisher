@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Controllers\Admin;
 
@@ -13,10 +13,7 @@ class SubmissionController extends Controller
 {
     public function index(Request $request)
     {
-        if (!auth()->check() || !auth()->user()->is_admin) {
-            abort(403, 'Unauthorized action.');
-        }
-        
+
         $query = Submission::with(['category', 'reviewer']);
         
         // Filter by status
@@ -55,10 +52,7 @@ class SubmissionController extends Controller
 
     public function show(Submission $submission)
     {
-        if (!auth()->check() || !auth()->user()->is_admin) {
-            abort(403, 'Unauthorized action.');
-        }
-        
+
         $submission->load(['category', 'reviewer']);
         
         return view('admin.submissions.show', compact('submission'));
@@ -66,10 +60,7 @@ class SubmissionController extends Controller
 
     public function update(Request $request, Submission $submission)
     {
-        if (!auth()->check() || !auth()->user()->is_admin) {
-            abort(403, 'Unauthorized action.');
-        }
-        
+
         $data = $request->validate([
             'status' => 'required|in:pending,reviewing,revision,approved,rejected,in_progress,completed,in_review,revision_required,in_production',
             'admin_notes' => 'nullable|string',
@@ -102,10 +93,7 @@ class SubmissionController extends Controller
 
     public function destroy(Submission $submission)
     {
-        if (!auth()->check() || !auth()->user()->is_admin) {
-            abort(403, 'Unauthorized action.');
-        }
-        
+
         // Delete associated files
         if ($submission->manuscript_file) {
             Storage::disk('public')->delete($submission->manuscript_file);
@@ -129,10 +117,7 @@ class SubmissionController extends Controller
 
     public function download(Submission $submission, string $fileType)
     {
-        if (!auth()->check() || !auth()->user()->is_admin) {
-            abort(403, 'Unauthorized action.');
-        }
-        
+
         $filePath = match($fileType) {
             'manuscript' => $submission->manuscript_file,
             'cover' => $submission->cover_proposal,

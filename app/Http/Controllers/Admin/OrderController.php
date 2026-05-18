@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Controllers\Admin;
 
@@ -12,10 +12,7 @@ class OrderController extends Controller
 {
     public function index(Request $request)
     {
-        if (!auth()->check() || !auth()->user()->is_admin) {
-            abort(403, 'Unauthorized action.');
-        }
-        
+
         $query = Order::with(['user', 'items.book']);
         
         // Search
@@ -50,10 +47,7 @@ class OrderController extends Controller
 
     public function show(Order $order)
     {
-        if (!auth()->check() || !auth()->user()->is_admin) {
-            abort(403, 'Unauthorized action.');
-        }
-        
+
         $order->load(['user', 'items.book']);
         
         return view('admin.orders.show', compact('order'));
@@ -61,10 +55,7 @@ class OrderController extends Controller
 
     public function update(Request $request, Order $order)
     {
-        if (!auth()->check() || !auth()->user()->is_admin) {
-            abort(403, 'Unauthorized action.');
-        }
-        
+
         $validated = $request->validate([
             'status' => 'required|in:pending,processing,shipped,completed,cancelled',
             'payment_status' => 'required|in:unpaid,paid,refunded',
@@ -90,10 +81,7 @@ class OrderController extends Controller
 
     public function destroy(Order $order)
     {
-        if (!auth()->check() || !auth()->user()->is_admin) {
-            abort(403, 'Unauthorized action.');
-        }
-        
+
         $order->delete();
         
         return redirect()->route('admin.orders.index')->with('success', 'Pesanan berhasil dihapus');

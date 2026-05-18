@@ -114,10 +114,6 @@ class ThemeController extends Controller
 
     public function index()
     {
-        if (!auth()->check() || !auth()->user()->is_admin) {
-            abort(403, 'Unauthorized action.');
-        }
-
         $settings = [
             'theme_color' => Setting::get('theme_color', 'orange'),
             'theme_font' => Setting::get('theme_font', 'inter'),
@@ -141,10 +137,6 @@ class ThemeController extends Controller
 
     public function update(Request $request)
     {
-        if (!auth()->check() || !auth()->user()->is_admin) {
-            abort(403, 'Unauthorized action.');
-        }
-
         $request->validate([
             'theme_color' => 'required|string|in:' . implode(',', array_keys($this->colorPresets)),
             'theme_font' => 'required|string|in:' . implode(',', array_keys($this->fontOptions)),

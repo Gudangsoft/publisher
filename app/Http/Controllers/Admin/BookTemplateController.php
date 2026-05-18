@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Controllers\Admin;
 
@@ -11,10 +11,7 @@ class BookTemplateController extends Controller
 {
     public function index()
     {
-        if (!auth()->check() || !auth()->user()->is_admin) {
-            abort(403, 'Unauthorized action.');
-        }
-        
+
         $templates = BookTemplate::withCount('submissions')
             ->orderBy('display_order')
             ->orderBy('name')
@@ -25,10 +22,7 @@ class BookTemplateController extends Controller
 
     public function create()
     {
-        if (!auth()->check() || !auth()->user()->is_admin) {
-            abort(403, 'Unauthorized action.');
-        }
-        
+
         $bookTypes = BookTemplate::bookTypes();
         $pageSizes = BookTemplate::pageSizes();
         
@@ -37,10 +31,7 @@ class BookTemplateController extends Controller
 
     public function store(Request $request)
     {
-        if (!auth()->check() || !auth()->user()->is_admin) {
-            abort(403, 'Unauthorized action.');
-        }
-        
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'book_type' => 'required|string|max:50',
@@ -107,9 +98,6 @@ class BookTemplateController extends Controller
 
     public function show(BookTemplate $template)
     {
-        if (!auth()->check() || !auth()->user()->is_admin) {
-            abort(403, 'Unauthorized action.');
-        }
 
         $template->load('submissions');
         
@@ -118,10 +106,7 @@ class BookTemplateController extends Controller
 
     public function edit(BookTemplate $template)
     {
-        if (!auth()->check() || !auth()->user()->is_admin) {
-            abort(403, 'Unauthorized action.');
-        }
-        
+
         $bookTypes = BookTemplate::bookTypes();
         $pageSizes = BookTemplate::pageSizes();
         
@@ -130,10 +115,7 @@ class BookTemplateController extends Controller
 
     public function update(Request $request, BookTemplate $template)
     {
-        if (!auth()->check() || !auth()->user()->is_admin) {
-            abort(403, 'Unauthorized action.');
-        }
-        
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'book_type' => 'required|string|max:50',
@@ -210,9 +192,6 @@ class BookTemplateController extends Controller
 
     public function destroy(BookTemplate $template)
     {
-        if (!auth()->check() || !auth()->user()->is_admin) {
-            abort(403, 'Unauthorized action.');
-        }
 
         // Check if template is in use
         if ($template->submissions()->exists()) {
@@ -251,9 +230,6 @@ class BookTemplateController extends Controller
 
     public function toggleActive(BookTemplate $template)
     {
-        if (!auth()->check() || !auth()->user()->is_admin) {
-            abort(403, 'Unauthorized action.');
-        }
 
         $template->update(['is_active' => !$template->is_active]);
 

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Controllers\Admin;
 
@@ -15,10 +15,7 @@ class ReportController extends Controller
 {
     public function index(Request $request)
     {
-        if (!auth()->check() || !auth()->user()->is_admin) {
-            abort(403, 'Unauthorized action.');
-        }
-        
+
         $year = $request->get('year', date('Y'));
         
         // Monthly sales data
