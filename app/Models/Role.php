@@ -67,6 +67,10 @@ class Role extends Model
                 'templates'   => ['label' => 'Template Buku',     'icon' => '📋'],
                 'orders'      => ['label' => 'Pesanan',           'icon' => '🛒'],
             ],
+            'Perpustakaan' => [
+                'book-loans'   => ['label' => 'Data Peminjaman', 'icon' => '📖'],
+                'visitor-logs' => ['label' => 'Data Pengunjung',  'icon' => '🧾'],
+            ],
             'Sistem' => [
                 'users'    => ['label' => 'Pengguna',    'icon' => '👥'],
                 'settings' => ['label' => 'Pengaturan',  'icon' => '⚙️'],

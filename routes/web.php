@@ -23,6 +23,8 @@ use App\Http\Controllers\Admin\BookTemplateController;
 use App\Http\Controllers\Admin\ManualController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ExportController;
+use App\Http\Controllers\Admin\VisitorLogController;
+use App\Http\Controllers\Admin\BookLoanController;
 use App\Http\Controllers\Admin\GalleryAlbumController;
 use App\Http\Controllers\Admin\GalleryController;
 use App\Http\Controllers\MenuController as PublicMenuController;
@@ -354,6 +356,17 @@ Route::prefix('admin')->middleware(['auth', 'staff.access'])->group(function () 
     Route::get('settings', [SettingsController::class, 'index'])->name('admin.settings.index')->middleware('permission:settings');
     Route::post('settings', [SettingsController::class, 'update'])->name('admin.settings.update')->middleware('permission:settings');
     Route::get('reports', [ReportController::class, 'index'])->name('admin.reports.index')->middleware('permission:reports');
+
+    // Book loan routes (Perpustakaan)
+    Route::get('book-loans', [BookLoanController::class, 'index'])->name('admin.book-loans.index')->middleware('permission:book-loans');
+    Route::get('book-loans/template', [BookLoanController::class, 'template'])->name('admin.book-loans.template')->middleware('permission:book-loans');
+    Route::post('book-loans/import', [BookLoanController::class, 'import'])->name('admin.book-loans.import')->middleware('permission:book-loans');
+
+    // Visitor log routes (Perpustakaan)
+    Route::get('visitor-logs', [VisitorLogController::class, 'index'])->name('admin.visitor-logs.index')->middleware('permission:visitor-logs');
+    Route::get('visitor-logs/export', [VisitorLogController::class, 'export'])->name('admin.visitor-logs.export')->middleware('permission:visitor-logs');
+    Route::get('visitor-logs/template', [VisitorLogController::class, 'template'])->name('admin.visitor-logs.template')->middleware('permission:visitor-logs');
+    Route::post('visitor-logs/import', [VisitorLogController::class, 'import'])->name('admin.visitor-logs.import')->middleware('permission:visitor-logs');
 
     // Export routes
     Route::get('export/orders', [ExportController::class, 'orders'])->name('admin.export.orders')->middleware('permission:orders');
