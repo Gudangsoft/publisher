@@ -5,10 +5,15 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
 use App\Models\User;
 
 class AuthController extends Controller
 {
+    private const MAX_LOGIN_ATTEMPTS = 5;
+    private const LOGIN_DECAY_SECONDS = 60;
+
     public function showLogin()
     {
         return view('auth.login');
@@ -21,7 +26,18 @@ class AuthController extends Controller
             'password' => 'required'
         ]);
 
+        $throttleKey = $this->throttleKey($request);
+
+        if (RateLimiter::tooManyAttempts($throttleKey, self::MAX_LOGIN_ATTEMPTS)) {
+            $seconds = RateLimiter::availableIn($throttleKey);
+
+            return back()->withErrors([
+                'email' => "Terlalu banyak percobaan login. Coba lagi dalam {$seconds} detik.",
+            ])->onlyInput('email');
+        }
+
         if (Auth::attempt($data)) {
+            RateLimiter::clear($throttleKey);
             $request->session()->regenerate();
 
             if (auth()->user()->canAccessAdmin()) {
@@ -31,7 +47,14 @@ class AuthController extends Controller
             return redirect()->intended(route('user.dashboard'));
         }
 
+        RateLimiter::hit($throttleKey, self::LOGIN_DECAY_SECONDS);
+
         return back()->withErrors(['email' => 'Email atau password salah'])->onlyInput('email');
+    }
+
+    private function throttleKey(Request $request): string
+    {
+        return Str::lower($request->input('email')) . '|' . $request->ip();
     }
 
     public function showRegister()
