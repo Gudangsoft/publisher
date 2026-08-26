@@ -31,6 +31,8 @@ use App\Http\Controllers\MenuController as PublicMenuController;
 use App\Http\Controllers\SubmissionController;
 use App\Http\Controllers\UserDashboardController;
 use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\RepositoryController;
+use App\Http\Controllers\Admin\RepositoryTarunaController;
 
 // Public Routes
 Route::get('/', function () {
@@ -242,6 +244,19 @@ Route::get('/submissions/create', [SubmissionController::class, 'create'])->name
 Route::post('/submissions', [SubmissionController::class, 'store'])->name('submissions.store');
 Route::get('/submissions/success/{submissionNumber}', [SubmissionController::class, 'success'])->name('submissions.success');
 Route::get('/submissions/track', [SubmissionController::class, 'track'])->name('submissions.track');
+
+// Repository (Skripsi) Routes
+Route::prefix('repository')->name('repository.')->group(function () {
+    Route::get('/', [RepositoryController::class, 'identity'])->name('identity');
+    Route::get('/lookup', [RepositoryController::class, 'lookup'])->name('lookup');
+    Route::post('/verify', [RepositoryController::class, 'verify'])->name('verify');
+    Route::get('/upload', [RepositoryController::class, 'upload'])->name('upload');
+    Route::post('/upload', [RepositoryController::class, 'store'])->name('store');
+    Route::get('/receipt', [RepositoryController::class, 'receipt'])->name('receipt');
+    Route::get('/receipt/download', [RepositoryController::class, 'downloadReceipt'])->name('receipt.download');
+    Route::post('/reset', [RepositoryController::class, 'reset'])->name('reset');
+    Route::get('/verifikasi/{code}', [RepositoryController::class, 'verifyCode'])->name('verify-code');
+});
 Route::get('/templates/{template}/download', [SubmissionController::class, 'downloadTemplate'])->name('templates.download');
 
 // About & Contact Routes
@@ -356,6 +371,14 @@ Route::prefix('admin')->middleware(['auth', 'staff.access'])->group(function () 
     Route::get('settings', [SettingsController::class, 'index'])->name('admin.settings.index')->middleware('permission:settings');
     Route::post('settings', [SettingsController::class, 'update'])->name('admin.settings.update')->middleware('permission:settings');
     Route::get('reports', [ReportController::class, 'index'])->name('admin.reports.index')->middleware('permission:reports');
+
+    // Repository (Skripsi) routes
+    Route::get('repository-taruna', [RepositoryTarunaController::class, 'index'])->name('admin.repository-taruna.index')->middleware('permission:repository-taruna');
+    Route::post('repository-taruna', [RepositoryTarunaController::class, 'store'])->name('admin.repository-taruna.store')->middleware('permission:repository-taruna');
+    Route::put('repository-taruna/{repository_taruna}', [RepositoryTarunaController::class, 'update'])->name('admin.repository-taruna.update')->middleware('permission:repository-taruna');
+    Route::delete('repository-taruna/{repository_taruna}', [RepositoryTarunaController::class, 'destroy'])->name('admin.repository-taruna.destroy')->middleware('permission:repository-taruna');
+    Route::get('repository-taruna/template', [RepositoryTarunaController::class, 'template'])->name('admin.repository-taruna.template')->middleware('permission:repository-taruna');
+    Route::post('repository-taruna/import', [RepositoryTarunaController::class, 'import'])->name('admin.repository-taruna.import')->middleware('permission:repository-taruna');
 
     // Book loan routes (Perpustakaan)
     Route::get('book-loans', [BookLoanController::class, 'index'])->name('admin.book-loans.index')->middleware('permission:book-loans');

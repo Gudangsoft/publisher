@@ -454,6 +454,22 @@
                 </li>
                 @endif
 
+                @if(auth()->user()->hasPermission('repository-taruna'))
+                <li class="pt-4 mt-4 space-y-2 border-t border-gray-200">
+                    <p :class="sidebarOpen ? 'px-3 text-xs font-semibold text-gray-500 uppercase' : 'lg:hidden px-3 text-xs font-semibold text-gray-500 uppercase'">
+                        Repository
+                    </p>
+                </li>
+                <li>
+                    <a href="{{ route('admin.repository-taruna.index') }}" class="flex items-center p-3 text-gray-900 rounded-lg hover:bg-primary-50 group {{ request()->routeIs('admin.repository-taruna.*') ? 'bg-primary-50 text-primary-600' : '' }}">
+                        <svg class="w-5 h-5 text-gray-500 transition duration-75 group-hover:text-primary-600 {{ request()->routeIs('admin.repository-taruna.*') ? 'text-primary-600' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422A12.083 12.083 0 0112 20.055 12.083 12.083 0 015.84 10.578L12 14z"/>
+                        </svg>
+                        <span :class="sidebarOpen ? 'ml-3' : 'lg:hidden ml-3'">Repository Skripsi</span>
+                    </a>
+                </li>
+                @endif
+
                 @if(auth()->user()->hasPermission('book-loans') || auth()->user()->hasPermission('visitor-logs'))
                 <li class="pt-4 mt-4 space-y-2 border-t border-gray-200">
                     <p :class="sidebarOpen ? 'px-3 text-xs font-semibold text-gray-500 uppercase' : 'lg:hidden px-3 text-xs font-semibold text-gray-500 uppercase'">

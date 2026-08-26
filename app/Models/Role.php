@@ -71,6 +71,9 @@ class Role extends Model
                 'book-loans'   => ['label' => 'Data Peminjaman', 'icon' => '📖'],
                 'visitor-logs' => ['label' => 'Data Pengunjung',  'icon' => '🧾'],
             ],
+            'Repository' => [
+                'repository-taruna' => ['label' => 'Repository Skripsi', 'icon' => '🎓'],
+            ],
             'Sistem' => [
                 'users'    => ['label' => 'Pengguna',    'icon' => '👥'],
                 'settings' => ['label' => 'Pengaturan',  'icon' => '⚙️'],
