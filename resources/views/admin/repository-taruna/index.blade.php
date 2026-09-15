@@ -276,13 +276,14 @@
     <div class="relative bg-white rounded-xl shadow-lg w-full max-w-md p-6">
         <h3 class="text-lg font-semibold text-gray-900 mb-1">Import Daftar Taruna</h3>
         <p class="text-sm text-gray-600 mb-4">
-            Unggah file Excel (.xlsx/.xls/.csv) sesuai format template.
-            <a href="{{ route('admin.repository-taruna.template') }}" class="text-primary-600 hover:underline">Unduh template</a>.
+            Unggah file Excel roster (.xlsx/.xls) &mdash; format daftar per korps seperti yang biasa dipakai (satu sheet per korps/pleton, contoh: P1, T1, dst).
+            Korps diambil dari nama sheet, Angkatan dari 4 digit awal N.AK. Semua sheet diproses sekaligus.
+            <a href="{{ route('admin.repository-taruna.template') }}" class="text-primary-600 hover:underline">Unduh contoh format</a>.
             Nomor Akademik yang sudah ada akan diperbarui datanya, bukan diduplikasi.
         </p>
         <form action="{{ route('admin.repository-taruna.import') }}" method="POST" enctype="multipart/form-data">
             @csrf
-            <input type="file" name="file" accept=".xlsx,.xls,.csv" required class="w-full mb-4 text-sm border border-gray-300 rounded-lg p-2">
+            <input type="file" name="file" accept=".xlsx,.xls" required class="w-full mb-4 text-sm border border-gray-300 rounded-lg p-2">
             <div class="flex justify-end space-x-2">
                 <button type="button" @click="importOpen = false" class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">Batal</button>
                 <button type="submit" class="px-4 py-2 text-white bg-primary-600 rounded-lg hover:bg-primary-700">Import</button>

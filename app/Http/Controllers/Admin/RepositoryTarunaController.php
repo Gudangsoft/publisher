@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Exports\RepositoryTarunaTemplateExport;
 use App\Http\Controllers\Controller;
-use App\Imports\RepositoryTarunaImport;
 use App\Models\RepositoryTaruna;
 use App\Models\ThesisSubmission;
+use App\Services\RepositoryTarunaRosterImporter;
+use App\Services\RepositoryTarunaRosterTemplateBuilder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
-use Maatwebsite\Excel\Facades\Excel;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class RepositoryTarunaController extends Controller
 {
@@ -142,26 +143,36 @@ class RepositoryTarunaController extends Controller
 
     public function template()
     {
-        return Excel::download(new RepositoryTarunaTemplateExport(), 'template-data-taruna.xlsx');
+        $spreadsheet = (new RepositoryTarunaRosterTemplateBuilder())->build();
+
+        $headers = [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Content-Disposition' => 'attachment; filename="contoh-format-roster-taruna.xlsx"',
+        ];
+
+        return new StreamedResponse(function () use ($spreadsheet) {
+            (new Xlsx($spreadsheet))->save('php://output');
+        }, 200, $headers);
     }
 
     public function import(Request $request)
     {
         $request->validate([
-            'file' => ['required', 'file', 'mimes:xlsx,xls,csv'],
+            'file' => ['required', 'file', 'mimes:xlsx,xls'],
         ]);
 
-        $import = new RepositoryTarunaImport();
-        Excel::import($import, $request->file('file'));
+        $result = (new RepositoryTarunaRosterImporter())->import($request->file('file')->getRealPath());
 
-        if ($import->failures()->isNotEmpty()) {
-            $messages = $import->failures()->take(5)->map(function ($failure) {
-                return 'Baris ' . $failure->row() . ': ' . implode(', ', $failure->errors());
+        if (!empty($result['skipped'])) {
+            $messages = collect($result['skipped'])->take(6)->map(function ($s) {
+                return "Sheet {$s['sheet']}" . ($s['row'] ? " baris {$s['row']}" : '') . ": {$s['reason']}";
             })->implode(' | ');
 
-            return back()->with('import_warning', 'Sebagian baris gagal diimpor. ' . $messages);
+            $extra = count($result['skipped']) > 6 ? ' (+' . (count($result['skipped']) - 6) . ' lainnya)' : '';
+
+            return back()->with('import_warning', "Diimpor: {$result['imported']} baru, {$result['updated']} diperbarui. Dilewati: " . count($result['skipped']) . ". {$messages}{$extra}");
         }
 
-        return back()->with('success', 'Daftar taruna berhasil diimpor.');
+        return back()->with('success', "Daftar taruna berhasil diimpor: {$result['imported']} baru, {$result['updated']} diperbarui.");
     }
 }
