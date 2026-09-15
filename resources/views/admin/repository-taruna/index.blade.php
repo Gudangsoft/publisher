@@ -8,8 +8,8 @@
     addOpen: false,
     editOpen: false,
     filesOpen: false,
-    editing: { id: null, name: '', academic_number: '', korps: '' },
-    viewingFiles: { name: '', code: '', files: [] },
+    editing: { id: null, name: '', academic_number: '', korps: '', angkatan: '' },
+    viewingFiles: { name: '', code: '', published: false, publicFiles: [], hiddenFiles: [] },
     openEdit(t) { this.editing = t; this.editOpen = true },
     openFiles(t) { this.viewingFiles = t; this.filesOpen = true }
 }">
@@ -50,7 +50,7 @@
 
 @if(session('import_warning'))
 <div class="mb-6 bg-yellow-100 border border-yellow-400 text-yellow-800 px-6 py-4 rounded-lg relative" role="alert">
-    <p class="font-medium mb-1">Sebagian data tidak diimpor</p>
+    <p class="font-medium mb-1">Perhatian</p>
     <p class="text-sm">{{ session('import_warning') }}</p>
 </div>
 @endif
@@ -66,7 +66,7 @@
 @endif
 
 <!-- Stats Cards -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <div class="flex items-center justify-between">
             <div>
@@ -106,6 +106,20 @@
             </div>
         </div>
     </div>
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-600">Terpublikasi</p>
+                <p class="text-3xl font-bold text-blue-600 mt-2">{{ $totalPublished }}</p>
+            </div>
+            <div class="bg-blue-100 p-3 rounded-lg">
+                <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                </svg>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Filters -->
@@ -115,17 +129,25 @@
             <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama / no. akademik..." class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 w-64">
             <select name="korps" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
                 <option value="">Semua Korps</option>
-                @foreach($korpsList as $k)
+                @foreach($korpsOptions as $k)
                 <option value="{{ $k }}" @selected(request('korps') === $k)>{{ $k }}</option>
+                @endforeach
+            </select>
+            <select name="angkatan" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                <option value="">Semua Angkatan</option>
+                @foreach($angkatanOptions as $a)
+                <option value="{{ $a }}" @selected(request('angkatan') === $a)>{{ $a }}</option>
                 @endforeach
             </select>
             <select name="status" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
                 <option value="">Semua Status</option>
                 <option value="sudah" @selected(request('status') === 'sudah')>Sudah Mengumpulkan</option>
                 <option value="belum" @selected(request('status') === 'belum')>Belum Mengumpulkan</option>
+                <option value="published" @selected(request('status') === 'published')>Terpublikasi</option>
+                <option value="pending" @selected(request('status') === 'pending')>Menunggu Publikasi</option>
             </select>
             <button type="submit" class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors duration-200">Filter</button>
-            @if(request()->anyFilled(['search', 'korps', 'status']))
+            @if(request()->anyFilled(['search', 'korps', 'angkatan', 'status']))
             <a href="{{ route('admin.repository-taruna.index') }}" class="px-4 py-2 text-gray-500 hover:text-gray-700 text-sm">Reset</a>
             @endif
         </form>
@@ -139,6 +161,7 @@
                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Nama</th>
                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">No. Akademik</th>
                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Korps</th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Angkatan</th>
                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Status</th>
                     <th class="px-6 py-4 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Aksi</th>
                 </tr>
@@ -149,11 +172,14 @@
                     <td class="px-6 py-4 font-medium text-gray-900">{{ $t->name }}</td>
                     <td class="px-6 py-4 text-sm text-gray-600 font-mono">{{ $t->academic_number }}</td>
                     <td class="px-6 py-4 text-sm text-gray-600">{{ $t->korps ?? '-' }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-600">{{ $t->angkatan ?? '-' }}</td>
                     <td class="px-6 py-4">
-                        @if($t->submission)
-                        <span class="inline-block px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-700">Sudah Mengumpulkan</span>
-                        @else
+                        @if(!$t->submission)
                         <span class="inline-block px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-700">Belum Mengumpulkan</span>
+                        @elseif($t->submission->is_published)
+                        <span class="inline-block px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-700">Terpublikasi</span>
+                        @else
+                        <span class="inline-block px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-700">Sudah Mengumpulkan</span>
                         @endif
                     </td>
                     <td class="px-6 py-4 text-right">
@@ -163,9 +189,14 @@
                                 @click="openFiles({
                                     name: {{ \Illuminate\Support\Js::from($t->name) }},
                                     code: {{ \Illuminate\Support\Js::from($t->submission->submission_code) }},
-                                    submittedAt: {{ \Illuminate\Support\Js::from($t->submission->updated_at->format('d M Y H:i')) }},
-                                    files: {{ \Illuminate\Support\Js::from(collect(\App\Models\ThesisSubmission::FILE_FIELDS)->map(fn($label, $field) => [
-                                        'label' => $label . ($t->submission->isLink($field) ? ' (Tautan)' : ''),
+                                    published: {{ \Illuminate\Support\Js::from($t->submission->is_published) }},
+                                    publicFiles: {{ \Illuminate\Support\Js::from(collect(\App\Models\ThesisSubmission::PUBLIC_FIELDS)->map(fn($field) => [
+                                        'label' => \App\Models\ThesisSubmission::FILE_FIELDS[$field] . ($t->submission->isLink($field) ? ' (Tautan)' : ''),
+                                        'url' => $t->submission->documentUrl($field),
+                                        'name' => $t->submission->documentLabel($field),
+                                    ])->values()) }},
+                                    hiddenFiles: {{ \Illuminate\Support\Js::from(collect(\App\Models\ThesisSubmission::HIDDEN_FIELDS)->map(fn($field) => [
+                                        'label' => \App\Models\ThesisSubmission::FILE_FIELDS[$field] . ($t->submission->isLink($field) ? ' (Tautan)' : ''),
                                         'url' => $t->submission->documentUrl($field),
                                         'name' => $t->submission->documentLabel($field),
                                     ])->values()) }}
@@ -176,9 +207,31 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                 </svg>
                             </button>
+                            @if($t->submission->is_published)
+                            <form action="{{ route('admin.repository-taruna.unpublish', $t) }}" method="POST" class="inline">
+                                @csrf
+                                @method('PATCH')
+                                <button type="submit" class="p-2 text-yellow-600 hover:bg-yellow-50 rounded-lg transition-colors duration-200" title="Tarik dari publikasi">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+                                    </svg>
+                                </button>
+                            </form>
+                            @else
+                            <form action="{{ route('admin.repository-taruna.publish', $t) }}" method="POST" class="inline">
+                                @csrf
+                                @method('PATCH')
+                                <button type="submit" class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors duration-200" title="Publikasikan ke koleksi publik" {{ !$t->submission->isComplete() ? 'disabled' : '' }}>
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                    </svg>
+                                </button>
+                            </form>
+                            @endif
                             @endif
                             <button type="button"
-                                @click="openEdit({ id: {{ $t->id }}, name: {{ \Illuminate\Support\Js::from($t->name) }}, academic_number: {{ \Illuminate\Support\Js::from($t->academic_number) }}, korps: {{ \Illuminate\Support\Js::from($t->korps) }} })"
+                                @click="openEdit({ id: {{ $t->id }}, name: {{ \Illuminate\Support\Js::from($t->name) }}, academic_number: {{ \Illuminate\Support\Js::from($t->academic_number) }}, korps: {{ \Illuminate\Support\Js::from($t->korps) }}, angkatan: {{ \Illuminate\Support\Js::from($t->angkatan) }} })"
                                 class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200" title="Edit">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
@@ -253,9 +306,20 @@
                 <label class="block text-sm font-medium text-gray-700 mb-1">Nomor Akademik</label>
                 <input type="text" name="academic_number" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
             </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Korps</label>
-                <input type="text" name="korps" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Korps</label>
+                    <select name="korps" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                        <option value="">Pilih</option>
+                        @foreach($korpsOptions as $k)
+                        <option value="{{ $k }}">{{ $k }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Angkatan</label>
+                    <input type="text" name="angkatan" required placeholder="72" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                </div>
             </div>
             <div class="flex justify-end space-x-2 pt-2">
                 <button type="button" @click="addOpen = false" class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">Batal</button>
@@ -281,9 +345,20 @@
                 <label class="block text-sm font-medium text-gray-700 mb-1">Nomor Akademik</label>
                 <input type="text" name="academic_number" x-model="editing.academic_number" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
             </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Korps</label>
-                <input type="text" name="korps" x-model="editing.korps" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Korps</label>
+                    <select name="korps" x-model="editing.korps" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                        <option value="">Pilih</option>
+                        @foreach($korpsOptions as $k)
+                        <option value="{{ $k }}">{{ $k }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Angkatan</label>
+                    <input type="text" name="angkatan" x-model="editing.angkatan" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                </div>
             </div>
             <div class="flex justify-end space-x-2 pt-2">
                 <button type="button" @click="editOpen = false" class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">Batal</button>
@@ -296,14 +371,18 @@
 <!-- Files Modal -->
 <div x-show="filesOpen" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4">
     <div class="absolute inset-0 bg-gray-900 bg-opacity-50" @click="filesOpen = false"></div>
-    <div class="relative bg-white rounded-xl shadow-lg w-full max-w-lg p-6">
-        <h3 class="text-lg font-semibold text-gray-900 mb-1" x-text="viewingFiles.name"></h3>
+    <div class="relative bg-white rounded-xl shadow-lg w-full max-w-lg p-6 max-h-[85vh] overflow-y-auto">
+        <div class="flex items-center justify-between mb-1">
+            <h3 class="text-lg font-semibold text-gray-900" x-text="viewingFiles.name"></h3>
+            <span class="text-xs px-2 py-1 rounded-full" :class="viewingFiles.published ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'" x-text="viewingFiles.published ? 'Terpublikasi' : 'Belum Dipublikasikan'"></span>
+        </div>
         <p class="text-sm text-gray-500 mb-4">
             Kode bukti: <span class="font-mono" x-text="viewingFiles.code"></span>
-            &middot; Terakhir diupload: <span x-text="viewingFiles.submittedAt"></span>
         </p>
-        <ul class="divide-y divide-gray-200 border border-gray-200 rounded-lg overflow-hidden">
-            <template x-for="f in viewingFiles.files" :key="f.label">
+
+        <p class="text-xs font-semibold text-gray-500 uppercase mb-2">Bagian Publik (Cover, Pengesahan, Abstrak, Bab I-III)</p>
+        <ul class="divide-y divide-gray-200 border border-gray-200 rounded-lg overflow-hidden mb-4">
+            <template x-for="f in viewingFiles.publicFiles" :key="f.label">
                 <li class="flex items-center justify-between px-4 py-3">
                     <div>
                         <p class="text-sm font-medium text-gray-900" x-text="f.label"></p>
@@ -313,6 +392,20 @@
                 </li>
             </template>
         </ul>
+
+        <p class="text-xs font-semibold text-gray-500 uppercase mb-2">Bagian Tersembunyi (Bab IV-V, tidak pernah publik)</p>
+        <ul class="divide-y divide-gray-200 border border-gray-200 rounded-lg overflow-hidden">
+            <template x-for="f in viewingFiles.hiddenFiles" :key="f.label">
+                <li class="flex items-center justify-between px-4 py-3">
+                    <div>
+                        <p class="text-sm font-medium text-gray-900" x-text="f.label"></p>
+                        <p class="text-xs text-gray-500" x-text="f.name"></p>
+                    </div>
+                    <a :href="f.url" target="_blank" class="text-primary-600 hover:underline text-sm font-medium">Buka</a>
+                </li>
+            </template>
+        </ul>
+
         <div class="flex justify-end pt-4">
             <button type="button" @click="filesOpen = false" class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">Tutup</button>
         </div>

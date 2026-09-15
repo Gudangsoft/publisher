@@ -39,12 +39,19 @@
             @endif
 
             @php
-                $docs = [
+                $publicDocs = [
                     'cover' => ['label' => 'Cover', 'max' => '5MB'],
-                    'pengesahan' => ['label' => 'Halaman Pengesahan', 'max' => '5MB'],
+                    'pengesahan' => ['label' => 'Lembar Pengesahan', 'max' => '5MB'],
                     'abstrak' => ['label' => 'Abstrak', 'max' => '5MB'],
-                    'naskah' => ['label' => 'Naskah Skripsi Lengkap', 'max' => '20MB'],
+                    'bab1' => ['label' => 'Judul s.d. Bab I', 'max' => '10MB'],
+                    'bab2' => ['label' => 'Bab II', 'max' => '10MB'],
+                    'bab3' => ['label' => 'Bab III', 'max' => '10MB'],
                 ];
+                $hiddenDocs = [
+                    'bab4' => ['label' => 'Bab IV', 'max' => '10MB'],
+                    'bab5' => ['label' => 'Bab V', 'max' => '10MB'],
+                ];
+                $docs = $publicDocs + $hiddenDocs;
             @endphp
             <div class="bg-white rounded-2xl shadow-lg p-8"
                 x-data="{
@@ -66,37 +73,31 @@
                 <form action="{{ route('repository.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6" id="repositoryUploadForm" x-ref="uploadForm">
                     @csrf
 
-                    @foreach($docs as $field => $d)
                     <div>
-                        <div class="flex items-center justify-between mb-1">
-                            <label class="block text-sm font-medium text-gray-700">{{ $d['label'] }}</label>
-                            <div class="flex items-center text-xs bg-gray-100 rounded-full p-1">
-                                <button type="button" @click="mode.{{ $field }} = 'file'"
-                                    :class="mode.{{ $field }} === 'file' ? 'bg-white shadow text-primary-700' : 'text-gray-500'"
-                                    class="px-3 py-1 rounded-full font-medium transition-colors duration-150">Upload File</button>
-                                <button type="button" @click="mode.{{ $field }} = 'link'"
-                                    :class="mode.{{ $field }} === 'link' ? 'bg-white shadow text-primary-700' : 'text-gray-500'"
-                                    class="px-3 py-1 rounded-full font-medium transition-colors duration-150">Tautan</button>
-                            </div>
-                        </div>
-                        <input type="hidden" name="{{ $field }}_mode" x-bind:value="mode.{{ $field }}">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Judul Skripsi</label>
+                        <input type="text" name="title" value="{{ old('title', $submission->title ?? '') }}" required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                    </div>
 
-                        <div x-show="mode.{{ $field }} === 'file'">
-                            @if($submission && $submission->{$field . '_path'})
-                            <p class="text-xs text-green-600 mb-1">Berkas saat ini: {{ $submission->{$field . '_original_name'} }} &mdash; biarkan kosong untuk tetap memakai berkas ini.</p>
-                            @endif
-                            <input type="file" name="{{ $field }}" accept=".pdf"
-                                class="w-full text-sm border border-gray-300 rounded-lg p-3 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-primary-50 file:text-primary-700">
-                            <p class="text-xs text-gray-400 mt-1">Format PDF, maksimal {{ $d['max'] }}</p>
-                        </div>
-                        <div x-show="mode.{{ $field }} === 'link'" x-cloak>
-                            <input type="url" name="{{ $field }}_link" value="{{ old("{$field}_link", $submission->{$field . '_url'} ?? '') }}"
-                                placeholder="https://drive.google.com/..."
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
-                            <p class="text-xs text-gray-400 mt-1">Tautan Google Drive/OneDrive/lainnya yang bisa diakses publik</p>
+                    <div>
+                        <p class="text-sm font-semibold text-gray-900 mb-1">Bagian Publik</p>
+                        <p class="text-xs text-gray-500 mb-4">Cover, lembar pengesahan, abstrak, dan Bab I&ndash;III bisa dibaca publik setelah dipublikasikan admin.</p>
+                        <div class="space-y-6">
+                            @foreach($publicDocs as $field => $d)
+                                @include('repository.partials.doc-field', ['field' => $field, 'd' => $d])
+                            @endforeach
                         </div>
                     </div>
-                    @endforeach
+
+                    <div class="pt-4 border-t border-gray-100">
+                        <p class="text-sm font-semibold text-gray-900 mb-1">Bagian Tersembunyi</p>
+                        <p class="text-xs text-gray-500 mb-4">Bab IV dan Bab V tetap wajib dikumpulkan, tapi tidak akan pernah bisa dibuka publik &mdash; hanya admin yang bisa mengaksesnya.</p>
+                        <div class="space-y-6">
+                            @foreach($hiddenDocs as $field => $d)
+                                @include('repository.partials.doc-field', ['field' => $field, 'd' => $d])
+                            @endforeach
+                        </div>
+                    </div>
 
                     <button type="button" @click="openConfirm()" class="w-full bg-primary-600 text-white py-3 rounded-lg font-semibold hover:bg-primary-700 transition-colors duration-200">
                         Submit Skripsi
@@ -113,7 +114,7 @@
                             </svg>
                             <div>
                                 <h3 class="text-lg font-semibold text-gray-900">Periksa Kembali Data Anda</h3>
-                                <p class="text-sm text-gray-600 mt-1">Pastikan cover, halaman pengesahan, abstrak, dan naskah skripsi yang Anda pilih sudah benar. Setelah submit, berkas ini akan menimpa data sebelumnya (jika ada) dan menjadi bukti resmi pengumpulan skripsi Anda.</p>
+                                <p class="text-sm text-gray-600 mt-1">Pastikan judul, cover, lembar pengesahan, abstrak, dan naskah per bab yang Anda pilih sudah benar. Setelah submit, berkas ini akan menimpa data sebelumnya (jika ada) dan menunggu review admin sebelum bagian publik bisa dibaca umum.</p>
                             </div>
                         </div>
 

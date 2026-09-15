@@ -9,6 +9,7 @@ use App\Models\RepositoryTaruna;
 use App\Models\ThesisSubmission;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
 
 class RepositoryTarunaController extends Controller
@@ -29,22 +30,31 @@ class RepositoryTarunaController extends Controller
             $query->where('korps', $request->korps);
         }
 
+        if ($request->filled('angkatan')) {
+            $query->where('angkatan', $request->angkatan);
+        }
+
         if ($request->filled('status')) {
             if ($request->status === 'sudah') {
                 $query->whereHas('submission');
             } elseif ($request->status === 'belum') {
                 $query->whereDoesntHave('submission');
+            } elseif ($request->status === 'published') {
+                $query->whereHas('submission', fn ($q) => $q->where('is_published', true));
+            } elseif ($request->status === 'pending') {
+                $query->whereHas('submission', fn ($q) => $q->where('is_published', false));
             }
         }
 
         $tarunas = $query->orderBy('name')->paginate(20)->withQueryString();
-        $korpsList = RepositoryTaruna::whereNotNull('korps')->distinct()->orderBy('korps')->pluck('korps');
 
         return view('admin.repository-taruna.index', [
             'tarunas' => $tarunas,
-            'korpsList' => $korpsList,
+            'korpsOptions' => RepositoryTaruna::KORPS_OPTIONS,
+            'angkatanOptions' => RepositoryTaruna::angkatanOptions(),
             'totalTaruna' => RepositoryTaruna::count(),
             'totalSubmitted' => RepositoryTaruna::has('submission')->count(),
+            'totalPublished' => ThesisSubmission::where('is_published', true)->count(),
         ]);
     }
 
@@ -53,11 +63,13 @@ class RepositoryTarunaController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'academic_number' => ['required', 'string', 'max:100', 'unique:repository_tarunas,academic_number'],
-            'korps' => ['nullable', 'string', 'max:100'],
+            'korps' => ['required', Rule::in(RepositoryTaruna::KORPS_OPTIONS)],
+            'angkatan' => ['required', 'string', 'max:10'],
         ], [
             'name.required' => 'Nama wajib diisi',
             'academic_number.required' => 'Nomor Akademik wajib diisi',
             'academic_number.unique' => 'Nomor Akademik sudah terdaftar',
+            'korps.in' => 'Korps harus salah satu dari: ' . implode(', ', RepositoryTaruna::KORPS_OPTIONS),
         ]);
 
         RepositoryTaruna::create($data);
@@ -70,11 +82,13 @@ class RepositoryTarunaController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'academic_number' => ['required', 'string', 'max:100', 'unique:repository_tarunas,academic_number,' . $repositoryTaruna->id],
-            'korps' => ['nullable', 'string', 'max:100'],
+            'korps' => ['required', Rule::in(RepositoryTaruna::KORPS_OPTIONS)],
+            'angkatan' => ['required', 'string', 'max:10'],
         ], [
             'name.required' => 'Nama wajib diisi',
             'academic_number.required' => 'Nomor Akademik wajib diisi',
             'academic_number.unique' => 'Nomor Akademik sudah terdaftar',
+            'korps.in' => 'Korps harus salah satu dari: ' . implode(', ', RepositoryTaruna::KORPS_OPTIONS),
         ]);
 
         $repositoryTaruna->update($data);
@@ -97,6 +111,33 @@ class RepositoryTarunaController extends Controller
         $repositoryTaruna->delete();
 
         return back()->with('success', 'Data taruna berhasil dihapus.');
+    }
+
+    public function publish(RepositoryTaruna $repositoryTaruna)
+    {
+        $submission = $repositoryTaruna->submission;
+
+        if (!$submission || !$submission->isComplete()) {
+            return back()->with('import_warning', 'Berkas belum lengkap, tidak bisa dipublikasikan.');
+        }
+
+        $submission->update([
+            'is_published' => true,
+            'published_at' => now(),
+        ]);
+
+        return back()->with('success', 'Skripsi berhasil dipublikasikan ke koleksi publik.');
+    }
+
+    public function unpublish(RepositoryTaruna $repositoryTaruna)
+    {
+        $submission = $repositoryTaruna->submission;
+
+        if ($submission) {
+            $submission->update(['is_published' => false, 'published_at' => null]);
+        }
+
+        return back()->with('success', 'Publikasi skripsi ditarik kembali.');
     }
 
     public function template()

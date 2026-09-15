@@ -172,6 +172,10 @@
 
         <table class="info">
             <tr>
+                <td class="label">Judul Skripsi</td>
+                <td class="value">: {{ $submission->title }}</td>
+            </tr>
+            <tr>
                 <td class="label">Nama</td>
                 <td class="value">: {{ $taruna->name }}</td>
             </tr>
@@ -180,12 +184,16 @@
                 <td class="value">: {{ $taruna->academic_number }}</td>
             </tr>
             <tr>
-                <td class="label">Korps</td>
-                <td class="value">: {{ $taruna->korps }}</td>
+                <td class="label">Korps / Angkatan</td>
+                <td class="value">: {{ $taruna->korps }} / {{ $taruna->angkatan }}</td>
             </tr>
             <tr>
                 <td class="label">Waktu Submit Terakhir</td>
                 <td class="value">: {{ $submission->updated_at->format('d M Y, H:i') }} WIB</td>
+            </tr>
+            <tr>
+                <td class="label">Status Publikasi</td>
+                <td class="value">: {{ $submission->is_published ? 'Sudah dipublikasikan' : 'Menunggu review admin' }}</td>
             </tr>
         </table>
 
@@ -195,7 +203,9 @@
             <tr>
                 <td class="check">&#10003;</td>
                 <td>
-                    {{ $label }} {{ $submission->isLink($field) ? '(Tautan)' : '' }}<br>
+                    {{ $label }}
+                    {{ $submission->isLink($field) ? '(Tautan)' : '' }}
+                    {{ !\App\Models\ThesisSubmission::isPublicField($field) ? '(tidak publik)' : '' }}<br>
                     <span class="file-name">{{ $submission->documentLabel($field) }}</span>
                 </td>
             </tr>

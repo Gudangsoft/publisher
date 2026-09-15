@@ -248,7 +248,7 @@ Route::get('/submissions/track', [SubmissionController::class, 'track'])->name('
 // Repository (Skripsi) Routes
 Route::prefix('repository')->name('repository.')->group(function () {
     Route::get('/', [RepositoryController::class, 'identity'])->name('identity');
-    Route::get('/lookup', [RepositoryController::class, 'lookup'])->name('lookup');
+    Route::get('/search', [RepositoryController::class, 'search'])->name('search');
     Route::post('/verify', [RepositoryController::class, 'verify'])->name('verify');
     Route::get('/upload', [RepositoryController::class, 'upload'])->name('upload');
     Route::post('/upload', [RepositoryController::class, 'store'])->name('store');
@@ -256,6 +256,8 @@ Route::prefix('repository')->name('repository.')->group(function () {
     Route::get('/receipt/download', [RepositoryController::class, 'downloadReceipt'])->name('receipt.download');
     Route::post('/reset', [RepositoryController::class, 'reset'])->name('reset');
     Route::get('/verifikasi/{code}', [RepositoryController::class, 'verifyCode'])->name('verify-code');
+    Route::get('/koleksi', [RepositoryController::class, 'collection'])->name('collection');
+    Route::get('/koleksi/{code}', [RepositoryController::class, 'collectionShow'])->name('collection.show');
 });
 Route::get('/templates/{template}/download', [SubmissionController::class, 'downloadTemplate'])->name('templates.download');
 
@@ -377,6 +379,8 @@ Route::prefix('admin')->middleware(['auth', 'staff.access'])->group(function () 
     Route::post('repository-taruna', [RepositoryTarunaController::class, 'store'])->name('admin.repository-taruna.store')->middleware('permission:repository-taruna');
     Route::put('repository-taruna/{repository_taruna}', [RepositoryTarunaController::class, 'update'])->name('admin.repository-taruna.update')->middleware('permission:repository-taruna');
     Route::delete('repository-taruna/{repository_taruna}', [RepositoryTarunaController::class, 'destroy'])->name('admin.repository-taruna.destroy')->middleware('permission:repository-taruna');
+    Route::patch('repository-taruna/{repository_taruna}/publish', [RepositoryTarunaController::class, 'publish'])->name('admin.repository-taruna.publish')->middleware('permission:repository-taruna');
+    Route::patch('repository-taruna/{repository_taruna}/unpublish', [RepositoryTarunaController::class, 'unpublish'])->name('admin.repository-taruna.unpublish')->middleware('permission:repository-taruna');
     Route::get('repository-taruna/template', [RepositoryTarunaController::class, 'template'])->name('admin.repository-taruna.template')->middleware('permission:repository-taruna');
     Route::post('repository-taruna/import', [RepositoryTarunaController::class, 'import'])->name('admin.repository-taruna.import')->middleware('permission:repository-taruna');
 

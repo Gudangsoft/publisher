@@ -17,39 +17,48 @@ class RepositoryController extends Controller
 {
     private const MAX_VERIFY_ATTEMPTS = 10;
     private const VERIFY_DECAY_SECONDS = 300;
-    private const MAX_LOOKUP_ATTEMPTS = 20;
-    private const LOOKUP_DECAY_SECONDS = 300;
+    private const MAX_SEARCH_ATTEMPTS = 30;
+    private const SEARCH_DECAY_SECONDS = 300;
 
     public function identity()
     {
-        return view('repository.identity');
+        return view('repository.identity', [
+            'korpsOptions' => RepositoryTaruna::KORPS_OPTIONS,
+            'angkatanOptions' => RepositoryTaruna::angkatanOptions(),
+        ]);
     }
 
-    public function lookup(Request $request)
+    public function search(Request $request)
     {
         $request->validate([
-            'academic_number' => ['required', 'string', 'max:100'],
+            'korps' => ['required', 'string'],
+            'angkatan' => ['required', 'string'],
+            'q' => ['nullable', 'string', 'max:100'],
         ]);
 
-        $throttleKey = 'repo-lookup|' . $request->ip();
+        $throttleKey = 'repo-search|' . $request->ip();
 
-        if (RateLimiter::tooManyAttempts($throttleKey, self::MAX_LOOKUP_ATTEMPTS)) {
-            return response()->json(['found' => false, 'message' => 'Terlalu banyak percobaan, coba lagi sebentar lagi.'], 429);
+        if (RateLimiter::tooManyAttempts($throttleKey, self::MAX_SEARCH_ATTEMPTS)) {
+            return response()->json(['results' => [], 'message' => 'Terlalu banyak percobaan, coba lagi sebentar lagi.'], 429);
         }
 
-        RateLimiter::hit($throttleKey, self::LOOKUP_DECAY_SECONDS);
+        RateLimiter::hit($throttleKey, self::SEARCH_DECAY_SECONDS);
 
-        $taruna = RepositoryTaruna::where('academic_number', trim($request->academic_number))->first();
+        $query = RepositoryTaruna::where('korps', $request->korps)
+            ->where('angkatan', $request->angkatan);
 
-        if (!$taruna) {
-            return response()->json(['found' => false]);
+        $term = trim((string) $request->input('q'));
+
+        if ($term !== '') {
+            $query->where(function ($q) use ($term) {
+                $q->where('name', 'like', "%{$term}%")
+                  ->orWhere('academic_number', 'like', "%{$term}%");
+            });
         }
 
-        return response()->json([
-            'found' => true,
-            'name' => $taruna->name,
-            'korps' => $taruna->korps,
-        ]);
+        $results = $query->orderBy('name')->limit(10)->get(['id', 'name', 'academic_number']);
+
+        return response()->json(['results' => $results]);
     }
 
     public function verify(Request $request)
@@ -58,10 +67,12 @@ class RepositoryController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'academic_number' => ['required', 'string', 'max:100'],
             'korps' => ['required', 'string', 'max:100'],
+            'angkatan' => ['required', 'string', 'max:10'],
         ], [
             'name.required' => 'Nama wajib diisi',
             'academic_number.required' => 'Nomor Akademik wajib diisi',
-            'korps.required' => 'Korps wajib diisi',
+            'korps.required' => 'Korps wajib dipilih',
+            'angkatan.required' => 'Angkatan wajib dipilih',
         ]);
 
         $throttleKey = 'repo-verify|' . $request->ip();
@@ -75,15 +86,16 @@ class RepositoryController extends Controller
         }
 
         $taruna = RepositoryTaruna::where('academic_number', trim($data['academic_number']))
+            ->where('korps', $data['korps'])
+            ->where('angkatan', $data['angkatan'])
             ->whereRaw('LOWER(name) = ?', [Str::lower(trim($data['name']))])
-            ->whereRaw('LOWER(korps) = ?', [Str::lower(trim($data['korps']))])
             ->first();
 
         if (!$taruna) {
             RateLimiter::hit($throttleKey, self::VERIFY_DECAY_SECONDS);
 
             return back()->withErrors([
-                'academic_number' => 'Data tidak ditemukan di daftar taruna tingkat akhir. Periksa kembali data Anda atau hubungi admin.',
+                'academic_number' => 'Data tidak ditemukan di daftar taruna tingkat akhir. Periksa kembali Korps, Angkatan, Nama, dan Nomor Akademik, atau hubungi admin.',
             ])->withInput();
         }
 
@@ -122,11 +134,14 @@ class RepositoryController extends Controller
         }
 
         $existingSubmission = $taruna->submission;
-        $maxSizes = ['cover' => 5120, 'pengesahan' => 5120, 'abstrak' => 5120, 'naskah' => 20480];
+        $maxSizes = [
+            'cover' => 5120, 'pengesahan' => 5120, 'abstrak' => 5120,
+            'bab1' => 10240, 'bab2' => 10240, 'bab3' => 10240, 'bab4' => 10240, 'bab5' => 10240,
+        ];
         $labels = ThesisSubmission::FILE_FIELDS;
 
-        $rules = [];
-        $messages = [];
+        $rules = ['title' => ['required', 'string', 'max:255']];
+        $messages = ['title.required' => 'Judul skripsi wajib diisi'];
 
         foreach (array_keys($labels) as $field) {
             $mode = $request->input("{$field}_mode", 'file');
@@ -144,12 +159,18 @@ class RepositoryController extends Controller
             }
         }
 
-        $request->validate($rules, $messages);
+        $data = $request->validate($rules, $messages);
 
         $submission = $existingSubmission ?: new ThesisSubmission([
             'repository_taruna_id' => $taruna->id,
             'submission_code' => $this->generateSubmissionCode(),
         ]);
+
+        $submission->title = $data['title'];
+
+        // Any re-submission needs to be reviewed again before it can be public.
+        $submission->is_published = false;
+        $submission->published_at = null;
 
         foreach (array_keys($labels) as $field) {
             $mode = $request->input("{$field}_mode", 'file');
@@ -244,6 +265,47 @@ class RepositoryController extends Controller
         $request->session()->forget('repository_taruna_id');
 
         return redirect()->route('repository.identity');
+    }
+
+    public function collection(Request $request)
+    {
+        $query = ThesisSubmission::with('taruna')->where('is_published', true);
+
+        if ($request->filled('korps')) {
+            $query->whereHas('taruna', fn ($q) => $q->where('korps', $request->korps));
+        }
+
+        if ($request->filled('angkatan')) {
+            $query->whereHas('taruna', fn ($q) => $q->where('angkatan', $request->angkatan));
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhereHas('taruna', fn ($t) => $t->where('name', 'like', "%{$search}%"));
+            });
+        }
+
+        $submissions = $query->orderByDesc('published_at')->paginate(12)->withQueryString();
+
+        return view('repository.collection.index', [
+            'submissions' => $submissions,
+            'korpsOptions' => RepositoryTaruna::KORPS_OPTIONS,
+            'angkatanOptions' => RepositoryTaruna::angkatanOptions(),
+        ]);
+    }
+
+    public function collectionShow(string $code)
+    {
+        $submission = ThesisSubmission::with('taruna')
+            ->where('submission_code', $code)
+            ->where('is_published', true)
+            ->firstOrFail();
+
+        return view('repository.collection.show', [
+            'submission' => $submission,
+        ]);
     }
 
     private function currentTaruna(): ?RepositoryTaruna

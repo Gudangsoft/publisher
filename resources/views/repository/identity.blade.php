@@ -10,8 +10,9 @@
                 Repository Skripsi
             </h1>
             <p class="text-xl text-primary-100">
-                Unggah cover, halaman pengesahan, abstrak, dan naskah skripsi Anda di sini.
+                Unggah cover, lembar pengesahan, abstrak, dan naskah skripsi Anda di sini.
             </p>
+            <a href="{{ route('repository.collection') }}" class="inline-block mt-4 text-primary-100 underline hover:text-white">Lihat koleksi skripsi yang sudah terbit &rarr;</a>
         </div>
     </div>
 </section>
@@ -25,14 +26,14 @@
                         <span class="text-2xl font-bold text-primary-600">1</span>
                     </div>
                     <h3 class="font-semibold text-gray-900 mb-2">Verifikasi Identitas</h3>
-                    <p class="text-gray-600 text-sm">Isi nama, nomor akademik, dan korps Anda</p>
+                    <p class="text-gray-600 text-sm">Pilih korps &amp; angkatan, lalu cari nama Anda</p>
                 </div>
                 <div class="bg-white rounded-xl shadow-md p-6 text-center">
                     <div class="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <span class="text-2xl font-bold text-primary-600">2</span>
                     </div>
                     <h3 class="font-semibold text-gray-900 mb-2">Unggah Berkas</h3>
-                    <p class="text-gray-600 text-sm">Cover, halaman pengesahan, abstrak, naskah</p>
+                    <p class="text-gray-600 text-sm">Cover, pengesahan, abstrak, naskah per bab</p>
                 </div>
                 <div class="bg-white rounded-xl shadow-md p-6 text-center">
                     <div class="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -45,32 +46,49 @@
 
             <div class="bg-white rounded-2xl shadow-lg p-8"
                 x-data="{
+                    korps: {{ \Illuminate\Support\Js::from(old('korps', '')) }},
+                    angkatan: {{ \Illuminate\Support\Js::from(old('angkatan', '')) }},
+                    query: {{ \Illuminate\Support\Js::from(old('name', '')) }},
                     academicNumber: {{ \Illuminate\Support\Js::from(old('academic_number', '')) }},
                     name: {{ \Illuminate\Support\Js::from(old('name', '')) }},
-                    korps: {{ \Illuminate\Support\Js::from(old('korps', '')) }},
-                    lookupStatus: '',
-                    lookupTimer: null,
-                    onAcademicNumberInput() {
-                        clearTimeout(this.lookupTimer);
-                        this.lookupStatus = '';
-                        if (this.academicNumber.trim().length < 3) return;
-                        this.lookupTimer = setTimeout(() => this.doLookup(), 500);
+                    results: [],
+                    searching: false,
+                    searchTimer: null,
+                    selected: false,
+                    get canSearch() { return this.korps && this.angkatan },
+                    onScopeChange() {
+                        this.results = [];
+                        this.selected = false;
+                        this.academicNumber = '';
+                        this.name = '';
+                        this.query = '';
                     },
-                    async doLookup() {
-                        this.lookupStatus = 'loading';
+                    onQueryInput() {
+                        this.selected = false;
+                        this.academicNumber = '';
+                        this.name = this.query;
+                        clearTimeout(this.searchTimer);
+                        if (!this.canSearch) return;
+                        this.searchTimer = setTimeout(() => this.doSearch(), 400);
+                    },
+                    async doSearch() {
+                        this.searching = true;
                         try {
-                            const res = await fetch('{{ route('repository.lookup') }}?academic_number=' + encodeURIComponent(this.academicNumber.trim()));
+                            const params = new URLSearchParams({ korps: this.korps, angkatan: this.angkatan, q: this.query });
+                            const res = await fetch('{{ route('repository.search') }}?' + params.toString());
                             const data = await res.json();
-                            if (data.found) {
-                                this.name = data.name;
-                                this.korps = data.korps;
-                                this.lookupStatus = 'found';
-                            } else {
-                                this.lookupStatus = 'not-found';
-                            }
+                            this.results = data.results || [];
                         } catch (e) {
-                            this.lookupStatus = '';
+                            this.results = [];
                         }
+                        this.searching = false;
+                    },
+                    selectResult(r) {
+                        this.name = r.name;
+                        this.academicNumber = r.academic_number;
+                        this.query = r.name;
+                        this.results = [];
+                        this.selected = true;
                     }
                 }">
                 <h2 class="text-xl font-semibold text-gray-900 mb-1">Verifikasi Identitas</h2>
@@ -88,29 +106,65 @@
 
                 <form action="{{ route('repository.verify') }}" method="POST" class="space-y-5">
                     @csrf
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Nomor Akademik</label>
-                        <input type="text" name="academic_number" x-model="academicNumber" @input="onAcademicNumberInput()" required autofocus autocomplete="off"
+                    <input type="hidden" name="korps" x-model="korps">
+                    <input type="hidden" name="angkatan" x-model="angkatan">
+                    <input type="hidden" name="academic_number" x-model="academicNumber">
+                    <input type="hidden" name="name" x-model="name">
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Korps</label>
+                            <div class="grid grid-cols-5 gap-2">
+                                @foreach($korpsOptions as $k)
+                                <button type="button" @click="korps = '{{ $k }}'; onScopeChange()"
+                                    :class="korps === '{{ $k }}' ? 'bg-primary-600 text-white border-primary-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'"
+                                    class="py-2 rounded-lg border font-semibold transition-colors duration-150">{{ $k }}</button>
+                                @endforeach
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Angkatan</label>
+                            <select x-model="angkatan" @change="onScopeChange()"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                                <option value="">Pilih</option>
+                                @foreach($angkatanOptions as $a)
+                                <option value="{{ $a }}">{{ $a }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
+                    <div x-show="!canSearch" x-cloak class="text-xs text-gray-400">Pilih korps dan angkatan terlebih dahulu.</div>
+
+                    <div x-show="canSearch" x-cloak class="relative">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Cari Nama / Nomor Akademik</label>
+                        <input type="text" x-model="query" @input="onQueryInput()" autocomplete="off" placeholder="Ketik nama atau nomor akademik..."
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
-                        <p class="text-xs mt-1" x-cloak
-                            x-show="lookupStatus"
-                            :class="{ 'text-gray-400': lookupStatus === 'loading', 'text-green-600': lookupStatus === 'found', 'text-yellow-600': lookupStatus === 'not-found' }">
-                            <span x-show="lookupStatus === 'loading'">Mencari data...</span>
-                            <span x-show="lookupStatus === 'found'">✓ Data ditemukan, nama dan korps terisi otomatis.</span>
-                            <span x-show="lookupStatus === 'not-found'">Nomor akademik belum terdaftar, isi nama dan korps secara manual.</span>
+
+                        <div x-show="searching" class="text-xs text-gray-400 mt-1">Mencari...</div>
+
+                        <ul x-show="results.length > 0" x-cloak class="absolute z-10 left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-56 overflow-y-auto">
+                            <template x-for="r in results" :key="r.id">
+                                <li @click="selectResult(r)" class="px-4 py-3 hover:bg-primary-50 cursor-pointer border-b border-gray-100 last:border-0">
+                                    <p class="text-sm font-medium text-gray-900" x-text="r.name"></p>
+                                    <p class="text-xs text-gray-500 font-mono" x-text="r.academic_number"></p>
+                                </li>
+                            </template>
+                        </ul>
+
+                        <p x-show="canSearch && !searching && query.length > 0 && results.length === 0 && !selected" x-cloak class="text-xs text-yellow-600 mt-1">
+                            Tidak ditemukan di korps &amp; angkatan ini. Periksa ejaan, atau hubungi admin jika data belum terdaftar.
                         </p>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
-                        <input type="text" name="name" x-model="name" required
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+
+                    <div x-show="selected" x-cloak class="bg-green-50 border border-green-200 rounded-lg p-4 text-sm">
+                        <p class="font-semibold text-green-800" x-text="name"></p>
+                        <p class="text-green-700 font-mono" x-text="academicNumber"></p>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Korps</label>
-                        <input type="text" name="korps" x-model="korps" required
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
-                    </div>
-                    <button type="submit" class="w-full bg-primary-600 text-white py-3 rounded-lg font-semibold hover:bg-primary-700 transition-colors duration-200">
+
+                    <button type="submit" :disabled="!selected"
+                        :class="selected ? 'bg-primary-600 hover:bg-primary-700' : 'bg-gray-300 cursor-not-allowed'"
+                        class="w-full text-white py-3 rounded-lg font-semibold transition-colors duration-200">
                         Lanjutkan
                     </button>
                 </form>

@@ -28,9 +28,20 @@
                 <div class="text-center mb-6 pb-6 border-b border-gray-200">
                     <p class="text-sm text-gray-500">Kode Bukti Submit</p>
                     <p class="text-2xl font-bold text-primary-600 font-mono">{{ $submission->submission_code }}</p>
+                    <p class="mt-3">
+                        @if($submission->is_published)
+                        <span class="inline-block px-3 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-700">Sudah Dipublikasikan</span>
+                        @else
+                        <span class="inline-block px-3 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-700">Menunggu Review Admin</span>
+                        @endif
+                    </p>
                 </div>
 
                 <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 text-sm">
+                    <div class="sm:col-span-2">
+                        <dt class="text-gray-500">Judul Skripsi</dt>
+                        <dd class="font-medium text-gray-900">{{ $submission->title }}</dd>
+                    </div>
                     <div>
                         <dt class="text-gray-500">Nama</dt>
                         <dd class="font-medium text-gray-900">{{ $taruna->name }}</dd>
@@ -40,8 +51,8 @@
                         <dd class="font-medium text-gray-900">{{ $taruna->academic_number }}</dd>
                     </div>
                     <div>
-                        <dt class="text-gray-500">Korps</dt>
-                        <dd class="font-medium text-gray-900">{{ $taruna->korps }}</dd>
+                        <dt class="text-gray-500">Korps / Angkatan</dt>
+                        <dd class="font-medium text-gray-900">{{ $taruna->korps }} / {{ $taruna->angkatan }}</dd>
                     </div>
                     <div>
                         <dt class="text-gray-500">Waktu Submit Terakhir</dt>
@@ -57,7 +68,12 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                             </svg>
                             <div>
-                                <p class="text-sm font-medium text-gray-900">{{ $label }}</p>
+                                <p class="text-sm font-medium text-gray-900">
+                                    {{ $label }}
+                                    @if(!\App\Models\ThesisSubmission::isPublicField($field))
+                                    <span class="text-xs text-gray-400 font-normal">(tidak publik)</span>
+                                    @endif
+                                </p>
                                 @if($submission->isLink($field))
                                 <a href="{{ $submission->documentUrl($field) }}" target="_blank" class="text-xs text-primary-600 hover:underline break-all">{{ $submission->documentLabel($field) }}</a>
                                 @else

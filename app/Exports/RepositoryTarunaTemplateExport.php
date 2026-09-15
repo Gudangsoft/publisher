@@ -13,7 +13,7 @@ class RepositoryTarunaTemplateExport implements FromArray, WithHeadings, ShouldA
     public function array(): array
     {
         return [
-            ['Budi Santoso', '2022001', 'Taruna'],
+            ['Budi Santoso', '2022001', 'P', '72'],
         ];
     }
 
@@ -23,6 +23,7 @@ class RepositoryTarunaTemplateExport implements FromArray, WithHeadings, ShouldA
             'Nama',
             'Nomor Akademik',
             'Korps',
+            'Angkatan',
         ];
     }
 

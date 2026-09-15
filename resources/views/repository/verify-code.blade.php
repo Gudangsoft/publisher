@@ -18,6 +18,10 @@
                 <p class="text-gray-500 mb-6">Kode <span class="font-mono font-semibold">{{ $code }}</span> terdaftar di sistem Repository Skripsi.</p>
 
                 <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left text-sm border-t border-gray-100 pt-6">
+                    <div class="sm:col-span-2">
+                        <dt class="text-gray-500">Judul Skripsi</dt>
+                        <dd class="font-medium text-gray-900">{{ $submission->title }}</dd>
+                    </div>
                     <div>
                         <dt class="text-gray-500">Nama</dt>
                         <dd class="font-medium text-gray-900">{{ $submission->taruna->name }}</dd>
@@ -27,14 +31,20 @@
                         <dd class="font-medium text-gray-900">{{ $submission->taruna->academic_number }}</dd>
                     </div>
                     <div>
-                        <dt class="text-gray-500">Korps</dt>
-                        <dd class="font-medium text-gray-900">{{ $submission->taruna->korps }}</dd>
+                        <dt class="text-gray-500">Korps / Angkatan</dt>
+                        <dd class="font-medium text-gray-900">{{ $submission->taruna->korps }} / {{ $submission->taruna->angkatan }}</dd>
                     </div>
                     <div>
                         <dt class="text-gray-500">Waktu Submit Terakhir</dt>
                         <dd class="font-medium text-gray-900">{{ $submission->updated_at->format('d M Y, H:i') }} WIB</dd>
                     </div>
                 </dl>
+
+                @if($submission->is_published)
+                <p class="mt-4 text-sm">
+                    <a href="{{ route('repository.collection.show', $submission->submission_code) }}" class="text-primary-600 hover:underline font-medium">Baca di koleksi publik &rarr;</a>
+                </p>
+                @endif
 
                 <div class="mt-6 pt-6 border-t border-gray-100 text-left">
                     <p class="text-xs text-gray-500 uppercase font-semibold mb-2">Kelengkapan Berkas</p>

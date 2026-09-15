@@ -35,7 +35,8 @@ class RepositoryTarunaImport extends DefaultValueBinder implements ToModel, With
         return new RepositoryTaruna([
             'name' => $row['nama'],
             'academic_number' => trim((string) $row['nomor_akademik']),
-            'korps' => $row['korps'] ?? null,
+            'korps' => strtoupper(trim((string) $row['korps'])),
+            'angkatan' => trim((string) $row['angkatan']),
         ]);
     }
 
@@ -49,6 +50,15 @@ class RepositoryTarunaImport extends DefaultValueBinder implements ToModel, With
         return [
             'nama' => ['required', 'string', 'max:255'],
             'nomor_akademik' => ['required', 'string', 'max:100'],
+            'korps' => [
+                'required',
+                function ($attribute, $value, $fail) {
+                    if (!in_array(strtoupper(trim((string) $value)), RepositoryTaruna::KORPS_OPTIONS, true)) {
+                        $fail('Korps harus salah satu dari: ' . implode(', ', RepositoryTaruna::KORPS_OPTIONS));
+                    }
+                },
+            ],
+            'angkatan' => ['required', 'string', 'max:10'],
         ];
     }
 
@@ -57,6 +67,8 @@ class RepositoryTarunaImport extends DefaultValueBinder implements ToModel, With
         return [
             'nama' => 'Nama',
             'nomor_akademik' => 'Nomor Akademik',
+            'korps' => 'Korps',
+            'angkatan' => 'Angkatan',
         ];
     }
 }

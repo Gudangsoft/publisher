@@ -10,7 +10,10 @@ class RepositoryTaruna extends Model
         'name',
         'academic_number',
         'korps',
+        'angkatan',
     ];
+
+    public const KORPS_OPTIONS = ['P', 'T', 'E', 'S', 'M'];
 
     public function submission()
     {
@@ -20,5 +23,13 @@ class RepositoryTaruna extends Model
     public function hasSubmitted(): bool
     {
         return $this->submission()->exists();
+    }
+
+    public static function angkatanOptions()
+    {
+        return static::whereNotNull('angkatan')
+            ->distinct()
+            ->orderByDesc('angkatan')
+            ->pluck('angkatan');
     }
 }
