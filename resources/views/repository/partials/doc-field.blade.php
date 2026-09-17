@@ -16,9 +16,9 @@
         @if($submission && $submission->{$field . '_path'})
         <p class="text-xs text-green-600 mb-1">Berkas saat ini: {{ $submission->{$field . '_original_name'} }} &mdash; biarkan kosong untuk tetap memakai berkas ini.</p>
         @endif
-        <input type="file" name="{{ $field }}" accept=".pdf"
+        <input type="file" name="{{ $field }}" accept="{{ $d['accept'] ?? '.pdf' }}"
             class="w-full text-sm border border-gray-300 rounded-lg p-3 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-primary-50 file:text-primary-700">
-        <p class="text-xs text-gray-400 mt-1">Format PDF, maksimal {{ $d['max'] }}</p>
+        <p class="text-xs text-gray-400 mt-1">Format {{ $d['format'] ?? 'PDF' }}, maksimal {{ $d['max'] }}</p>
     </div>
     <div x-show="mode.{{ $field }} === 'link'" x-cloak>
         <input type="url" name="{{ $field }}_link" value="{{ old("{$field}_link", $submission->{$field . '_url'} ?? '') }}"

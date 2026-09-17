@@ -138,6 +138,9 @@ class RepositoryController extends Controller
             'cover' => 5120, 'pengesahan' => 5120, 'abstrak' => 5120,
             'bab1' => 10240, 'bab2' => 10240, 'bab3' => 10240, 'bab4' => 10240, 'bab5' => 10240,
         ];
+        $mimesByField = [
+            'cover' => 'pdf,jpg,jpeg',
+        ];
         $labels = ThesisSubmission::FILE_FIELDS;
 
         $rules = ['title' => ['required', 'string', 'max:255']];
@@ -152,9 +155,10 @@ class RepositoryController extends Controller
                 $messages["{$field}_link.url"] = "Tautan {$labels[$field]} harus berupa URL yang valid";
             } else {
                 $keepsExistingFile = $existingSubmission && $existingSubmission->{"{$field}_path"};
-                $rules[$field] = [$keepsExistingFile ? 'nullable' : 'required', 'file', 'mimes:pdf', 'max:' . $maxSizes[$field]];
+                $mimes = $mimesByField[$field] ?? 'pdf';
+                $rules[$field] = [$keepsExistingFile ? 'nullable' : 'required', 'file', "mimes:{$mimes}", 'max:' . $maxSizes[$field]];
                 $messages["{$field}.required"] = "File {$labels[$field]} wajib diunggah";
-                $messages["{$field}.mimes"] = "File {$labels[$field]} harus berformat PDF";
+                $messages["{$field}.mimes"] = "File {$labels[$field]} harus berformat " . ($mimes === 'pdf' ? 'PDF' : 'PDF, JPG, atau JPEG');
                 $messages["{$field}.max"] = "Ukuran file {$labels[$field]} maksimal " . round($maxSizes[$field] / 1024) . 'MB';
             }
         }

@@ -40,7 +40,7 @@
 
             @php
                 $publicDocs = [
-                    'cover' => ['label' => 'Cover', 'max' => '5MB'],
+                    'cover' => ['label' => 'Cover', 'max' => '5MB', 'accept' => '.pdf,.jpg,.jpeg', 'format' => 'PDF, JPG, atau JPEG'],
                     'pengesahan' => ['label' => 'Lembar Pengesahan', 'max' => '5MB'],
                     'abstrak' => ['label' => 'Abstrak', 'max' => '5MB'],
                     'bab1' => ['label' => 'Judul s.d. Bab I', 'max' => '10MB'],
