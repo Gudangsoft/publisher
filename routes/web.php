@@ -381,6 +381,7 @@ Route::prefix('admin')->middleware(['auth', 'staff.access'])->group(function () 
     Route::delete('repository-taruna/{repository_taruna}', [RepositoryTarunaController::class, 'destroy'])->name('admin.repository-taruna.destroy')->middleware('permission:repository-taruna');
     Route::patch('repository-taruna/{repository_taruna}/publish', [RepositoryTarunaController::class, 'publish'])->name('admin.repository-taruna.publish')->middleware('permission:repository-taruna');
     Route::patch('repository-taruna/{repository_taruna}/unpublish', [RepositoryTarunaController::class, 'unpublish'])->name('admin.repository-taruna.unpublish')->middleware('permission:repository-taruna');
+    Route::patch('repository-taruna/{repository_taruna}/notes', [RepositoryTarunaController::class, 'updateNotes'])->name('admin.repository-taruna.notes')->middleware('permission:repository-taruna');
     Route::get('repository-taruna/template', [RepositoryTarunaController::class, 'template'])->name('admin.repository-taruna.template')->middleware('permission:repository-taruna');
     Route::post('repository-taruna/import', [RepositoryTarunaController::class, 'import'])->name('admin.repository-taruna.import')->middleware('permission:repository-taruna');
 

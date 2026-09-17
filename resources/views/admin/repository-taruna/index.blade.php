@@ -9,7 +9,7 @@
     editOpen: false,
     filesOpen: false,
     editing: { id: null, name: '', academic_number: '', korps: '', angkatan: '' },
-    viewingFiles: { name: '', code: '', published: false, publicFiles: [], hiddenFiles: [] },
+    viewingFiles: { tarunaId: null, name: '', code: '', published: false, publicFiles: [], hiddenFiles: [] },
     openEdit(t) { this.editing = t; this.editOpen = true },
     openFiles(t) { this.viewingFiles = t; this.filesOpen = true }
 }">
@@ -187,18 +187,23 @@
                             @if($t->submission)
                             <button type="button"
                                 @click="openFiles({
+                                    tarunaId: {{ $t->id }},
                                     name: {{ \Illuminate\Support\Js::from($t->name) }},
                                     code: {{ \Illuminate\Support\Js::from($t->submission->submission_code) }},
                                     published: {{ \Illuminate\Support\Js::from($t->submission->is_published) }},
                                     publicFiles: {{ \Illuminate\Support\Js::from(collect(\App\Models\ThesisSubmission::PUBLIC_FIELDS)->map(fn($field) => [
+                                        'field' => $field,
                                         'label' => \App\Models\ThesisSubmission::FILE_FIELDS[$field] . ($t->submission->isLink($field) ? ' (Tautan)' : ''),
                                         'url' => $t->submission->documentUrl($field),
                                         'name' => $t->submission->documentLabel($field),
+                                        'note' => $t->submission->noteFor($field),
                                     ])->values()) }},
                                     hiddenFiles: {{ \Illuminate\Support\Js::from(collect(\App\Models\ThesisSubmission::HIDDEN_FIELDS)->map(fn($field) => [
+                                        'field' => $field,
                                         'label' => \App\Models\ThesisSubmission::FILE_FIELDS[$field] . ($t->submission->isLink($field) ? ' (Tautan)' : ''),
                                         'url' => $t->submission->documentUrl($field),
                                         'name' => $t->submission->documentLabel($field),
+                                        'note' => $t->submission->noteFor($field),
                                     ])->values()) }}
                                 })"
                                 class="p-2 text-primary-600 hover:bg-primary-50 rounded-lg transition-colors duration-200" title="Lihat Berkas">
@@ -381,35 +386,51 @@
             Kode bukti: <span class="font-mono" x-text="viewingFiles.code"></span>
         </p>
 
-        <p class="text-xs font-semibold text-gray-500 uppercase mb-2">Bagian Publik (Cover, Pengesahan, Abstrak, Bab I-III)</p>
-        <ul class="divide-y divide-gray-200 border border-gray-200 rounded-lg overflow-hidden mb-4">
-            <template x-for="f in viewingFiles.publicFiles" :key="f.label">
-                <li class="flex items-center justify-between px-4 py-3">
-                    <div>
-                        <p class="text-sm font-medium text-gray-900" x-text="f.label"></p>
-                        <p class="text-xs text-gray-500" x-text="f.name"></p>
-                    </div>
-                    <a :href="f.url" target="_blank" class="text-primary-600 hover:underline text-sm font-medium">Buka</a>
-                </li>
-            </template>
-        </ul>
+        <form :action="'/admin/repository-taruna/' + viewingFiles.tarunaId + '/notes'" method="POST">
+            @csrf
+            @method('PATCH')
 
-        <p class="text-xs font-semibold text-gray-500 uppercase mb-2">Bagian Tersembunyi (Bab IV-V, tidak pernah publik)</p>
-        <ul class="divide-y divide-gray-200 border border-gray-200 rounded-lg overflow-hidden">
-            <template x-for="f in viewingFiles.hiddenFiles" :key="f.label">
-                <li class="flex items-center justify-between px-4 py-3">
-                    <div>
-                        <p class="text-sm font-medium text-gray-900" x-text="f.label"></p>
-                        <p class="text-xs text-gray-500" x-text="f.name"></p>
-                    </div>
-                    <a :href="f.url" target="_blank" class="text-primary-600 hover:underline text-sm font-medium">Buka</a>
-                </li>
-            </template>
-        </ul>
+            <p class="text-xs font-semibold text-gray-500 uppercase mb-2">Bagian Publik (Cover, Pengesahan, Abstrak, Bab I-III)</p>
+            <ul class="divide-y divide-gray-200 border border-gray-200 rounded-lg overflow-hidden mb-4">
+                <template x-for="f in viewingFiles.publicFiles" :key="f.field">
+                    <li class="px-4 py-3">
+                        <div class="flex items-center justify-between mb-2">
+                            <div>
+                                <p class="text-sm font-medium text-gray-900" x-text="f.label"></p>
+                                <p class="text-xs text-gray-500" x-text="f.name"></p>
+                            </div>
+                            <a :href="f.url" target="_blank" class="text-primary-600 hover:underline text-sm font-medium">Buka</a>
+                        </div>
+                        <input type="text" :name="'notes[' + f.field + ']'" x-model="f.note" placeholder="Catatan (misal: sepertinya salah upload)..."
+                            class="w-full text-xs px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                    </li>
+                </template>
+            </ul>
 
-        <div class="flex justify-end pt-4">
-            <button type="button" @click="filesOpen = false" class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">Tutup</button>
-        </div>
+            <p class="text-xs font-semibold text-gray-500 uppercase mb-2">Bagian Tersembunyi (Bab IV-V, tidak pernah publik)</p>
+            <ul class="divide-y divide-gray-200 border border-gray-200 rounded-lg overflow-hidden mb-4">
+                <template x-for="f in viewingFiles.hiddenFiles" :key="f.field">
+                    <li class="px-4 py-3">
+                        <div class="flex items-center justify-between mb-2">
+                            <div>
+                                <p class="text-sm font-medium text-gray-900" x-text="f.label"></p>
+                                <p class="text-xs text-gray-500" x-text="f.name"></p>
+                            </div>
+                            <a :href="f.url" target="_blank" class="text-primary-600 hover:underline text-sm font-medium">Buka</a>
+                        </div>
+                        <input type="text" :name="'notes[' + f.field + ']'" x-model="f.note" placeholder="Catatan (misal: sepertinya salah upload)..."
+                            class="w-full text-xs px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                    </li>
+                </template>
+            </ul>
+
+            <p class="text-xs text-gray-400 mb-4">Catatan akan ditampilkan ke taruna di halaman upload mereka, supaya mereka tahu berkas mana yang perlu diperbaiki.</p>
+
+            <div class="flex justify-end space-x-2 pt-2">
+                <button type="button" @click="filesOpen = false" class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">Tutup</button>
+                <button type="submit" class="px-4 py-2 text-white bg-primary-600 rounded-lg hover:bg-primary-700">Simpan Catatan</button>
+            </div>
+        </form>
     </div>
 </div>
 

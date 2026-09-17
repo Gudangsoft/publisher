@@ -141,6 +141,39 @@ class RepositoryTarunaController extends Controller
         return back()->with('success', 'Publikasi skripsi ditarik kembali.');
     }
 
+    public function updateNotes(Request $request, RepositoryTaruna $repositoryTaruna)
+    {
+        $submission = $repositoryTaruna->submission;
+
+        if (!$submission) {
+            return back()->with('import_warning', 'Taruna ini belum memiliki submission.');
+        }
+
+        $data = $request->validate([
+            'notes' => ['nullable', 'array'],
+            'notes.*' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        $allowedFields = array_keys(ThesisSubmission::FILE_FIELDS);
+        $notes = [];
+
+        foreach ($data['notes'] ?? [] as $field => $note) {
+            if (!in_array($field, $allowedFields, true)) {
+                continue;
+            }
+
+            $note = trim((string) $note);
+
+            if ($note !== '') {
+                $notes[$field] = $note;
+            }
+        }
+
+        $submission->update(['admin_notes' => $notes]);
+
+        return back()->with('success', 'Catatan berhasil disimpan.');
+    }
+
     public function template()
     {
         $spreadsheet = (new RepositoryTarunaRosterTemplateBuilder())->build();

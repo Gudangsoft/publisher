@@ -12,6 +12,7 @@ class ThesisSubmission extends Model
         'submission_code',
         'is_published',
         'published_at',
+        'admin_notes',
         'cover_path',
         'cover_original_name',
         'cover_url',
@@ -41,6 +42,7 @@ class ThesisSubmission extends Model
     protected $casts = [
         'is_published' => 'boolean',
         'published_at' => 'datetime',
+        'admin_notes' => 'array',
     ];
 
     public const FILE_FIELDS = [
@@ -107,5 +109,23 @@ class ThesisSubmission extends Model
     public function documentLabel(string $field): ?string
     {
         return $this->{"{$field}_original_name"} ?? $this->{"{$field}_url"};
+    }
+
+    public function noteFor(string $field): ?string
+    {
+        $note = $this->admin_notes[$field] ?? null;
+
+        return $note !== '' ? $note : null;
+    }
+
+    public function hasAnyNote(): bool
+    {
+        foreach (array_keys(self::FILE_FIELDS) as $field) {
+            if ($this->noteFor($field)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

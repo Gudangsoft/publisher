@@ -28,6 +28,12 @@
             </div>
             @endif
 
+            @if($submission && $submission->hasAnyNote())
+            <div class="bg-yellow-50 border border-yellow-300 text-yellow-800 px-6 py-4 rounded-lg mb-6 text-sm">
+                <strong>Ada catatan dari admin.</strong> Mohon periksa dan perbaiki berkas yang ditandai di bawah ini.
+            </div>
+            @endif
+
             @if($errors->any())
             <div class="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-lg mb-6">
                 <ul class="list-disc list-inside text-sm">
