@@ -230,6 +230,11 @@ class RepositoryController extends Controller
 
         $submission = $taruna->submission;
 
+        if (!$submission->is_published) {
+            return redirect()->route('repository.receipt')
+                ->with('error', 'Bukti submit belum bisa diunduh karena belum divalidasi admin.');
+        }
+
         $verifyUrl = route('repository.verify-code', $submission->submission_code);
         $qrDataUri = (new Builder(
             writer: new PngWriter(),

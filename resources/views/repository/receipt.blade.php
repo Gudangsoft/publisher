@@ -24,6 +24,11 @@
 <section class="py-16 bg-gray-50">
     <div class="container mx-auto px-4">
         <div class="max-w-2xl mx-auto">
+            @if(session('error'))
+            <div class="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-lg mb-6 text-sm">
+                {{ session('error') }}
+            </div>
+            @endif
             <div class="bg-white rounded-2xl shadow-lg p-8">
                 <div class="text-center mb-6 pb-6 border-b border-gray-200">
                     <p class="text-sm text-gray-500">Kode Bukti Submit</p>
@@ -85,10 +90,22 @@
                     @endforeach
                 </div>
 
+                @if(!$submission->is_published)
+                <div class="bg-yellow-50 border border-yellow-300 text-yellow-800 rounded-lg px-4 py-3 mb-4 text-sm text-center">
+                    Bukti submit (PDF) akan tersedia untuk diunduh setelah admin memvalidasi berkas Anda.
+                </div>
+                @endif
+
                 <div class="flex flex-col sm:flex-row gap-3">
+                    @if($submission->is_published)
                     <a href="{{ route('repository.receipt.download') }}" target="_blank" class="flex-1 text-center bg-primary-600 text-white py-3 rounded-lg font-semibold hover:bg-primary-700 transition-colors duration-200">
                         Lihat & Unduh Bukti Submit (PDF)
                     </a>
+                    @else
+                    <span class="flex-1 text-center bg-gray-200 text-gray-400 py-3 rounded-lg font-semibold cursor-not-allowed" title="Belum divalidasi admin">
+                        Bukti Submit (PDF) &mdash; Menunggu Validasi
+                    </span>
+                    @endif
                     <a href="{{ route('repository.upload') }}" class="flex-1 text-center bg-gray-100 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-200 transition-colors duration-200">
                         Ganti Berkas
                     </a>
