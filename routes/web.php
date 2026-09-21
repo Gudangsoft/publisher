@@ -73,7 +73,13 @@ Route::get('/', function () {
     
     $featuredVideo = \App\Models\Gallery::active()->videos()->featured()->first();
 
-    return view('home', compact('heroSliders', 'statistics', 'latestNews', 'featuredBooks', 'featuredJournals', 'featuredVideo'));
+    $featuredRepositories = \App\Models\ThesisSubmission::with('taruna')
+        ->where('is_published', true)
+        ->latest('published_at')
+        ->take(4)
+        ->get();
+
+    return view('home', compact('heroSliders', 'statistics', 'latestNews', 'featuredBooks', 'featuredJournals', 'featuredVideo', 'featuredRepositories'));
 })->name('home');
 
 // Books Routes

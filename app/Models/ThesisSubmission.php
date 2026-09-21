@@ -111,6 +111,17 @@ class ThesisSubmission extends Model
         return $this->{"{$field}_original_name"} ?? $this->{"{$field}_url"};
     }
 
+    public function coverIsImage(): bool
+    {
+        if (empty($this->cover_path)) {
+            return false;
+        }
+
+        $extension = strtolower(pathinfo($this->cover_path, PATHINFO_EXTENSION));
+
+        return in_array($extension, ['jpg', 'jpeg', 'png'], true);
+    }
+
     public function noteFor(string $field): ?string
     {
         $note = $this->admin_notes[$field] ?? null;

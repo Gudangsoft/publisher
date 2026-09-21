@@ -457,6 +457,80 @@
     </div>
 </section>
 
+<!-- Repository Skripsi Section -->
+<section class="py-20 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-4xl lg:text-5xl font-display font-bold text-gray-900 mb-4">{{ \App\Models\Setting::get('home_repository_title', 'Repositori Skripsi') }}</h2>
+            <p class="text-xl text-gray-600 max-w-2xl mx-auto">{{ \App\Models\Setting::get('home_repository_subtitle', 'Karya ilmiah taruna yang telah dipublikasikan dan dapat diakses publik') }}</p>
+        </div>
+
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            @forelse($featuredRepositories as $submission)
+            <div class="group bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden transform hover:-translate-y-2">
+                <a href="{{ route('repository.collection.show', $submission->submission_code) }}" class="block">
+                    <div class="relative overflow-hidden aspect-[3/4]">
+                        @if($submission->coverIsImage())
+                        <img src="{{ $submission->documentUrl('cover') }}"
+                             alt="{{ $submission->title }}"
+                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                        @else
+                        <div class="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                            <svg class="w-20 h-20 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                        </div>
+                        @endif
+                        @if($loop->first)
+                        <div class="absolute top-4 right-4 bg-primary-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                            Baru
+                        </div>
+                        @endif
+                    </div>
+                </a>
+
+                <div class="p-6">
+                    <a href="{{ route('repository.collection.show', $submission->submission_code) }}" class="block mb-4">
+                        <h3 class="font-display font-bold text-xl text-gray-900 mb-2 line-clamp-2 group-hover:text-primary-600 transition-colors duration-200">
+                            {{ $submission->title }}
+                        </h3>
+                        <p class="text-gray-600 text-sm">{{ $submission->taruna->name }}</p>
+                        <p class="text-xs text-primary-600 font-medium mt-2">{{ $submission->taruna->korps }} &middot; Angkatan {{ $submission->taruna->angkatan }}</p>
+                    </a>
+
+                    <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+                        <span class="text-xs text-gray-400">{{ $submission->published_at?->format('d M Y') }}</span>
+                        <a href="{{ route('repository.collection.show', $submission->submission_code) }}"
+                           class="flex items-center justify-center w-12 h-12 bg-primary-50 hover:bg-primary-500 hover:text-white text-primary-600 rounded-lg transition-colors duration-200">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            @empty
+            <div class="col-span-4 text-center py-12">
+                <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                <p class="text-gray-500 text-lg">Belum ada skripsi yang dipublikasikan</p>
+            </div>
+            @endforelse
+        </div>
+
+        <div class="text-center mt-12">
+            <a href="{{ route('repository.collection') }}" class="inline-flex items-center px-8 py-4 bg-gray-900 hover:bg-gray-800 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200">
+                Lihat Semua Skripsi
+                <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                </svg>
+            </a>
+        </div>
+    </div>
+</section>
+
 <!-- Latest News Section -->
 <section class="py-20 bg-gray-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
