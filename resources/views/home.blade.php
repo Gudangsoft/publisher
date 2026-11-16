@@ -621,45 +621,49 @@
         </div>
 
         @php
-            $reviews = \App\Models\Review::with('book')
-                ->approved()
-                ->featured()
-                ->latest()
-                ->take(6)
-                ->get();
+            $reviewStar = 'M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z';
+            $reviewTotal = \App\Models\Review::approved()->count();
+            $reviewAverage = $reviewTotal ? round(\App\Models\Review::approved()->avg('rating'), 1) : 0;
+
+            // Utamakan ulasan "featured"; bila belum ada, tampilkan ulasan terverifikasi terbaru.
+            $reviews = \App\Models\Review::with('book:id,title')->approved()->featured()->latest()->take(6)->get();
+            if ($reviews->isEmpty()) {
+                $reviews = \App\Models\Review::with('book:id,title')->approved()->latest()->take(3)->get();
+            }
         @endphp
+
+        @if($reviewTotal > 0)
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-3 -mt-8 mb-12 text-gray-700">
+            <span class="text-3xl font-bold text-gray-900">{{ number_format($reviewAverage, 1, ',', '.') }}</span>
+            <div class="flex space-x-1" aria-label="Rata-rata {{ $reviewAverage }} dari 5">
+                @for($i = 1; $i <= 5; $i++)
+                <svg class="w-6 h-6 fill-current {{ $i <= round($reviewAverage) ? 'text-yellow-400' : 'text-gray-300' }}" viewBox="0 0 20 20"><path d="{{ $reviewStar }}"/></svg>
+                @endfor
+            </div>
+            <a href="{{ route('reviews.index') }}" class="text-primary-600 hover:underline">dari {{ number_format($reviewTotal, 0, ',', '.') }} ulasan terverifikasi</a>
+        </div>
+        @endif
 
         @if($reviews->count() > 0)
         <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             @foreach($reviews as $review)
             <div class="bg-gradient-to-br from-gray-50 to-white p-8 rounded-2xl border border-gray-200 hover:shadow-xl transition-all duration-300">
-                <!-- Star Rating -->
-                <div class="flex items-center space-x-1 mb-4">
+                <div class="flex items-center space-x-1 mb-4" aria-label="{{ $review->rating }} dari 5 bintang">
                     @for($i = 1; $i <= 5; $i++)
-                        @if($i <= $review->rating)
-                        <svg class="w-5 h-5 text-yellow-400 fill-current" viewBox="0 0 20 20">
-                            <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/>
-                        </svg>
-                        @else
-                        <svg class="w-5 h-5 text-gray-300 fill-current" viewBox="0 0 20 20">
-                            <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/>
-                        </svg>
-                        @endif
+                    <svg class="w-5 h-5 fill-current {{ $i <= $review->rating ? 'text-yellow-400' : 'text-gray-300' }}" viewBox="0 0 20 20"><path d="{{ $reviewStar }}"/></svg>
                     @endfor
                 </div>
 
-                <!-- Review Text -->
-                <p class="text-gray-700 mb-6 leading-relaxed">
-                    "{{ $review->review_text }}"
+                <p class="text-gray-700 mb-6 leading-relaxed break-words">
+                    "{{ \Illuminate\Support\Str::limit($review->review_text, 240) }}"
                 </p>
 
-                <!-- Reviewer Info -->
                 <div class="flex items-center">
                     @if($review->reviewer_photo)
-                    <img src="{{ asset('storage/' . $review->reviewer_photo) }}" alt="{{ $review->reviewer_name }}" class="w-12 h-12 rounded-full mr-4 object-cover">
+                    <img src="{{ asset('storage/' . $review->reviewer_photo) }}" alt="" class="w-12 h-12 rounded-full mr-4 object-cover">
                     @else
                     <div class="w-12 h-12 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white font-bold text-lg mr-4">
-                        {{ substr($review->reviewer_name, 0, 1) }}
+                        {{ $review->initial }}
                     </div>
                     @endif
                     <div>
@@ -667,7 +671,7 @@
                         @if($review->book)
                         <div class="text-sm text-gray-500">Review: {{ $review->book->title }}</div>
                         @else
-                        <div class="text-sm text-primary-600">Pembaca Setia</div>
+                        <div class="text-sm text-primary-600">{{ $review->reviewer_role ?: 'Pembaca' }}</div>
                         @endif
                     </div>
                 </div>
@@ -675,78 +679,24 @@
             @endforeach
         </div>
         @else
-        <!-- Default Reviews -->
-        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div class="bg-gradient-to-br from-gray-50 to-white p-8 rounded-2xl border border-gray-200 hover:shadow-xl transition-all duration-300">
-                <div class="flex items-center space-x-1 mb-4">
-                    @for($i = 0; $i < 5; $i++)
-                    <svg class="w-5 h-5 text-yellow-400 fill-current" viewBox="0 0 20 20">
-                        <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/>
-                    </svg>
-                    @endfor
-                </div>
-                <p class="text-gray-700 mb-6 leading-relaxed">
-                    "Buku-bukunya sangat berkualitas dengan harga yang terjangkau. Pengiriman cepat dan packaging rapi. Sangat puas!"
-                </p>
-                <div class="flex items-center">
-                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white font-bold text-lg mr-4">A</div>
-                    <div>
-                        <div class="font-semibold text-gray-900">Ahmad Fauzi</div>
-                        <div class="text-sm text-primary-600">Pembaca Setia</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-gradient-to-br from-gray-50 to-white p-8 rounded-2xl border border-gray-200 hover:shadow-xl transition-all duration-300">
-                <div class="flex items-center space-x-1 mb-4">
-                    @for($i = 0; $i < 5; $i++)
-                    <svg class="w-5 h-5 text-yellow-400 fill-current" viewBox="0 0 20 20">
-                        <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/>
-                    </svg>
-                    @endfor
-                </div>
-                <p class="text-gray-700 mb-6 leading-relaxed">
-                    "Koleksi bukunya sangat lengkap, dari fiksi sampai non-fiksi. Customer service responsif dan membantu. Highly recommended!"
-                </p>
-                <div class="flex items-center">
-                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-lg mr-4">S</div>
-                    <div>
-                        <div class="font-semibold text-gray-900">Siti Nurhaliza</div>
-                        <div class="text-sm text-primary-600">Mahasiswa</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-gradient-to-br from-gray-50 to-white p-8 rounded-2xl border border-gray-200 hover:shadow-xl transition-all duration-300">
-                <div class="flex items-center space-x-1 mb-4">
-                    @for($i = 0; $i < 5; $i++)
-                    <svg class="w-5 h-5 text-yellow-400 fill-current" viewBox="0 0 20 20">
-                        <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/>
-                    </svg>
-                    @endfor
-                </div>
-                <p class="text-gray-700 mb-6 leading-relaxed">
-                    "Website mudah digunakan, proses checkout lancar. Buku selalu dalam kondisi sempurna saat diterima. Terima kasih!"
-                </p>
-                <div class="flex items-center">
-                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white font-bold text-lg mr-4">B</div>
-                    <div>
-                        <div class="font-semibold text-gray-900">Budi Santoso</div>
-                        <div class="text-sm text-primary-600">Guru</div>
-                    </div>
-                </div>
-            </div>
+        <div class="max-w-xl mx-auto text-center bg-gray-50 border border-dashed border-gray-300 rounded-2xl p-10 text-gray-600">
+            Belum ada ulasan terverifikasi. Jadilah yang pertama memberikan penilaian terhadap layanan kami.
         </div>
         @endif
 
         <div class="text-center mt-12">
             <p class="text-gray-600 mb-4">Ingin berbagi pengalaman Anda?</p>
-            <a href="/contact" class="inline-flex items-center px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-semibold transition-colors">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
-                </svg>
-                Kirim Review Anda
-            </a>
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+                <a href="{{ route('reviews.index') }}#form-ulasan" class="inline-flex items-center px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-semibold transition-colors">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+                    </svg>
+                    Kirim Review Anda
+                </a>
+                <a href="{{ route('reviews.index') }}" class="inline-flex items-center px-6 py-3 border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg font-semibold transition-colors">
+                    Lihat Semua Ulasan
+                </a>
+            </div>
         </div>
     </div>
 </section>

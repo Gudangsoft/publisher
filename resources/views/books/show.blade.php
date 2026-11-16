@@ -128,13 +128,53 @@
                 </div>
 
                 <!-- Actions -->
-                <div class="mb-8">
+                <div class="mb-8 flex flex-wrap gap-3" x-data="{ citeOpen: false, copiedStyle: null }">
                     <a href="/books" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all duration-200">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                         </svg>
                         Kembali ke Katalog
                     </a>
+
+                    <button type="button" @click="citeOpen = true" class="inline-flex items-center px-6 py-3 bg-white border-2 border-gray-200 hover:border-primary-500 hover:text-primary-600 text-gray-700 rounded-xl font-bold transition-all duration-200">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        Cite This
+                    </button>
+
+                    <!-- Cite This Modal -->
+                    <div x-show="citeOpen" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4" style="display: none;">
+                        <div class="absolute inset-0 bg-gray-900 bg-opacity-60" @click="citeOpen = false"></div>
+                        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-xl max-h-[85vh] overflow-y-auto">
+                            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 sticky top-0 bg-white">
+                                <h3 class="font-display font-bold text-lg text-gray-900">Sitasi untuk Buku Ini</h3>
+                                <button type="button" @click="citeOpen = false" class="text-gray-400 hover:text-gray-600">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="p-6 space-y-6">
+                                @foreach($book->citations() as $style => $text)
+                                <div>
+                                    <div class="flex items-center justify-between mb-2">
+                                        <h4 class="font-bold text-gray-900">{{ strtoupper($style) }} Style</h4>
+                                        <button type="button"
+                                            @click="navigator.clipboard.writeText({{ \Illuminate\Support\Js::from($text) }}); copiedStyle = '{{ $style }}'; setTimeout(() => copiedStyle = null, 2000)"
+                                            class="text-xs font-semibold text-primary-600 hover:text-primary-700 flex items-center">
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                                            </svg>
+                                            <span x-text="copiedStyle === '{{ $style }}' ? 'Tersalin!' : 'Salin'"></span>
+                                        </button>
+                                    </div>
+                                    <p class="text-sm text-gray-700 bg-gray-50 rounded-lg p-4 leading-relaxed">{{ $text }}</p>
+                                </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Share -->

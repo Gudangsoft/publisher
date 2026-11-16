@@ -37,6 +37,17 @@
             <input type="text" id="reviewer_name" name="reviewer_name" value="{{ old('reviewer_name', $review->reviewer_name) }}" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200">
         </div>
 
+        <!-- Reviewer Role -->
+        <div>
+            <label for="reviewer_role" class="block text-sm font-semibold text-gray-700 mb-2">Kategori / Profesi</label>
+            <input type="text" id="reviewer_role" name="reviewer_role" list="reviewer_roles" maxlength="50" value="{{ old('reviewer_role', $review->reviewer_role) }}" placeholder="mis. Mahasiswa" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200">
+            <datalist id="reviewer_roles">
+                @foreach(\App\Models\Review::ROLES as $role)
+                <option value="{{ $role }}">
+                @endforeach
+            </datalist>
+        </div>
+
         <!-- Reviewer Email -->
         <div>
             <label for="reviewer_email" class="block text-sm font-semibold text-gray-700 mb-2">Email Reviewer</label>

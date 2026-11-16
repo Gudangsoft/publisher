@@ -49,4 +49,92 @@ class Book extends Model
     {
         return $this->reviews()->approved()->avg('rating') ?? 0;
     }
+
+    public function citations(): array
+    {
+        $author = trim((string) $this->author) ?: 'n.a.';
+        $title = trim((string) $this->title);
+        $publisher = trim((string) $this->publisher) ?: null;
+        $year = $this->published_at ? $this->published_at->format('Y') : 'n.d.';
+        $edition = $this->editionOrdinal();
+
+        return [
+            'apa' => $this->citationApa($author, $title, $publisher, $year, $edition),
+            'chicago' => $this->citationChicago($author, $title, $publisher, $year, $edition),
+            'mla' => $this->citationMla($author, $title, $publisher, $year, $edition),
+        ];
+    }
+
+    private function citationApa(string $author, string $title, ?string $publisher, string $year, ?string $edition): string
+    {
+        $parts = [
+            "{$author} ({$year}).",
+            "{$title}" . ($edition ? " ({$edition} ed.)" : '') . '.',
+        ];
+
+        if ($publisher) {
+            $parts[] = "{$publisher}.";
+        }
+
+        return implode(' ', $parts);
+    }
+
+    private function citationChicago(string $author, string $title, ?string $publisher, string $year, ?string $edition): string
+    {
+        $parts = [
+            "{$author}.",
+            "{$title}.",
+        ];
+
+        if ($edition) {
+            $parts[] = "{$edition} ed.";
+        }
+
+        $parts[] = $publisher ? "{$publisher}, {$year}." : rtrim($year, '.') . '.';
+
+        return implode(' ', $parts);
+    }
+
+    private function citationMla(string $author, string $title, ?string $publisher, string $year, ?string $edition): string
+    {
+        $parts = [
+            "{$author}.",
+            "{$title}.",
+        ];
+
+        if ($edition) {
+            $parts[] = "{$edition} ed.,";
+        }
+
+        $parts[] = $publisher ? "{$publisher}, {$year}." : rtrim($year, '.') . '.';
+
+        return implode(' ', $parts);
+    }
+
+    private function editionOrdinal(): ?string
+    {
+        $edition = trim((string) $this->edition);
+
+        if ($edition === '') {
+            return null;
+        }
+
+        if (!ctype_digit($edition)) {
+            return $edition;
+        }
+
+        $number = (int) $edition;
+        $suffix = 'th';
+
+        if (!in_array($number % 100, [11, 12, 13], true)) {
+            $suffix = match ($number % 10) {
+                1 => 'st',
+                2 => 'nd',
+                3 => 'rd',
+                default => 'th',
+            };
+        }
+
+        return $number . $suffix;
+    }
 }

@@ -280,6 +280,13 @@ Route::get('/contact', function () {
     return view('contact');
 })->name('contact');
 
+// Ulasan / Penilaian Layanan Publik
+Route::get('/ulasan', [\App\Http\Controllers\PublicReviewController::class, 'index'])->name('reviews.index');
+Route::post('/ulasan', [\App\Http\Controllers\PublicReviewController::class, 'store'])
+    ->middleware('throttle:review-submit')->name('reviews.store');
+Route::get('/ulasan/captcha', [\App\Http\Controllers\PublicReviewController::class, 'captcha'])
+    ->middleware('throttle:review-captcha')->name('reviews.captcha');
+
 Route::post('/contact', function () {
     return redirect()->back()->with('success', 'Terima kasih! Pesan Anda telah terkirim. Kami akan menghubungi Anda segera.');
 })->name('contact.submit');
@@ -370,6 +377,7 @@ Route::prefix('admin')->middleware(['auth', 'staff.access'])->group(function () 
     Route::resource('menus', MenuController::class, ['as' => 'admin'])->middleware('permission:menus');
     Route::resource('pages', AdminPageController::class, ['as' => 'admin'])->middleware('permission:pages');
     Route::resource('authors', AuthorController::class, ['as' => 'admin'])->middleware('permission:authors');
+    Route::patch('reviews/{review}/moderate', [ReviewController::class, 'moderate'])->name('admin.reviews.moderate')->middleware('permission:reviews');
     Route::resource('reviews', ReviewController::class, ['as' => 'admin'])->middleware('permission:reviews');
     Route::resource('users', UserController::class, ['as' => 'admin'])->middleware('permission:users');
     Route::post('users/{user}/login-as', [UserController::class, 'loginAs'])->name('admin.users.login-as')->middleware('permission:users');
